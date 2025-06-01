@@ -81,12 +81,6 @@ CREATE table if not EXISTS cadastro (
     senha VARCHAR(255)
 ); --OK
 
-INSERT INTO cadastro (nome, email, userNome, senha) 
-VALUES 
-    ('João Silva', 'joao.silva@example.com', 'jaozinho', '12345678'),
-    ('Maria Oliveira', 'maria.oliveira@example.com', 'mariazinha123', '98765432'),
-    ('Pedro Santos', 'pedro.santos@example.com', 'pedrinho', '11223344');
-
 ---
 
 SOBRE
