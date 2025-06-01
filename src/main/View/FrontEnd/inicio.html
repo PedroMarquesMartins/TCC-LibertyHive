@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>LibertyHive - Plataforma de Trocas</title>
+    <style>
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+
+        body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          background: #fff8e1;
+          color: #5a4500;
+          line-height: 1.6;
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+        }
+
+        header {
+          background: #ffca28;
+          padding: 1.5rem 2rem;
+          box-shadow: 0 3px 6px rgba(255, 202, 40, 0.4);
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        header h1 {
+          font-weight: 700;
+          font-size: 1.8rem;
+          color: #5a4500;
+        }
+
+        nav a {
+          color: #5a4500;
+          text-decoration: none;
+          margin-left: 1.5rem;
+          font-weight: 600;
+          transition: color 0.3s ease;
+        }
+
+        nav a:hover {
+          color: #ffb300;
+        }
+
+        main {
+          flex-grow: 1;
+          padding: 3rem 2rem;
+          max-width: 900px;
+          margin: 0 auto;
+        }
+
+        main h2 {
+          font-size: 2rem;
+          margin-bottom: 1rem;
+          border-bottom: 3px solid #ffca28;
+          display: inline-block;
+          padding-bottom: 0.25rem;
+        }
+
+        main p {
+          margin-bottom: 2rem;
+          font-size: 1.1rem;
+        }
+
+        .products {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+          gap: 2rem;
+        }
+
+        .product-card {
+          background: #fff9c4;
+          border-radius: 12px;
+          box-shadow: 0 4px 8px rgba(255, 202, 40, 0.3);
+          padding: 1.5rem;
+          text-align: center;
+          transition: transform 0.2s ease;
+        }
+
+        .product-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 8px 15px rgba(255, 202, 40, 0.5);
+        }
+
+        .product-card img {
+          max-width: 100%;
+          border-radius: 8px;
+          margin-bottom: 1rem;
+        }
+
+        .product-card h3 {
+          margin-bottom: 0.5rem;
+          color: #8d6e00;
+        }
+
+        .product-card p {
+          font-weight: 700;
+          color: #a37400;
+        }
+
+        footer {
+          background: #ffca28;
+          text-align: center;
+          padding: 1rem;
+          color: #5a4500;
+          font-size: 0.9rem;
+          box-shadow: 0 -3px 6px rgba(255, 202, 40, 0.4);
+        }
+
+        @media (max-width: 600px) {
+          header, main {
+            padding-left: 1rem;
+            padding-right: 1rem;
+          }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>LibertyHive</h1>
+    <nav>
+        <a href="#">Inicio</a>
+        <a href="#">Produtos</a>
+        <a href="#">Contato</a>
+    </nav>
+</header>
+
+<main>
+    <h2>Bem-vindo à LibertyHive!</h2>
+    <p>A melhor plataforma amarela para você trocar produtos e serviços incríveis com facilidade e segurança.</p>
+
+    <section class="products">
+        <article class="product-card">
+            <img src="https://via.placeholder.com/220x150/ffeb3b/5a4500?text=Produto+1" alt="Produto 1">
+            <h3>Produto 1</h3>
+            <p>Disponível</p>
+        </article>
+        <article class="product-card">
+            <img src="https://via.placeholder.com/220x150/fff176/5a4500?text=Produto+2" alt="Produto 2">
+            <h3>Produto 2</h3>
+            <p>Disponível</p>
+        </article>
+        <article class="product-card">
+            <img src="https://via.placeholder.com/220x150/fff59d/5a4500?text=Produto+3" alt="Produto 3">
+            <h3>Serviço</h3>
+            <p>Disponível</p>
+        </article>
+    </section>
+</main>
+
+<footer>
+    &copy; 2025 LibertyHive - Todos os direitos reservados
+</footer>
+
+</body>
+</html>
