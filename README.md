@@ -24,10 +24,80 @@ A API Spring Boot gerencia requisições com nome, email, usuário e senha. Os d
 
 ---
 
+## Arquivo SQL do Banco de Dados PostgreSQL
+
+CREATE TABLE categoria (
+    id SERIAL PRIMARY KEY,
+    categoria VARCHAR(255),
+    numero INTEGER
+);
+
+CREATE TABLE chat (
+    id SERIAL PRIMARY KEY,
+    mensagem TEXT,
+    valorProposto REAL,
+    bloqueado BOOLEAN
+);
+
+CREATE TABLE escambista (
+    id SERIAL PRIMARY KEY,
+    userNome VARCHAR(255),
+    nomeEscambista VARCHAR(255),
+    avaliacao INTEGER,
+    contato VARCHAR(255),
+    email VARCHAR(255),
+    endereco VARCHAR(255)
+);
+
+CREATE TABLE login (
+    id SERIAL PRIMARY KEY,
+    userNome VARCHAR(255),
+    senha VARCHAR(255)
+);
+
+CREATE TABLE postagem (
+    id SERIAL PRIMARY KEY,
+    userNome VARCHAR(255),
+    nomePostagem VARCHAR(255),
+    descricao TEXT,
+    categoria VARCHAR(255),
+    cep VARCHAR(255),
+    imagem BYTEA
+);
+
+CREATE TABLE proposta (
+    id SERIAL PRIMARY KEY,
+    status INTEGER,
+    itemDesejado VARCHAR(255),
+    itemOferecido VARCHAR(255),
+    avaliarPerfil INTEGER
+);
+--Ok
+CREATE table if not EXISTS cadastro (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(255),
+    email VARCHAR(255),
+    userNome VARCHAR(255),
+    senha VARCHAR(255)
+); --OK
+
+INSERT INTO cadastro (nome, email, userNome, senha) 
+VALUES 
+    ('João Silva', 'joao.silva@example.com', 'jaozinho', '12345678'),
+    ('Maria Oliveira', 'maria.oliveira@example.com', 'mariazinha123', '98765432'),
+    ('Pedro Santos', 'pedro.santos@example.com', 'pedrinho', '11223344');
+
+---
+
 SOBRE
 
+
 Projeto: LibertyHive
+
 Disciplina: Trabalho de Conclusão de Curso 2025
+
 Autores: João Pedro Marques Martins, Adrian de Almeida Polga
+
 Instituição: Unigran
+
 Professor Orientador: Antônio Pires de Almeida Junior
