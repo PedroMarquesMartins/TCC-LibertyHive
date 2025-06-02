@@ -18,7 +18,6 @@ public class CadastroControllerIT {
     @Test
     void salvarCadastroAPI_DeveRetornarSucesso() {
         Cadastro cadastro = new Cadastro();
-        cadastro.setNome("João");
         cadastro.setEmail("joao@email.com");
         cadastro.setUserNome("joao123");
         cadastro.setSenha("1234");

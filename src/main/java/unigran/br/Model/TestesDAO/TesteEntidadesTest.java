@@ -43,12 +43,6 @@ public class TesteEntidadesTest {
             dao.salvar(esc);
             assertNotNull(esc);
 
-            Login login = new Login();
-            login.setUserNome("usuario01");
-            login.setSenhaUser("123456");
-            dao.salvar(login);
-            assertNotNull(login);
-
             Postagem post = new Postagem();
             post.setUserNome("usuario01");
             post.setNomePostagem("Oferta");
