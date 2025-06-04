@@ -1,6 +1,6 @@
 # 📚 Projeto LibertyHive – Spring Boot + PostgreSQL + Frontend
 
-Este repositório faz parte do **TCC 2025** da graduação e tem como objetivo demonstrar a estrutura de um sistema **web + backend** com **Java Spring Boot**, banco de dados **PostgreSQL**, e frontend simples em **HTML + JavaScript**, tudo integrado e funcional.
+Este repositório faz parte do **TCC 2025** da graduação e tem como objetivo demonstrar a estrutura de um sistema **web + backend** com **Java Spring Boot**, banco de dados **PostgreSQL**, e frontend simples em **HTML + JavaScript**.
 
 ---
 
@@ -26,20 +26,20 @@ A API Spring Boot gerencia requisições com nome, email, usuário e senha. Os d
 
 ## Arquivo SQL do Banco de Dados PostgreSQL
 
-CREATE TABLE categoria (
+CREATE TABLE if not EXISTS categoria(
     id SERIAL PRIMARY KEY,
     categoria VARCHAR(255),
     numero INTEGER
 );
 
-CREATE TABLE chat (
+CREATE TABLE if not EXISTS chat (
     id SERIAL PRIMARY KEY,
     mensagem TEXT,
     valorProposto REAL,
     bloqueado BOOLEAN
 );
 
-CREATE TABLE escambista (
+CREATE TABLE if not EXISTS escambista(
     id SERIAL PRIMARY KEY,
     userNome VARCHAR(255),
     nomeEscambista VARCHAR(255),
@@ -49,13 +49,7 @@ CREATE TABLE escambista (
     endereco VARCHAR(255)
 );
 
-CREATE TABLE login (
-    id SERIAL PRIMARY KEY,
-    userNome VARCHAR(255),
-    senha VARCHAR(255)
-);
-
-CREATE TABLE postagem (
+CREATE TABLE if not EXISTS postagem(
     id SERIAL PRIMARY KEY,
     userNome VARCHAR(255),
     nomePostagem VARCHAR(255),
@@ -65,21 +59,20 @@ CREATE TABLE postagem (
     imagem BYTEA
 );
 
-CREATE TABLE proposta (
+CREATE TABLE if not EXISTS proposta(
     id SERIAL PRIMARY KEY,
     status INTEGER,
     itemDesejado VARCHAR(255),
     itemOferecido VARCHAR(255),
     avaliarPerfil INTEGER
 );
---Ok
-CREATE table if not EXISTS cadastro (
+
+CREATE table if not EXISTS cadastro(
     id SERIAL PRIMARY KEY,
-    nome VARCHAR(255),
     email VARCHAR(255),
     userNome VARCHAR(255),
     senha VARCHAR(255)
-); --OK
+);
 
 ---
 
