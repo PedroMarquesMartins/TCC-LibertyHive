@@ -3,8 +3,10 @@ package unigran.br.Model.DAO;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
-import unigran.br.Model.Entidades.Cadastro;
 import org.springframework.stereotype.Repository;
+import unigran.br.Model.Entidades.Cadastro;
+
+import java.util.List;
 
 @Repository
 public class CadastroDAO {
@@ -27,8 +29,11 @@ public class CadastroDAO {
         return em.find(Cadastro.class, id);
     }
 
-    public void fechar(){
+    public void fechar() {
         em.close();
         emf.close();
+    }
+    public List<Cadastro> listarTodos() {
+        return em.createQuery("SELECT c FROM Cadastro c", Cadastro.class).getResultList();
     }
 }
