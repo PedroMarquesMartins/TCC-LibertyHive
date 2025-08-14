@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styleLogin.css">
+    <title>Login - Liberty Hive</title>
+</head>
+<body>
+    <header class="header">
+        <div class="top-text">
+            <h1>Boas-vindas de volta!</h1>
+            <h2>Estamos muito animados em te ver novamente!</h2>
+        </div>
+    </header>
+
+    <div class="logando">
+        <h1 class="Logar">Login</h1>
+    </div>
+
+    <div class="container">
+        <div class="logo">
+            <img src="logo.png" alt="Logo do TCC">
+        </div>
+            
+        <div class="form-container">
+            <form id="formLogin">
+                
+                <label class="label" for="user">Usuário ou Email</label>
+                <input type="text" id="user" name="user" required>
+
+                <label class="label" for="senha">Senha</label>
+                <input type="password" id="senha" name="senha" required>
+
+                <a href="#" class="forgot">Esqueci minha senha</a>
+
+                <div class="buttons">
+                    <button class="Botar" type="submit">Login</button>
+
+                    <button id="btnCadastrar" class="Botar" type="button">Cadastrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      document.getElementById('btnCadastrar').addEventListener('click', function () {
+        window.location.href = 'cadastro.html';
+      });
+
+      document.getElementById('formLogin').addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const user = document.getElementById('user').value;
+        const senha = document.getElementById('senha').value;
+
+        fetch('http://localhost:8080/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user, senha })
+        })
+          .then(response => response.json().then(data => ({ status: response.status, body: data })))
+          .then(({ status, body }) => {
+            if (status === 200 && body.success) {
+              alert(body.message);
+              
+              localStorage.setItem('token', body.token);
+              localStorage.setItem('userNome', body.userNome);
+              window.location.href = 'inicio.html';
+            } else {
+              alert(body.message || 'Erro no login.');
+            }
+          })
+          .catch(error => {
+            console.error('Erro no login:', error);
+            alert('Erro ao tentar realizar login. Tente novamente mais tarde.');
+          });
+      });
+    });
+  </script>
+</body>
+</html>

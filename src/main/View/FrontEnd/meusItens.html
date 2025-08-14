@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Meus Itens</title>
+    <style>
+        #formAdicionar {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            max-width: 600px;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            box-sizing: border-box;
+            border-radius: 3px;
+            border: 1px solid #aaa;
+            font-size: 1em;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .categoria-interesse-container select {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Aqui estão seus itens cadastrados, <span id="usuarioNome"></span></h1>
+    <button onclick="voltarInicio()">Voltar para Início</button>
+    <button onclick="mostrarFormulario()">Adicionar Itens</button>
+   
+    <div id="listaPostagens"></div>
+
+    <form id="formAdicionar">
+        <h2>Vamos lá!</h2>
+
+        <label>Antes de mais nada, informe sobre o que se trata seu item:</label>
+        <input type="radio" id="tipoProduto" name="tipoItem" value="Produto" checked />
+        <label for="tipoProduto" style="display:inline;">Produto</label>
+        <input type="radio" id="tipoServico" name="tipoItem" value="Serviço" />
+        <label for="tipoServico" style="display:inline;">Serviço</label>
+
+        <label for="categoria">Escolha a categoria do seu novo item:</label>
+        <select id="categoria" name="categoria">
+            <option value="">Selecione...</option>
+            <option>Tecnologia</option>
+            <option>Celulares e Smartphones</option>
+            <option>Smartphones e Celulares</option>
+            <option>Acessórios para Celulares (Capas, Películas, Carregadores)</option>
+            <option>Peças para Celulares</option>
+            <option>Smartwatches e Pulseiras</option>
+            <option>Informática</option>
+            <option>Notebooks e Laptops</option>
+            <option>Computadores de Mesa (Desktops)</option>
+            <option>Componentes e Peças (Processadores, Placas de Vídeo, Memórias RAM)</option>
+            <option>Tablets e Acessórios</option>
+            <option>Impressoras e Suprimentos</option>
+            <option>Monitores</option>
+            <option>Acessórios para PC (Teclados, Mouses, Webcams)</option>
+            <option>Redes e Wi-Fi (Roteadores, Repetidores)</option>
+            <option>Videogames</option>
+            <option>Consoles (PlayStation, Xbox, Nintendo)</option>
+            <option>Jogos Físicos e Digitais</option>
+            <option>Acessórios para Consoles (Controles, Headsets)</option>
+            <option>PC Gamer</option>
+            <option>Eletrônicos, Áudio e Vídeo</option>
+            <option>TVs e Smart TVs</option>
+            <option>Equipamentos de Áudio (Home Theaters, Soundbars, Caixas de Som)</option>
+            <option>Fones de Ouvido</option>
+            <option>Câmeras Digitais e Drones</option>
+            <option>Projetores e Telas</option>
+            <option>Casa, Móveis e Decoração</option>
+            <option>Móveis</option>
+            <option>Móveis para Quarto (Camas, Guarda-Roupas, Cômodas)</option>
+            <option>Móveis para Sala de Estar (Sofás, Racks, Estantes)</option>
+            <option>Móveis para Cozinha e Sala de Jantar (Mesas, Cadeiras, Armários)</option>
+            <option>Móveis para Escritório</option>
+            <option>Decoração</option>
+            <option>Cortinas e Persianas</option>
+            <option>Quadros, Vasos e Enfeites</option>
+            <option>Tapetes</option>
+            <option>Iluminação (Lustres, Luminárias, Lâmpadas)</option>
+            <option>Cama, Mesa e Banho</option>
+            <option>Roupas de Cama</option>
+            <option>Toalhas de Banho e Rosto</option>
+            <option>Toalhas de Mesa e Acessórios</option>
+            <option>Utilidades Domésticas</option>
+            <option>Utensílios de Cozinha (Panelas, Talheres, Potes)</option>
+            <option>Organização da Casa (Caixas, Prateleiras, Cabides)</option>
+            <option>Limpeza da Casa</option>
+            <option>Jardim e Área Externa</option>
+            <option>Móveis de Jardim</option>
+            <option>Ferramentas de Jardinagem</option>
+            <option>Churrasqueiras e Acessórios</option>
+            <option>Piscinas e Acessórios</option>
+            <option>Eletrodomésticos</option>
+            <option>Cozinha</option>
+            <option>Geladeiras e Freezers</option>
+            <option>Fogões, Fornos e Cooktops</option>
+            <option>Micro-ondas</option>
+            <option>Lava-louças</option>
+            <option>Pequenos Eletrodomésticos</option>
+            <option>Cafeteiras</option>
+            <option>Liquidificadores e Batedeiras</option>
+            <option>Fritadeiras Elétricas (Air Fryer)</option>
+            <option>Sanduicheiras e Grills</option>
+            <option>Climatização e Cuidados com a Casa</option>
+            <option>Ar Condicionado e Climatizadores</option>
+            <option>Ventiladores e Circuladores de Ar</option>
+            <option>Aspiradores de Pó e Robôs</option>
+            <option>Máquinas de Lavar e Secar Roupas</option>
+            <option>Ferros de Passar</option>
+            <option>Moda e Acessórios</option>
+            <option>Roupas</option>
+            <option>Roupas Femininas (Vestidos, Blusas, Calças)</option>
+            <option>Roupas Masculinas (Camisetas, Camisas, Bermudas)</option>
+            <option>Moda Íntima e Lingerie</option>
+            <option>Moda Praia</option>
+            <option>Calçados</option>
+            <option>Tênis</option>
+            <option>Sapatos Sociais e Casuais</option>
+            <option>Sandálias e Chinelos</option>
+            <option>Botas</option>
+            <option>Bolsas e Malas</option>
+            <option>Bolsas Femininas</option>
+            <option>Mochilas</option>
+            <option>Malas de Viagem</option>
+            <option>Acessórios</option>
+            <option>Joias e Bijuterias</option>
+            <option>Relógios</option>
+            <option>Óculos de Sol e de Grau</option>
+            <option>Cintos, Chapéus e Bonés</option>
+            <option>Beleza e Cuidado Pessoal</option>
+            <option>Perfumes</option>
+            <option>Perfumes Femininos</option>
+            <option>Perfumes Masculinos</option>
+            <option>Maquiagem</option>
+            <option>Rosto (Base, Corretivo, Pó)</option>
+            <option>Olhos (Máscara de Cílios, Sombra, Delineador)</option>
+            <option>Lábios (Batom, Gloss)</option>
+            <option>Cuidados com a Pele (Skincare)</option>
+            <option>Limpeza de Pele</option>
+            <option>Hidratantes Faciais e Corporais</option>
+            <option>Protetores Solares</option>
+            <option>Cuidados com o Cabelo</option>
+            <option>Shampoos e Condicionadores</option>
+            <option>Tratamentos Capilares</option>
+            <option>Modeladores e Finalizadores</option>
+            <option>Barbearia e Cuidados Masculinos</option>
+            <option>Esportes e Fitness</option>
+            <option>Roupas e Calçados Esportivos</option>
+            <option>Equipamentos de Academia e Musculação</option>
+            <option>Suplementos Alimentares e Vitaminas</option>
+            <option>Ciclismo</option>
+            <option>Bicicletas</option>
+            <option>Acessórios para Ciclistas (Capacetes, Luvas)</option>
+            <option>Futebol, Vôlei e Basquete</option>
+            <option>Lutas e Artes Marciais</option>
+            <option>Esportes Aquáticos</option>
+            <option>Brinquedos e Hobbies</option>
+            <option>Brinquedos</option>
+            <option>Bonecos e Bonecas</option>
+            <option>Jogos de Tabuleiro e Cartas</option>
+            <option>Blocos de Montar e Construção</option>
+            <option>Veículos de Brinquedo</option>
+            <option>Brinquedos para Bebês</option>
+            <option>Hobbies</option>
+            <option>Instrumentos Musicais</option>
+            <option>Modelismo e Miniaturas</option>
+            <option>Arte e Papelaria</option>
+            <option>Colecionáveis (Figurinhas, Moedas, Selos)</option>
+            <option>Veículos, Peças e Acessórios</option>
+            <option>Carros e Caminhonetes</option>
+            <option>Motos</option>
+            <option>Peças para Veículos</option>
+            <option>Motor e Componentes</option>
+            <option>Freios e Suspensão</option>
+            <option>Peças de Lataria</option>
+            <option>Acessórios para Veículos</option>
+            <option>Pneus e Rodas</option>
+            <option>Som e Multimídia Automotivo</option>
+            <option>GPS e Segurança</option>
+            <option>Náutica (Barcos, Lanchas, Jet Skis)</option>
+            <option>Cultura e Entretenimento</option>
+            <option>Livros, Revistas e HQs</option>
+            <option>Filmes e Séries (DVDs, Blu-ray)</option>
+            <option>Música (CDs, Discos de Vinil)</option>
+            <option>Antiguidades e Peças de Coleção</option>
+            <option>Serviços</option>
+            <option>Serviços Técnicos (Informática, Conserto de Eletrodomésticos)</option>
+            <option>Aulas e Cursos (Idiomas, Música, Reforço Escolar)</option>
+            <option>Consultoria (Negócios, Marketing, Jurídica)</option>
+            <option>Design e Multimídia (Criação de Logos, Edição de Vídeo)</option>
+            <option>Eventos e Festas (Fotografia, Buffet, Decoração)</option>
+            <option>Reforma e Construção</option>
+            <option>Imóveis</option>
+            <option>Venda</option>
+            <option>Apartamentos</option>
+            <option>Casas e Sobrados</option>
+            <option>Terrenos e Lotes</option>
+            <option>Aluguel</option>
+            <option>Apartamentos</option>
+            <option>Casas e Sobrados</option>
+            <option>Imóveis Comerciais</option>
+            <option>Outra Categoria</option>
+        </select>
+
+        <label for="nomeItem">Dê um nome ao seu Item</label>
+        <input type="text" id="nomeItem" name="nomeItem" placeholder="Nome do item" />
+
+        <label for="descricaoItem">Dê uma descrição para seu Item</label>
+        <textarea id="descricaoItem" name="descricaoItem" placeholder="Descrição detalhada"></textarea>
+
+        <label for="cepItem">Informe o CEP do Item</label>
+        <input type="text" id="cepItem" name="cepItem" placeholder="00000000" maxlength="8" pattern="\d{8}"
+            title="Digite um CEP válido com 8 números, sem espaços ou símbolos." />
+
+        <label for="fotosItem">Insira fotos do seu Item (máximo 10 imagens)</label><br>
+        <input type="file" id="fotosItem" name="fotosItem" accept="image/*" multiple />
+
+        <label>Insira aqui suas categorias de interesse para seu item (mínimo 1):</label>
+        <div id="interessesContainer" class="categoria-interesse-container">
+        </div>
+
+        <br>
+        <button type="button" onclick="salvarItem()">Salvar Item</button>
+    </form>
+
+    <script>
+        const categorias = [
+            "Tecnologia", "Celulares e Smartphones", "Smartphones e Celulares", "Acessórios para Celulares (Capas, Películas, Carregadores)", "Peças para Celulares", "Smartwatches e Pulseiras", "Informática", "Notebooks e Laptops", "Computadores de Mesa (Desktops)", "Componentes e Peças (Processadores, Placas de Vídeo, Memórias RAM)", "Tablets e Acessórios", "Impressoras e Suprimentos", "Monitores", "Acessórios para PC (Teclados, Mouses, Webcams)", "Redes e Wi-Fi (Roteadores, Repetidores)", "Videogames", "Consoles (PlayStation, Xbox, Nintendo)", "Jogos Físicos e Digitais", "Acessórios para Consoles (Controles, Headsets)", "PC Gamer", "Eletrônicos, Áudio e Vídeo", "TVs e Smart TVs", "Equipamentos de Áudio (Home Theaters, Soundbars, Caixas de Som)", "Fones de Ouvido", "Câmeras Digitais e Drones", "Projetores e Telas", "Casa, Móveis e Decoração", "Móveis", "Móveis para Quarto (Camas, Guarda-Roupas, Cômodas)", "Móveis para Sala de Estar (Sofás, Racks, Estantes)", "Móveis para Cozinha e Sala de Jantar (Mesas, Cadeiras, Armários)", "Móveis para Escritório", "Decoração", "Cortinas e Persianas", "Quadros, Vasos e Enfeites", "Tapetes", "Iluminação (Lustres, Luminárias, Lâmpadas)", "Cama, Mesa e Banho", "Roupas de Cama", "Toalhas de Banho e Rosto", "Toalhas de Mesa e Acessórios", "Utilidades Domésticas", "Utensílios de Cozinha (Panelas, Talheres, Potes)", "Organização da Casa (Caixas, Prateleiras, Cabides)", "Limpeza da Casa", "Jardim e Área Externa", "Móveis de Jardim", "Ferramentas de Jardinagem", "Churrasqueiras e Acessórios", "Piscinas e Acessórios", "Eletrodomésticos", "Cozinha", "Geladeiras e Freezers", "Fogões, Fornos e Cooktops", "Micro-ondas", "Lava-louças", "Pequenos Eletrodomésticos", "Cafeteiras", "Liquidificadores e Batedeiras", "Fritadeiras Elétricas (Air Fryer)", "Sanduicheiras e Grills", "Climatização e Cuidados com a Casa", "Ar Condicionado e Climatizadores", "Ventiladores e Circuladores de Ar", "Aspiradores de Pó e Robôs", "Máquinas de Lavar e Secar Roupas", "Ferros de Passar", "Moda e Acessórios", "Roupas", "Roupas Femininas (Vestidos, Blusas, Calças)", "Roupas Masculinas (Camisetas, Camisas, Bermudas)", "Moda Íntima e Lingerie", "Moda Praia", "Calçados", "Tênis", "Sapatos Sociais e Casuais", "Sandálias e Chinelos", "Botas", "Bolsas e Malas", "Bolsas Femininas", "Mochilas", "Malas de Viagem", "Acessórios", "Joias e Bijuterias", "Relógios", "Óculos de Sol e de Grau", "Cintos, Chapéus e Bonés", "Beleza e Cuidado Pessoal", "Perfumes", "Perfumes Femininos", "Perfumes Masculinos", "Maquiagem", "Rosto (Base, Corretivo, Pó)", "Olhos (Máscara de Cílios, Sombra, Delineador)", "Lábios (Batom, Gloss)", "Cuidados com a Pele (Skincare)", "Limpeza de Pele", "Hidratantes Faciais e Corporais", "Protetores Solares", "Cuidados com o Cabelo", "Shampoos e Condicionadores", "Tratamentos Capilares", "Modeladores e Finalizadores", "Barbearia e Cuidados Masculinos", "Esportes e Fitness", "Roupas e Calçados Esportivos", "Equipamentos de Academia e Musculação", "Suplementos Alimentares e Vitaminas", "Ciclismo", "Bicicletas", "Acessórios para Ciclistas (Capacetes, Luvas)", "Futebol, Vôlei e Basquete", "Lutas e Artes Marciais", "Esportes Aquáticos", "Brinquedos e Hobbies", "Brinquedos", "Bonecos e Bonecas", "Jogos de Tabuleiro e Cartas", "Blocos de Montar e Construção", "Veículos de Brinquedo", "Brinquedos para Bebês", "Hobbies", "Instrumentos Musicais", "Modelismo e Miniaturas", "Arte e Papelaria", "Colecionáveis (Figurinhas, Moedas, Selos)", "Veículos, Peças e Acessórios", "Carros e Caminhonetes", "Motos", "Peças para Veículos", "Motor e Componentes", "Freios e Suspensão", "Peças de Lataria", "Acessórios para Veículos", "Pneus e Rodas", "Som e Multimídia Automotivo", "GPS e Segurança", "Náutica (Barcos, Lanchas, Jet Skis)", "Cultura e Entretenimento", "Livros, Revistas e HQs", "Filmes e Séries (DVDs, Blu-ray)", "Música (CDs, Discos de Vinil)", "Antiguidades e Peças de Coleção", "Serviços", "Serviços Técnicos (Informática, Conserto de Eletrodomésticos)", "Aulas e Cursos (Idiomas, Música, Reforço Escolar)", "Consultoria (Negócios, Marketing, Jurídica)", "Design e Multimídia (Criação de Logos, Edição de Vídeo)", "Eventos e Festas (Fotografia, Buffet, Decoração)", "Reforma e Construção", "Imóveis", "Venda", "Apartamentos", "Casas e Sobrados", "Terrenos e Lotes", "Aluguel", "Apartamentos", "Casas e Sobrados", "Imóveis Comerciais", "Outra Categoria"
+        ];
+
+        function criarSelectInteresse(id) {
+            const select = document.createElement("select");
+            select.name = "categoriaInteresse" + id;
+            select.dataset.index = id;
+            select.innerHTML = `<option value="">Selecione...</option>
+                <option value="Nenhuma">Nenhuma</option>` +
+                categorias.map(cat => `<option value="${cat}">${cat}</option>`).join("");
+
+            select.addEventListener("change", onChangeCategoriaInteresse);
+            return select;
+        }
+
+        function onChangeCategoriaInteresse(e) {
+            const select = e.target;
+            const container = document.getElementById("interessesContainer");
+            const selects = [...container.querySelectorAll("select")];
+
+            if ((select.value === "" || select.value === "Nenhuma") && select !== selects[selects.length - 1]) {
+                for (let i = selects.length - 1; i > select.dataset.index; i--) {
+                    selects[i].remove();
+                }
+                return;
+            }
+
+            if (select.value !== "" && select.value !== "Nenhuma" && select === selects[selects.length - 1]) {
+                container.appendChild(criarSelectInteresse(selects.length));
+            }
+
+            atualizarOpcoes();
+        }
+
+        function atualizarOpcoes() {
+            const container = document.getElementById("interessesContainer");
+            const selects = [...container.querySelectorAll("select")];
+
+            const selecionadas = selects
+                .map(s => s.value)
+                .filter(v => v !== "" && v !== "Nenhuma");
+
+            selects.forEach(select => {
+                const currentValue = select.value;
+
+                [...select.options].forEach(option => {
+                    if (
+                        option.value !== currentValue &&
+                        selecionadas.includes(option.value) &&
+                        option.value !== "" &&
+                        option.value !== "Nenhuma"
+                    ) {
+                        option.disabled = true;
+                    } else {
+                        option.disabled = false;
+                    }
+                });
+            });
+        }
+
+        function iniciarCategoriasInteresse() {
+            const container = document.getElementById("interessesContainer");
+            container.innerHTML = "";
+            container.appendChild(criarSelectInteresse(0));
+        }
+
+        function salvarItem() {
+            const token = localStorage.getItem('token');
+
+            if (!token) {
+                alert("Sessão inválida. Por favor, faça o login novamente.");
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const tipoItem = getTipoItem();
+            const categoria = document.getElementById("categoria").value;
+            const nomeItem = document.getElementById("nomeItem").value.trim();
+            const descricaoItem = document.getElementById("descricaoItem").value.trim();
+            const cep = document.getElementById("cepItem").value.trim();
+            const fotos = document.getElementById("fotosItem").files;
+
+            const container = document.getElementById("interessesContainer");
+            const selects = [...container.querySelectorAll("select")];
+            const categoriasInteresse = selects
+                .map(s => s.value)
+                .filter(v => v !== "" && v !== "Nenhuma")
+                .join(",");
+
+            if (!categoria || !nomeItem || !descricaoItem || !categoriasInteresse || !cep) {
+                alert("Por favor, preencha todos os campos obrigatórios.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("userNome", localStorage.getItem("userNome"));
+            formData.append("isProdOuServico", tipoItem === "Produto" ? 1 : 0);
+            formData.append("nomePostagem", nomeItem);
+            formData.append("descricao", descricaoItem);
+            formData.append("categoria", categoria);
+            formData.append("categoriaInteresse", categoriasInteresse);
+            formData.append("cep", cep);
+
+            if (fotos.length > 0) {
+                formData.append("imagem", fotos[0]);
+            }
+
+            const headers = new Headers();
+            headers.append('Authorization', 'Bearer ' + token);
+
+            fetch("http://localhost:8080/api/postagens", {
+                method: "POST",
+                body: formData,
+                headers: headers
+            })
+                .then(response => {
+                    if (response.status === 401) {
+                        alert("Sua sessão expirou! Por favor, faça o login novamente.");
+                        localStorage.clear();
+                        window.location.href = 'login.html';
+                        throw new Error('Não autorizado');
+                    }
+                    if (!response.ok) {
+                        return response.json().then(err => { throw new Error(err.error || 'Erro no servidor') });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    alert(data.message || "Item salvo com sucesso!");
+                    document.getElementById("formAdicionar").reset();
+                    iniciarCategoriasInteresse();
+                })
+                .catch(err => {
+                    if (err.message !== 'Não autorizado') {
+                        console.error("Erro:", err);
+                        alert("Ocorreu um erro ao salvar a postagem: " + err.message);
+                    }
+                });
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const nome = localStorage.getItem("userNome");
+            if (!nome) {
+                window.location.href = "login.html";
+                return;
+            }
+            document.getElementById("usuarioNome").textContent = nome;
+
+            iniciarCategoriasInteresse();
+        });
+
+        function voltarInicio() {
+            window.location.href = "inicio.html";
+        }
+
+        function mostrarFormulario() {
+            document.getElementById("formAdicionar").style.display = "block";
+        }
+
+        function getTipoItem() {
+            const selecionado = document.querySelector('input[name="tipoItem"]:checked');
+            return selecionado ? selecionado.value : null;
+        }
+
+        const cepInput = document.getElementById('cepItem');
+        cepInput.addEventListener('input', function () {
+            this.value = this.value.replace(/\D/g, '');
+        });
+
+        const fotosInput = document.getElementById('fotosItem');
+        fotosInput.addEventListener('change', function () {
+            if (this.files.length > 10) {
+                alert('Você pode enviar no máximo 10 imagens.');
+                this.value = '';
+            }
+        });
+        document.addEventListener("DOMContentLoaded", function () {
+            const token = localStorage.getItem("token");
+            const userNome = localStorage.getItem("userNome"); 
+
+            if (!token) {
+                alert("Você não está logado!");
+                window.location.href = "login.html";
+                return;
+            }
+
+            fetch(`http://localhost:8080/api/postagens/usuario/${encodeURIComponent(userNome)}`, {
+                method: "GET",
+                headers: {
+                    "Authorization": "Bearer " + token
+                }
+            })
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error("Erro ao buscar postagens");
+                    }
+                    return res.json();
+                })
+                .then(postagens => {
+                    const lista = document.getElementById("listaPostagens");
+                    lista.innerHTML = "";
+
+                    if (postagens.length === 0) {
+                        lista.textContent = "Você ainda não tem postagens.";
+                        return;
+                    }
+
+                    postagens.forEach(p => {
+                        const div = document.createElement("div");
+                        div.classList.add("postagem");
+
+                        if (p.imagem) {
+                            const img = document.createElement("img");
+                        
+                            img.src = `data:image/png;base64,${p.imagem}`;
+                            img.alt = p.nomePostagem;
+                            img.style.maxWidth = "150px";
+                            div.appendChild(img);
+                        }
+
+                        const h3 = document.createElement("h3");
+                        h3.textContent = p.nomePostagem;
+                        div.appendChild(h3);
+
+                        const pDesc = document.createElement("p");
+                        pDesc.textContent = p.descricao;
+                        div.appendChild(pDesc);
+
+                        const info = document.createElement("p");
+                        info.textContent = `Categoria: ${p.categoria} - Tipo: ${p.isProdOuServico ? "Produto" : "Serviço"}`;
+                        div.appendChild(info);
+
+                        const cep = document.createElement("p");
+                        cep.textContent = `CEP: ${p.cep}`;
+                        div.appendChild(cep);
+
+                        lista.appendChild(div);
+                    });
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("Falha ao carregar suas postagens.");
+                });
+        });
+    </script>
+</body>
+
+</html>
