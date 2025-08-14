@@ -26,20 +26,20 @@ A API Spring Boot gerencia requisições com nome, email, usuário e senha. Os d
 
 ## Arquivo SQL do Banco de Dados PostgreSQL
 
-CREATE TABLE if not EXISTS categoria(
+CREATE TABLE categoria (
     id SERIAL PRIMARY KEY,
     categoria VARCHAR(255),
     numero INTEGER
 );
 
-CREATE TABLE if not EXISTS chat (
+CREATE TABLE chat (
     id SERIAL PRIMARY KEY,
     mensagem TEXT,
     valorProposto REAL,
     bloqueado BOOLEAN
 );
 
-CREATE TABLE if not EXISTS escambista(
+CREATE TABLE escambista (
     id SERIAL PRIMARY KEY,
     userNome VARCHAR(255),
     nomeEscambista VARCHAR(255),
@@ -49,17 +49,19 @@ CREATE TABLE if not EXISTS escambista(
     endereco VARCHAR(255)
 );
 
-CREATE TABLE if not EXISTS postagem(
+CREATE table if not exists postagem (
     id SERIAL PRIMARY KEY,
     userNome VARCHAR(255),
+    isProdOuServico BOOL,
     nomePostagem VARCHAR(255),
     descricao TEXT,
     categoria VARCHAR(255),
+    categoriaInteresse VARCHAR(255),
     cep VARCHAR(255),
     imagem BYTEA
 );
 
-CREATE TABLE if not EXISTS proposta(
+CREATE TABLE proposta (
     id SERIAL PRIMARY KEY,
     status INTEGER,
     itemDesejado VARCHAR(255),
@@ -67,13 +69,12 @@ CREATE TABLE if not EXISTS proposta(
     avaliarPerfil INTEGER
 );
 
-CREATE table if not EXISTS cadastro(
+CREATE table if not EXISTS cadastro (
     id SERIAL PRIMARY KEY,
     email VARCHAR(255),
     userNome VARCHAR(255),
     senha VARCHAR(255)
-);
-
+); 
 ---
 
 SOBRE
