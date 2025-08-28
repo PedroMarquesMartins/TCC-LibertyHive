@@ -38,6 +38,11 @@
             <version>${spring.boot.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+
         <!-- Banco de dados H2 para testes -->
         <dependency>
             <groupId>com.h2database</groupId>

@@ -9,7 +9,7 @@ import javax.persistence.Id;
 @Entity
 public class Cadastro{
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)  // Geração automática do ID
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String email;
     private String userNome;

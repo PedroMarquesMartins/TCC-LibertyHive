@@ -14,7 +14,7 @@ public class CadastroControllerIT {
 
     @Autowired
     private TestRestTemplate restTemplate;
-
+//Classe de teste de cadastro
     @Test
     void salvarCadastroAPI_DeveRetornarSucesso() {
         Cadastro cadastro = new Cadastro();
