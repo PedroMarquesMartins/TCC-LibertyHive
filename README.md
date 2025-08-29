@@ -26,21 +26,20 @@ A API Spring Boot gerencia requisições com nome, email, usuário e senha. Os d
 
 ## Arquivo SQL do Banco de Dados PostgreSQL
 
-CREATE TABLE categoria (
-    id SERIAL PRIMARY KEY,
-    categoria VARCHAR(255),
-    numero INTEGER
-);
-
-CREATE TABLE chat (
-    id SERIAL PRIMARY KEY,
+CREATE table if not exists chat(
+    id SERIAL PRIMARY key not null,
     mensagem TEXT,
     valorProposto REAL,
-    bloqueado BOOLEAN
-);
+    bloqueado BOOLEAN,
+    userNome01 VARCHAR(255),
+    userNome02 VARCHAR(255),
+    userId01 INTEGER,
+    userId02 INTEGER
+    );
 
-CREATE TABLE escambista (
-    id SERIAL PRIMARY KEY,
+CREATE table if not exists escambista(
+    id SERIAL PRIMARY key not null,
+    userId INTEGER not null,
     userNome VARCHAR(255),
     nomeEscambista VARCHAR(255),
     avaliacao INTEGER,
@@ -49,32 +48,43 @@ CREATE TABLE escambista (
     endereco VARCHAR(255)
 );
 
-CREATE table if not exists postagem (
-    id SERIAL PRIMARY KEY,
+CREATE table if not exists postagem(
+    id SERIAL PRIMARY key not null,
+    userId INTEGER not NULL,
     userNome VARCHAR(255),
     isProdOuServico BOOL,
+    isDoacao BOOL,
     nomePostagem VARCHAR(255),
     descricao TEXT,
     categoria VARCHAR(255),
     categoriaInteresse VARCHAR(255),
-    cep VARCHAR(255),
-    imagem BYTEA
+    cidade VARCHAR(255),
+    uf VARCHAR(255),
+    imagem BYTEA,
+    imagemS01 BYTEA,
+    imagemS02 BYTEA,
+    imagemS03 BYTEA,
+    imagemS04 BYTEA,
+    imagemS05 BYTEA
 );
 
-CREATE TABLE proposta (
-    id SERIAL PRIMARY KEY,
+CREATE TABLE if not exists proposta(
+    id SERIAL PRIMARY key not null,
     status INTEGER,
-    itemDesejado VARCHAR(255),
-    itemOferecido VARCHAR(255),
+    userId01 INTEGER not null,
+    userId02 INTEGER, 
+    itemDesejadoId INTEGER not null,
+    itemOferecidoId INTEGER not null,
     avaliarPerfil INTEGER
 );
 
-CREATE table if not EXISTS cadastro (
-    id SERIAL PRIMARY KEY,
+CREATE table if not EXISTS cadastro(
+    id SERIAL PRIMARY key not null,
     email VARCHAR(255),
     userNome VARCHAR(255),
     senha VARCHAR(255)
 ); 
+
 ---
 
 SOBRE
