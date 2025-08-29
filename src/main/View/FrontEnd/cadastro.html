@@ -3,109 +3,62 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="styleCadastro.css">
+    <link rel="stylesheet" href="./Style/styleCadastro.css">
     <title>Cadastro - Liberty Hive</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <script src="cadastro.js" defer></script>
 </head>
 <body>
-    <header>
-        <img src="logo.png" alt="Logo Liberty Hive">
-        <h1>Cadastro</h1>
-        <p>Preencha seus dados para criar a conta</p>
-    </header>
+<header>
+    <img src="./imagens/logo.png" alt="Logo Liberty Hive">
+    <h1>Cadastro</h1>
+    <p>Preencha seus dados para criar a conta</p>
+</header>
+<!--Formulário de cadastro-->
+<div class="cadastro-container">
+    <form id="formCadastro">
+        <label for="email">E-mail:</label>
+        <input type="email" id="email" name="email" required>
+        <ul class="validations">
+            <li id="emailAt">Deve conter o caractere @ separando o nome do usuário do domínio</li>
+            <li id="emailSpace">Não pode conter espaços</li>
+        </ul>
 
-    <div class="cadastro-container">
-        <form id="formCadastro">
-            <label for="email">E-mail:</label>
-            <input type="email" id="email" name="email" required>
+        <label for="userNome">Usuário:</label>
+        <input type="text" id="userNome" name="userNome" required>
+        <ul class="validations">
+            <li id="userLength">Deve conter entre 3 e 10 caracteres</li>
+            <li id="userFormat">Pode conter apenas letras e números (sem "_" ou "-")</li>
+        </ul>
 
-            <label for="userNome">Usuário:</label>
-            <input type="text" id="userNome" name="userNome" required>
+        <label for="senha">Senha:</label>
+        <input type="password" id="senha" name="senha" required>
+        <ul class="validations">
+            <li id="senhaLength">Deve ter pelo menos 6 caracteres</li>
+            <li id="senhaNotEmpty">Não pode ser vazia ou composta só por espaços</li>
+        </ul>
 
-            <label for="senha">Senha:</label>
-            <input type="password" id="senha" name="senha" required>
+        <div class="buttons">
+            <button type="submit">Enviar</button>
+            <button type="button" onclick="window.location.href='login.html'">Voltar</button>
+        </div>
+    </form>
 
-            <div class="buttons">
-                <button type="submit">Enviar</button>
-                <button type="button" onclick="window.location.href='login.html'">Voltar</button>
-            </div>
-        </form>
-
-        <div id="mensagemErro"></div>
+    <div id="mensagemErro"></div>
+</div>
+    <br><br><br>
+    <footer class="footer-padrao">
+  <div class="footer-content">
+    <p>Como cuidamos da sua privacidade</p>
+    <p>Copyright © - 2025 Liberty Hive LTDA.</p>
+    <p>Protegido por Rash</p>
+    <div class="footer-links">
+      <a href="#">Privacidade</a> |
+      <a href="#">Condições</a> |
+      <a href="#">Suporte</a> |
+      <a href="#">Ajuda</a>
     </div>
-
-    <script>
-        function listarCadastros() {
-            fetch('http://localhost:8080/api/cadastros')
-                .then(response => {
-                    if (!response.ok) throw new Error('Erro ao buscar cadastros');
-                    return response.json();
-                })
-                .then(cadastros => {
-                    const div = document.getElementById('listaCadastros');
-                    if (cadastros.length === 0) {
-                        div.innerHTML = '<p>Nenhum cadastro encontrado.</p>';
-                        return;
-                    }
-
-                    let tabela = '<table><thead><tr><th>ID</th><th>E-mail</th><th>Usuário</th></tr></thead><tbody>';
-                    cadastros.forEach(cadastro => {
-                        tabela += `<tr>
-                            <td>${cadastro.id}</td>
-                            <td>${cadastro.email}</td>
-                            <td>${cadastro.userNome}</td>
-                        </tr>`;
-                    });
-                    tabela += '</tbody></table>';
-
-                    div.innerHTML = tabela;
-                })
-                .catch(error => {
-                    console.error(error);
-                    document.getElementById('listaCadastros').innerHTML = '<p>Erro ao carregar a lista de cadastros.</p>';
-                });
-        }
-
-        document.getElementById('formCadastro').addEventListener('submit', function(event) {
-            event.preventDefault();
-
-            const email = document.getElementById('email').value;
-            const senha = document.getElementById('senha').value;
-            const userNome = document.getElementById('userNome').value;
-
-            const dados = {
-                email: email,
-                senha: senha,
-                userNome: userNome
-            };
-
-            fetch('http://localhost:8080/api/cadastros', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(dados)
-            })
-            .then(async response => {
-                const data = await response.json();
-
-                if (!response.ok) {
-                    document.getElementById('mensagemErro').textContent = data.error || data.message || 'Erro desconhecido no cadastro.';
-                    throw new Error(data.error || data.message || 'Erro no cadastro');
-                }
-
-                document.getElementById('mensagemErro').textContent = '';
-                return data;
-            })
-            .then(data => {
-                alert('Cadastro realizado com sucesso!');
-                listarCadastros();
-                document.getElementById('formCadastro').reset();
-                window.location.href = 'login.html';
-            })
-            .catch(error => {
-                console.error('Erro:', error);
-            });
-        });
-    </script>
+  </div>
+</footer>
 </body>
 </html>

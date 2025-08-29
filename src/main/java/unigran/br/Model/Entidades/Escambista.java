@@ -1,30 +1,39 @@
 package unigran.br.Model.Entidades;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
+@Table(name = "escambista") // garante que mapeia exatamente essa tabela
 public class Escambista {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false) // porque no banco está "not null"
+    private Integer userId;
+
     private String userNome;
     private String nomeEscambista;
-
     private Integer avaliacao;
-
     private String contato;
     private String email;
     private String endereco;
 
+    // Getters e Setters
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 
     public String getUserNome() {

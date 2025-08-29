@@ -33,6 +33,23 @@ public class CadastroDAO {
         em.close();
         emf.close();
     }
+    public Cadastro encontrarPorUserNome(String userNome) {
+        try {
+            return em.createQuery("SELECT c FROM Cadastro c WHERE c.userNome = :userNome", Cadastro.class)
+                    .setParameter("userNome", userNome)
+                    .getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    public void removerCadastro(Long id) {
+        Cadastro cadastro = em.find(Cadastro.class, id);
+        if (cadastro != null) {
+            em.getTransaction().begin();
+            em.remove(cadastro);
+            em.getTransaction().commit();
+        }
+    }
     public List<Cadastro> listarTodos() {
         return em.createQuery("SELECT c FROM Cadastro c", Cadastro.class).getResultList();
     }

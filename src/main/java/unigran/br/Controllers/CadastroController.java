@@ -8,6 +8,7 @@ import unigran.br.Model.DAO.CadastroDAO;
 import unigran.br.Model.DAO.EscambistaDAO;
 import unigran.br.Model.Entidades.Cadastro;
 import unigran.br.Model.Entidades.Escambista;
+import unigran.br.Services.EmailService;
 
 import java.util.HashMap;
 import java.util.List;
@@ -16,20 +17,22 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/cadastros")
 public class CadastroController {
-
+    @Autowired
+    private EmailService emailService;
     @Autowired
     private CadastroDAO cadastroDAO;
     @Autowired
     private EscambistaDAO escambistaDAO;
     @Autowired
     private PasswordEncoder passwordEncoder;
-
+//Salvando o cadastro
     @PostMapping
     public ResponseEntity<?> salvarCadastro(@RequestBody Cadastro cadastro) {
         String email = cadastro.getEmail();
         String userNome = cadastro.getUserNome();
         String senha = cadastro.getSenha();
 
+        //Validação das entradas
         if (email == null || email.isEmpty() || email.length() > 254 || email.contains(" ") || !email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$")) {
             Map<String, String> error = new HashMap<>();
             error.put("error", "Email inválido. Deve conter '@' e não pode ter espaços.");
@@ -69,13 +72,17 @@ public class CadastroController {
         cadastro.setSenha(senhaCriptografada);
 
         cadastroDAO.salvarCadastro(cadastro);
+//Coletando ID para associar ao novo escambista recém criado
+        Long idGerado = cadastro.getId();
 
         Escambista novoEscambista = new Escambista();
+        novoEscambista.setUserId(Math.toIntExact(idGerado));
         novoEscambista.setUserNome(cadastro.getUserNome());
         novoEscambista.setEmail(cadastro.getEmail());
         novoEscambista.setAvaliacao(3);
-
+//Salva o escambista com os dados básicos
         escambistaDAO.salvarEscambista(novoEscambista);
+        emailService.enviarEmailBoasVindas(cadastro.getEmail(), cadastro.getUserNome());
 
         Map<String, String> response = new HashMap<>();
         response.put("message", "Cadastro salvo com sucesso!");

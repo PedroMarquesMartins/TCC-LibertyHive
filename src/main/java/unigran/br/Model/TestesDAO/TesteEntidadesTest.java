@@ -20,12 +20,6 @@ public class TesteEntidadesTest {
         GenericDAO dao = new GenericDAO();
 
         try {
-            Categoria cat = new Categoria();
-            cat.setCategoria("Eletrônicos");
-            cat.setNumero(5);
-            dao.salvar(cat);
-            assertNotNull(cat);
-
             Chat chat = new Chat();
             chat.setMensagem("Mensagem teste");
             chat.setValorProposto(99.99);
@@ -60,8 +54,8 @@ public class TesteEntidadesTest {
 
             Proposta prop = new Proposta();
             prop.setStatus(1);
-            prop.setItemDesejado("Livro");
-            prop.setItemOferecido("DVD");
+            prop.setItemDesejadoId(4);
+            prop.setItemOferecidoId(3);
             prop.setAvaliarPerfil(5);
             dao.salvar(prop);
             assertNotNull(prop);

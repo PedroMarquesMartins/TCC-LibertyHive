@@ -18,6 +18,7 @@ public class PostagemDAO {
     }
 
     public void salvarPostagem(Postagem postagem) {
+        postagem.setId(null);
         em.getTransaction().begin();
         em.persist(postagem);
         em.getTransaction().commit();
@@ -49,5 +50,17 @@ public class PostagemDAO {
     public void fechar() {
         em.close();
         emf.close();
+    }
+
+    public List<Postagem> listarPorUserNome(String userNome) {
+        return em.createQuery("SELECT p FROM Postagem p WHERE p.userNome = :userNome", Postagem.class)
+                .setParameter("userNome", userNome)
+                .getResultList();
+    }
+
+    public List<Postagem> listarPorUserID(Long userID) {
+        return em.createQuery("SELECT p FROM Postagem p WHERE p.userID = :userID", Postagem.class)
+                .setParameter("userID", userID)
+                .getResultList();
     }
 }
