@@ -26,7 +26,7 @@ A API Spring Boot gerencia requisições com nome, email, usuário e senha. Os d
 
 ## Arquivo SQL do Banco de Dados PostgreSQL
 
-CREATE table if not exists chat(
+CREATE table if not exists chat (
     id SERIAL PRIMARY key not null,
     mensagem TEXT,
     valorProposto REAL,
@@ -37,7 +37,7 @@ CREATE table if not exists chat(
     userId02 INTEGER
     );
 
-CREATE table if not exists escambista(
+CREATE table if not exists escambista (
     id SERIAL PRIMARY key not null,
     userId INTEGER not null,
     userNome VARCHAR(255),
@@ -48,16 +48,24 @@ CREATE table if not exists escambista(
     endereco VARCHAR(255)
 );
 
-CREATE table if not exists postagem(
-    id SERIAL PRIMARY key not null,
-    userId INTEGER not NULL,
+create table if not exists favorito(
+	id SERIAL PRIMARY key not null,
+    userId INTEGER not null,
+    postagemId INTEGER not null
+);
+
+CREATE TABLE IF NOT EXISTS postagem (
+    id SERIAL PRIMARY KEY NOT NULL,
+    userId INTEGER NOT NULL,
     userNome VARCHAR(255),
     isProdOuServico BOOL,
     isDoacao BOOL,
     nomePostagem VARCHAR(255),
     descricao TEXT,
     categoria VARCHAR(255),
-    categoriaInteresse VARCHAR(255),
+    categoriaInteresse1 VARCHAR(255),
+    categoriaInteresse2 VARCHAR(255),
+    categoriaInteresse3 VARCHAR(255),
     cidade VARCHAR(255),
     uf VARCHAR(255),
     imagem BYTEA,
@@ -68,7 +76,7 @@ CREATE table if not exists postagem(
     imagemS05 BYTEA
 );
 
-CREATE TABLE if not exists proposta(
+CREATE TABLE if not exists proposta (
     id SERIAL PRIMARY key not null,
     status INTEGER,
     userId01 INTEGER not null,
@@ -78,12 +86,29 @@ CREATE TABLE if not exists proposta(
     avaliarPerfil INTEGER
 );
 
-CREATE table if not EXISTS cadastro(
+CREATE table if not EXISTS cadastro (
     id SERIAL PRIMARY key not null,
     email VARCHAR(255),
     userNome VARCHAR(255),
     senha VARCHAR(255)
 ); 
+
+CREATE table if not EXISTS area_match_vistos(
+    id SERIAL PRIMARY KEY,
+    userId INTEGER NOT NULL,           
+    postagemId INTEGER NOT NULL       
+);
+
+CREATE table if not EXISTS configuracao(
+    id SERIAL PRIMARY key not null,
+    cpf VARCHAR(14) NOT NULL UNIQUE,      
+    email VARCHAR(150) NOT NULL UNIQUE,
+    numero_contato VARCHAR(20),             
+    cep VARCHAR(10),
+    data_nascimento DATE,
+    userNome VARCHAR(255),
+    senha VARCHAR(255)
+);
 
 ---
 
