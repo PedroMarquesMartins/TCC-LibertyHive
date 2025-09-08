@@ -183,12 +183,18 @@ function onChangeCategoriaInteresse(e) {
         return;
     }
 
-    if (select.value !== "" && select.value !== "Nenhuma" && select === selects[selects.length - 1]) {
+    if (
+        select.value !== "" &&
+        select.value !== "Nenhuma" &&
+        select === selects[selects.length - 1] &&
+        selects.length < 3
+    ) {
         container.appendChild(criarSelectInteresse(selects.length));
     }
 
     atualizarOpcoes();
 }
+
 
 function atualizarOpcoes() {
     const container = document.getElementById("interessesContainer");
@@ -239,7 +245,6 @@ function salvarItem() {
         return;
     }
 
-
     const isDoacao = getIsDoacao();
     const tipoItem = getTipoItem();
     const categoria = document.getElementById("categoria").value;
@@ -247,15 +252,29 @@ function salvarItem() {
     const descricaoItem = document.getElementById("descricaoItem").value.trim();
     const uf = document.getElementById("ufItem").value;
     const cidade = document.getElementById("cidadeItem").value.trim();
-
+    if (nomeItem.length > 255) {
+        alert("O nome da postagem não pode ter mais que 255 caracteres.");
+        return;
+    }
     const container = document.getElementById("interessesContainer");
     const selects = [...container.querySelectorAll("select")];
-    const categoriasInteresse = selects.map(s => s.value).filter(v => v !== "" && v !== "Nenhuma").join(",");
+    const categoriasEscolhidas = selects.map(s => s.value).filter(v => v !== "" && v !== "Nenhuma");
 
-    if (!categoria || !nomeItem || !descricaoItem || !categoriasInteresse || !uf || !cidade) {
+    if (!categoria || !nomeItem || !descricaoItem || categoriasEscolhidas.length === 0 || !uf || !cidade) {
         alert("Por favor, preencha todos os campos obrigatórios.");
         return;
     }
+
+    if (categoriasEscolhidas.length > 3) {
+        alert("Selecione no máximo 3 categorias de interesse.");
+        return;
+    }
+
+    const [cat1, cat2, cat3] = [
+        categoriasEscolhidas[0] || "",
+        categoriasEscolhidas[1] || "",
+        categoriasEscolhidas[2] || ""
+    ];
 
     const formData = new FormData();
     formData.append("userNome", localStorage.getItem("userNome"));
@@ -264,10 +283,11 @@ function salvarItem() {
     formData.append("nomePostagem", nomeItem);
     formData.append("descricao", descricaoItem);
     formData.append("categoria", categoria);
-    formData.append("categoriaInteresse", categoriasInteresse);
+    formData.append("categoriaInteresse1", cat1);
+    formData.append("categoriaInteresse2", cat2);
+    formData.append("categoriaInteresse3", cat3);
     formData.append("uf", uf);
     formData.append("cidade", cidade);
-
 
     const capa = document.getElementById("imagemCapa").files[0];
     if (capa) formData.append("imagem", capa);
@@ -290,14 +310,25 @@ function salvarItem() {
             return res.json();
         })
         .then(data => {
-            alert("Postagem salva com sucesso!");
+            Swal.fire({
+                icon: "success",
+                title: "Postagem salva com sucesso!",
+                showConfirmButton: false,
+                timer: 1800
+            });
             document.getElementById("formAdicionar").reset();
             iniciarCategoriasInteresse();
             carregarPostagens();
+            fecharFormulario();
         })
         .catch(err => alert("Erro: " + err.message));
 }
 
+function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userNome');
+    window.location.href = 'login.html';
+}
 /* */
 function bytesParaBase64(bytes) {
     if (!bytes) return '';
@@ -346,37 +377,50 @@ function carregarPostagens() {
                 h3.textContent = p.nomePostagem;
                 div.appendChild(h3);
 
+                // Parágrafo para a descrição
                 const pDesc = document.createElement("p");
-                pDesc.textContent = p.descricao;
+                pDesc.innerHTML = `<span>Descrição:</span> ${p.descricao}`;
                 div.appendChild(pDesc);
 
+                // Parágrafo para a categoria e o tipo
                 const info = document.createElement("p");
-                info.textContent = `Categoria: ${p.categoria} - Tipo: ${p.isProdOuServico ? "Produto" : "Serviço"}`;
+                info.innerHTML = `<span>Categoria:</span> ${p.categoria} - <span>Tipo:</span> ${p.isProdOuServico ? "Produto" : "Serviço"}`;
                 div.appendChild(info);
 
+                // Parágrafo para a doação
                 const doacaoo = document.createElement("p");
-                doacaoo.textContent = `Doação: ${p.doacao ? "Sim" : "Não"}`;
+                doacaoo.innerHTML = `<span>Doação/Voluntário:</span> ${p.doacao ? "Sim" : "Não"}`;
                 div.appendChild(doacaoo);
 
+                // Parágrafo para a localidade
                 const localidade = document.createElement("p");
-                localidade.textContent = `Local: ${p.cidade} - ${p.uf}`;
+                localidade.innerHTML = `<span>Local:</span> ${p.cidade} - ${p.uf}`;
                 div.appendChild(localidade);
 
                 const btnExcluir = document.createElement("button");
                 btnExcluir.textContent = "Excluir";
                 btnExcluir.style.marginTop = "5px";
-                btnExcluir.addEventListener("click", () => { //Exclusão
-                    if (confirm(`Deseja realmente excluir a postagem "${p.nomePostagem}"?`)) {
-                        fetch(`http://localhost:8080/api/postagens/${p.id}`, {
-                            method: "DELETE",
-                            headers: { "Authorization": "Bearer " + token }
-                        })
-                            .then(res => {
-                                if (!res.ok) throw new Error("Erro ao excluir postagem");
-                                carregarPostagens();
+                btnExcluir.addEventListener("click", () => {
+                    Swal.fire({
+                        title: `Deseja realmente excluir a postagem "${p.nomePostagem}"?`,
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonText: "Sim, excluir",
+                        cancelButtonText: "Cancelar"
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            fetch(`http://localhost:8080/api/postagens/${p.id}`, {
+                                method: "DELETE",
+                                headers: { "Authorization": "Bearer " + token }
                             })
-                            .catch(err => alert(err.message));
-                    }
+                                .then(res => {
+                                    if (!res.ok) throw new Error("Erro ao excluir postagem");
+                                    carregarPostagens();
+                                    Swal.fire("Excluído!", "A postagem foi excluída.", "success");
+                                })
+                                .catch(err => Swal.fire("Erro", err.message, "error"));
+                        }
+                    });
                 });
                 div.appendChild(btnExcluir);
 

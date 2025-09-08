@@ -1,0 +1,99 @@
+/* Fundo gradiente Supremo */
+body {
+    background: linear-gradient(135deg, #f7e733, #f0d941, #e6e1a2);
+    color: #000;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Container dos cards */
+#listaFavoritos .card {
+    transition: transform 0.2s ease-in-out;
+    border: 1px solid #000; /* borda preta */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+}
+
+/* Hover bonito */
+#listaFavoritos .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+    border-color: #333; /* escurece no hover */
+}
+
+/* Imagens dentro dos cards */
+#listaFavoritos .card img {
+    height: 180px;
+    width: 100%;
+    object-fit: contain;
+    /* Mostra a imagem inteira sem cortar */
+    background-color: #f8f9fa; /* Fundo neutro atrás da imagem */
+    border-radius: 12px 12px 0 0;
+    padding: 8px;
+    /* Dá respiro para logos e imagens menores */
+}
+
+/* Mantém altura uniforme dos cards */
+#listaFavoritos .card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* Faz o corpo ocupar todo espaço disponível */
+#listaFavoritos .card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Botão sempre no rodapé */
+#listaFavoritos .btn-remove {
+    margin-top: auto;
+    align-self: flex-start; /* deixa alinhado à esquerda */
+}
+
+/* Botão remover */
+.btn-remove {
+    margin-top: 10px;
+}
+
+/* Ajustes do container (garante contraste do conteúdo com o fundo) */
+main.container {
+    /* opcional: pequeno padding extra e sem fundo branco */
+    background: transparent;
+}
+
+/* Botão de Voltar (mesmo estilo que você queria) */
+.back {
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
+  padding-top: 15px;
+  padding-bottom: 20px;
+}
+
+.back button {
+  background: #fff;
+  border: 2px solid #000;
+  border-radius: 25px;
+  padding: 10px 30px;
+  font-size: 15px;
+  font-weight: bold;
+  color: #000;
+  cursor: pointer;
+  box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.5s ease-in-out;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.back button:hover {
+  background: linear-gradient(135deg, #d4a017, #b8860b);
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.3);
+  color: #fff;
+}

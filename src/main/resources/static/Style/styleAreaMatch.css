@@ -1,0 +1,244 @@
+/* Reset básico e tipografia */
+body,
+html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', Arial, sans-serif;
+    background: linear-gradient(135deg, #f7e733, #f0d941, #e6e1a2);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    color: #444;
+}
+
+/* Container principal para centralizar os matches */
+#matchesContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+    padding: 20px;
+    width: 90%;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Header fixo estilo barra */
+header.navbar {
+    background: #ffc107 !important;
+    /* amarelo estilo bootstrap warning */
+    width: 100%;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+/* Título principal */
+h2 {
+    font-size: 2.5em;
+    color: #000;
+    font-weight: 800;
+    margin: 30px 0 20px;
+    text-align: center;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilo dos cards */
+.item {
+    background: #fff;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    width: 100%;
+    border: 2px solid #ffd700;
+}
+
+.item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+}
+
+/* Imagem do card */
+.item img {
+    width: 100%;
+    max-width: 250px;
+    height: auto;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    border: 2px solid #ddd;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Textos dentro do card */
+.item strong {
+    color: #000;
+    font-weight: 700;
+    font-size: 1.1em;
+}
+
+.item p {
+    font-size: 1.2em;
+    line-height: 1.6;
+    margin: 5px 0;
+}
+
+/* Botões padrão */
+button {
+    background: #ffc400;
+    color: #fff;
+    border: none;
+    padding: 12px 25px;
+    font-size: 1em;
+    font-weight: bold;
+    border-radius: 30px;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(255, 196, 0, 0.4);
+    transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    margin: 10px 5px;
+    width: auto;
+}
+
+button:hover {
+    background: #ffa700;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 167, 0, 0.5);
+}
+
+/* Mensagens de status */
+.erro {
+    color: #F44336;
+    font-weight: bold;
+    font-size: 1.2em;
+    text-align: center;
+}
+
+.match {
+    color: #4CAF50;
+    font-weight: bold;
+    font-size: 1.2em;
+    text-align: center;
+}
+
+/* Footer */
+footer.footer {
+    margin-top: auto;
+    width: 100%;
+    background: #222;
+    color: #fff;
+    padding: 2rem 1rem;
+}
+
+footer a {
+    text-decoration: none;
+    color: #fff;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
+
+/* Imagens de ícones genéricos */
+.icon-img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+}
+
+/* Wrapper do logo para posicionar o botão */
+.brand-wrap {
+    position: relative;
+}
+
+/* Botão Voltar embaixo do ícone */
+.back-btn {
+    position: flex;
+    left: 0;
+    bottom: -22px;
+    /* pendura fora do header */
+    border: 2px solid #000;
+    border-radius: 999px;
+    font-weight: 700;
+    padding: 8px 18px;
+    background: #fff;
+    color: #000;
+    box-shadow: 0 3px 0 #000, 0 6px 18px rgba(0, 0, 0, .18);
+    padding-top: 10px;
+}
+
+/* Dá um respiro no conteúdo para não ficar atrás do botão */
+main.content {
+    padding: 60px 20px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+main.content h2 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #212529;
+    text-align: center;
+    margin-bottom: 40px;
+    position: relative;
+}
+
+main.content h2::after {
+    content: "";
+    display: block;
+    width: 60px;
+    height: 4px;
+    background: #ffc107;
+    margin: 12px auto 0;
+    border-radius: 2px;
+}
+
+#matchesContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 25px;
+    width: 100%;
+}
+
+#matchesContainer .item {
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid #e5e5e5;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    padding: 20px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+#matchesContainer .item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+#matchesContainer .item strong {
+    font-size: 1.1rem;
+    color: #000;
+}
+
+#matchesContainer .item p {
+    font-size: 0.95rem;
+    color: #555;
+    margin-top: 8px;
+}
+
+#matchesContainer .item button {
+    padding: 8px 18px;
+    font-size: 0.9rem;
+    border-radius: 25px;
+    font-weight: 600;
+}
+
+#matchesContainer p {
+    grid-column: 1 / -1;
+    text-align: center;
+    font-size: 1.1rem;
+    color: #6c757d;
+}
