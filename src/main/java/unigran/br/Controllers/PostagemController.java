@@ -39,7 +39,9 @@ public class PostagemController {
             @RequestParam("nomePostagem") String nomePostagem,
             @RequestParam("descricao") String descricao,
             @RequestParam("categoria") String categoria,
-            @RequestParam("categoriaInteresse") String categoriaInteresse,
+            @RequestParam("categoriaInteresse1") String categoriaInteresse1,
+            @RequestParam(value = "categoriaInteresse2", required = false) String categoriaInteresse2,
+            @RequestParam(value = "categoriaInteresse3", required = false) String categoriaInteresse3,
             @RequestParam("cidade") String cidade,
             @RequestParam("uf") String uf,
             @RequestParam(value = "imagem", required = false) MultipartFile imagem,
@@ -55,19 +57,32 @@ public class PostagemController {
         if (!localidadeService.getCidadesPorUF(uf).contains(cidade))
             return ResponseEntity.badRequest().body(Map.of("error", "Cidade não pertence à UF informada ou não existe."));
 
+        // Ao menos 1 categoria de interesse obrigatória
+        if ((categoriaInteresse1 == null || categoriaInteresse1.isBlank())
+                && (categoriaInteresse2 == null || categoriaInteresse2.isBlank())
+                && (categoriaInteresse3 == null || categoriaInteresse3.isBlank())) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Ao menos uma categoria de interesse é obrigatória."));
+        }
+
         Cadastro cadastro = cadastroDAO.encontrarPorUserNome(userNome);
         if (cadastro == null)
             return ResponseEntity.badRequest().body(Map.of("error", "Usuário não encontrado."));
+
 //Salvando Postagem
         Postagem postagem = new Postagem();
         postagem.setId(null);
         postagem.setUserNome(userNome);
-        postagem.setDoacao(isDoacao != null && isDoacao == 1); //Nova adição
+        postagem.setDoacao(isDoacao != null && isDoacao == 1);
         postagem.setIsProdOuServico(isProdOuServico != null && isProdOuServico == 1);
         postagem.setNomePostagem(nomePostagem);
         postagem.setDescricao(descricao);
         postagem.setCategoria(categoria);
-        postagem.setCategoriaInteresse(categoriaInteresse);
+
+        // Salva categorias em colunas separadas (se existir no model)
+        postagem.setCategoriaInteresse1(categoriaInteresse1);
+        postagem.setCategoriaInteresse2(categoriaInteresse2);
+        postagem.setCategoriaInteresse3(categoriaInteresse3);
+
         postagem.setCidade(cidade);
         postagem.setUf(uf);
         postagem.setUserID(cadastro.getId());
@@ -132,5 +147,46 @@ public class PostagemController {
 //Aplicação de Filtro, buscando apenas as postagens relacionadas ao ID
         List<Postagem> postagensUsuario = postagemDAO.listarPorUserID(cadastro.getId());
         return ResponseEntity.ok(postagensUsuario);
+    }
+
+    //____________________________________________________________________________________________
+    //Tela de INICIO !!
+    @GetMapping("/listar-todas")
+    public ResponseEntity<List<Postagem>> listarTodas(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(401).build();
+        }
+
+        String token = authHeader.substring(7);
+        if (!jwtUtil.validarToken(token)) {
+            return ResponseEntity.status(401).build();
+        }
+
+        List<Postagem> todasPostagens = postagemDAO.listarTodas();
+        return ResponseEntity.ok(todasPostagens);
+    }
+
+    //Tela Fazer Proposta Etapa 4______________________________________________________________________
+    @GetMapping("/{id}")
+    public ResponseEntity<Postagem> buscarPostagemPorId(
+            @PathVariable Long id,
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(401).build();
+        }
+
+        String token = authHeader.substring(7);
+        if (!jwtUtil.validarToken(token)) {
+            return ResponseEntity.status(401).build();
+        }
+
+        Postagem postagem = postagemDAO.encontrarPostagemPorId(id);
+        if (postagem == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(postagem);
     }
 }

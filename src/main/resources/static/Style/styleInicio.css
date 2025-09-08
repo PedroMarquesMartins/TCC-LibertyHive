@@ -1,0 +1,198 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #f7e733, #f0d941, #e6e1a2);
+    color: #000;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header */
+header {
+    background: #ffca28;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* Busca */
+#search {
+    border-radius: 25px;
+    border: 1px solid #000;
+    transition: all 0.3s ease;
+}
+
+#search:focus {
+    border-color: #ffb300;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Cards principais */
+.card {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.card.clickable {
+    cursor: pointer;
+    transition: transform .2s ease, box-shadow .2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.card.clickable:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, .2);
+}
+
+/* Botão favorito */
+.fav-btn {
+    border-radius: 20px;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.fav-btn i {
+    font-size: 1rem;
+}
+
+/* -------------------------------------------
+   CARROSSEL 2 LINHAS COM SCROLL HORIZONTAL
+   ------------------------------------------- */
+#listaProdutos.produtos-grid {
+    display: grid;
+    grid-auto-flow: column;
+    /* as colunas se estendem no eixo X */
+    grid-auto-columns: 330px;
+    /* largura fixa de cada coluna/card */
+    grid-template-rows: repeat(2, auto);
+    /* 2 linhas */
+    gap: 1rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 1rem;
+    scroll-snap-type: x mandatory;
+    /* snap suave nas colunas */
+}
+
+#listaProdutos.produtos-grid::-webkit-scrollbar {
+    height: 10px;
+}
+
+#listaProdutos.produtos-grid::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, .25);
+    border-radius: 10px;
+}
+
+#listaProdutos.produtos-grid::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, .05);
+}
+
+/* Cada card */
+#listaProdutos .product-card {
+    scroll-snap-align: start;
+    background: #fff;
+    border: 2px solid #000;
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 320px;
+    width: 100%;
+    /* ocupa 100% da coluna de 330px */
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+#listaProdutos .product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, .25);
+}
+
+#listaProdutos .product-card img {
+    max-width: 100%;
+    height: 150px;
+    object-fit: contain;
+    margin-bottom: .5rem;
+    border-radius: 8px;
+}
+
+#listaProdutos .product-card h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-top: .5rem;
+    color: #333;
+    word-wrap: break-word;
+    white-space: normal;
+}
+
+#listaProdutos .product-card p {
+    font-size: .9rem;
+    color: #444;
+    word-wrap: break-word;
+    white-space: normal;
+    overflow: hidden;
+}
+
+#listaProdutos .product-card small {
+    color: #777;
+    font-size: .85rem;
+    margin-top: auto;
+}
+
+/* Botões do carrossel */
+.carrossel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #000 !important;
+    color: #fff !important;
+    border: none;
+    width: 45px;
+    height: 45px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .3s ease;
+    z-index: 10;
+}
+
+.carrossel-btn:hover {
+    background: #333 !important;
+}
+
+/* Footer */
+footer {
+    margin-top: auto;
+    background: #222;
+    color: #fff;
+    padding: 2rem 1rem;
+}
+
+footer a {
+    text-decoration: none;
+    color: #fff;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
+
+.icon-img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+}

@@ -3,6 +3,8 @@ package unigran.br.Model.DAO;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.persistence.NoResultException;
+import javax.persistence.NonUniqueResultException;
 import org.springframework.stereotype.Repository;
 import unigran.br.Model.Entidades.Escambista;
 
@@ -35,6 +37,20 @@ public class EscambistaDAO {
         return em.find(Escambista.class, id);
     }
 
+    public Escambista encontrarPorUserId(Integer userId) {
+        try {
+            return em.createQuery("SELECT e FROM Escambista e WHERE e.userId = :userId", Escambista.class)
+                    .setParameter("userId", userId)
+                    .getSingleResult();
+        } catch (NoResultException | NonUniqueResultException e) {
+            return null;
+        }
+    }
+
+    public List<Escambista> listarTodos() {
+        return em.createQuery("SELECT e FROM Escambista e", Escambista.class).getResultList();
+    }
+
     public void removerEscambista(Long id) {
         Escambista escambista = encontrarEscambistaPorId(id);
         if (escambista != null) {
@@ -42,10 +58,6 @@ public class EscambistaDAO {
             em.remove(escambista);
             em.getTransaction().commit();
         }
-    }
-
-    public List<Escambista> listarTodos() {
-        return em.createQuery("SELECT e FROM Escambista e", Escambista.class).getResultList();
     }
 
     public void fechar() {

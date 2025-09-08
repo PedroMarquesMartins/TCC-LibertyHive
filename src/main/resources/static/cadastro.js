@@ -58,9 +58,16 @@ document.getElementById('formCadastro').addEventListener('submit', function (eve
             return data;
         })
         .then(data => {
-            alert('Cadastro realizado com sucesso!');
+            Swal.fire({
+                icon: 'success',
+                title: 'Cadastro realizado com sucesso!',
+                showConfirmButton: false,
+                timer: 1000
+            });
             document.getElementById('formCadastro').reset();
-            window.location.href = 'login.html';
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 1000);
         })
         .catch(error => {
             console.error('Erro:', error);

@@ -1,23 +1,58 @@
-/* FONTE LETRAS */
-
 * {
   font-family: 'Poppins', sans-serif;
   font-weight: bold;
 }
 
-h1, h2, h3 {
+optgroup {
+  color: #9d9500;
+  /* Cor mais escura para o rótulo */
+  font-weight: bold;
+}
+
+option {
+  color: #000;
+}
+
+h1,
+h2,
+h3 {
   font-weight: 600;
   color: #000000;
   font-weight: bold;
 }
+
+/* Cor preta para os títulos */
 .postagem h3 {
-  font-size: 16px;
   color: #000000;
   font-weight: bold;
+  font-size: 16px;
+  margin-bottom: 4px;
 }
+
+/* Regra para o texto padrão dentro dos cards (as outras informações) */
 .postagem p {
-  font-size: 13px;
+  font-size: 12px;
+  color: #444;
+  /* Cor cinza para o texto padrão */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  /* Normaliza o texto para não ter quebra de linha indesejada */
+}
+
+/* A regra que corrige o scroll e a altura da descrição */
+.postagem p:first-of-type {
+  white-space: pre-wrap;
+  /* Mantém as quebras de linha APENAS para o primeiro parágrafo (a descrição) */
+  max-height: 100px;
+  overflow-y: auto;
+}
+
+/* Deixa o texto dentro do <span> com cor preta e negrito */
+.postagem p span {
   color: #000000;
+  /* Cor preta para os títulos dos campos */
+  font-weight: bold;
 }
 
 * {
@@ -27,6 +62,17 @@ h1, h2, h3 {
   font-family: Arial, sans-serif;
 }
 
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+main {
+  flex: 1;
+  /* conteúdo ocupa o espaço, footer vai pro final */
+}
+
 /* Fundo gradiente Supremo */
 body {
   background: linear-gradient(135deg, #f7e733, #f0d941, #e6e1a2);
@@ -34,7 +80,12 @@ body {
   position: relative;
   overflow-x: hidden;
   font-family: 'Poppins', sans-serif;
+  display: flex;
+  flex-direction: column;
+  /* CORRIGIDO: fixa o fundo para não repetir com a rolagem */
+  background-attachment: fixed;
 }
+
 /* Heading */
 .top-bar {
   display: flex;
@@ -44,21 +95,21 @@ body {
 }
 
 .logo img {
-    width: 95px;   
-    height: auto;  
-    margin: 10px;  
-    position: flex; 
-    top: 0;
-    left: 100;
+  width: 95px;
+  height: auto;
+  margin: 10px;
+  position: flex;
+  top: 0;
+  left: 100;
 }
 
 .icone-mao {
   text-align: center;
-  margin-top: 20px; 
+  margin-top: 20px;
 }
 
 .icone-mao img {
-  width: 250px;     
+  width: 250px;
   margin: 0 auto;
   display: block;
 }
@@ -66,17 +117,17 @@ body {
 .icone-mao h1 {
   font-size: 28px;
   font-weight: bold;
-  margin-top: 10px;  
-  margin-bottom: 0;  
+  margin-top: 10px;
+  margin-bottom: 0;
 }
 
-.Perfil-Config img{
+.Perfil-Config img {
   width: 50px;
-    height: auto;
-    margin: 0 auto;
-    padding-bottom: 50px;
+  height: auto;
+  margin: 0 auto;
+  padding-bottom: 50px;
 }
-    
+
 .title {
   display: flex;
   align-items: center;
@@ -154,7 +205,7 @@ body {
 
 #listaPostagens {
   display: flex;
-  flex-wrap: wrap;  
+  flex-wrap: wrap;
   justify-content: flex-start;
   gap: 20px;
   padding: 20px;
@@ -168,9 +219,8 @@ body {
   border: 2px solid #000;
   padding: 15px;
   text-align: left;
-  box-shadow: 2px 2px 8px rgba(0,0,0,0.15);
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.15);
   transition: transform 0.2s;
-
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -187,23 +237,12 @@ body {
   border-radius: 8px;
   margin-bottom: 8px;
   margin: 0 auto 8px auto;
-  display: block; 
+  display: block;
 }
 
 .postagem h3 {
   font-size: 14px;
   margin-bottom: 4px;
-}
-
-.postagem p {
-  font-size: 12px;
-  color: #444;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  white-space: normal;
-
-  max-height: 100px;
-  overflow-y: auto;   
 }
 
 /* Botão excluir */
@@ -215,9 +254,8 @@ body {
   border: none;
   border-radius: 6px;
   cursor: pointer;
-
-  margin-top: auto;   
-  align-self: flex-start; 
+  margin-top: auto;
+  align-self: flex-start;
 }
 
 .postagem button:hover {
@@ -247,49 +285,44 @@ body {
   box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-/* Formulário fixo com gradiente melhorado */
-#formAdicionar {
-  display: block;
-  margin: 20px auto;
-  background: linear-gradient(135deg, #ffce53, #ffd54f, #ffe082);
-  padding: 20px;
-  border-radius: 12px;
-  width: 100%;
-  max-width: 800px;  
-  height: auto;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.25); 
-  border: 1px solid #f0e68c;
-}
-
-/* PopUP modal aqui */
-/* Fundo escuro */
+/* CORRIGIDO: Modal e Formulário */
 #popupFormulario {
-  display: none; 
+  display: none;
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.7);
   z-index: 999;
-  
-  /* centraliza quando abrir */
-  display: flex; 
+  display: flex;
   justify-content: center;
   align-items: center;
 }
 
-/* Caixa do formulário dentro do modal */
-#popupFormulario form {
-  background: linear-gradient(to bottom, rgb(234, 238, 17), rgb(229, 231, 105));
+#popupFormulario .modal-content {
+  background: linear-gradient(to bottom, #fff9c4, #fff176);
   padding: 30px;
   border-radius: 15px;
-  width: 85%;           
-  max-width: 900px;     
+  width: 85%;
+  max-width: 900px;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
   animation: popupFade 0.3s ease;
+}
+
+#formAdicionar {
+  display: block;
+  margin: 0 auto;
+  background: transparent; /* CORRIGIDO: torna o fundo transparente */
+  padding: 0;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 800px;
+  height: auto;
+  box-shadow: none; /* CORRIGIDO: remove a sombra duplicada */
+  border: none; /* CORRIGIDO: remove a borda duplicada */
 }
 
 /* Inputs ocupam 100% */
@@ -307,8 +340,14 @@ body {
 
 /* Animação de entrada */
 @keyframes popupFade {
-  from { transform: scale(0.8); opacity: 0; }
-  to   { transform: scale(1);   opacity: 1; }
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 @media (max-width: 500px) {
@@ -325,55 +364,66 @@ body {
   margin-bottom: 15px;
 }
 
-
 .radio-group input[type="radio"] {
-  padding: 0; 
+  padding: 0;
   margin: 0;
   vertical-align: middle;
 }
 
-
 /* Botão de fechar */
 #popupFormulario .fechar {
   position: absolute;
-  top: 15px;
-  right: 20px;
-  font-size: 28px;
+  top: 18px;
+  right: 32px;
+  font-size: 48px;
   font-weight: bold;
-  color: #333;
+  color: #d4a017;
+  background: #fff9c4;
+  border-radius: 50%;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  transition: 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
+  border: 2px solid #ffe082;
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+  z-index: 1001;
 }
 
 #popupFormulario .fechar:hover {
-  color: crimson;
+  background: #ffecb3;
+  color: #b8860b;
+  transform: scale(1.08);
 }
 
 .footer {
-  background: linear-gradient(135deg, #f7f7f7, #e0e0e0); /* gradiente suave */
+  background: #202020;
+  color: #f5f5f5;
   padding: 40px 20px 20px 20px;
-  border-top: 2px solid #ccc;
-  box-shadow: 0 -6px 20px rgba(0,0,0,0.05);
+  border-top: 2px solid #333;
+  box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.25);
   font-family: 'Poppins', sans-serif;
-  color: #333;
   font-size: 14px;
   line-height: 1.6;
-  border-radius: 20px 20px 0 0;
+  width: 100% !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  align-self: stretch;
 }
 
-/* Links */
 .footer a {
-  color: #555;
+  color: #ccc;
   text-decoration: none;
   transition: color 0.3s ease, transform 0.2s ease;
 }
 
 .footer a:hover {
-  color: #d4a017; /* amarelo chamativo */
+  color: #d4a017;
   transform: translateY(-2px);
 }
 
-/* Top do footer */
 .footer-top {
   display: flex;
   flex-wrap: wrap;
@@ -381,7 +431,6 @@ body {
   margin-bottom: 30px;
 }
 
-/* Seções do footer */
 .footer-section {
   flex: 1;
   min-width: 200px;
@@ -391,12 +440,67 @@ body {
 .footer-section h3 {
   font-weight: bold;
   margin-bottom: 15px;
-  color: #222;
+  color: #fff;
 }
 
 .footer-section p {
   font-size: 14px;
-  color: #444;
+  color: #ccc;
+}
+
+.footer-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.footer-section ul li {
+  margin-bottom: 10px;
+}
+
+.social-icons a {
+  display: inline-block;
+  margin-right: 10px;
+  transition: transform 0.2s ease;
+}
+
+.social-icons a img {
+  width: 20px;
+  height: 20px;
+  filter: invert(1);
+}
+
+.social-icons a:hover {
+  transform: scale(1.1);
+}
+
+.footer-bottom {
+  text-align: center;
+  border-top: 1px solid #444;
+  padding-top: 15px;
+  font-size: 13px;
+  color: #aaa;
+}
+
+@media (max-width: 768px) {
+  .footer-top {
+    flex-direction: column;
+    align-items: center;
+  }
+  .footer-section {
+    margin: 15px 0;
+    text-align: center;
+  }
+}
+
+.footer-section h3 {
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: #fff;
+}
+
+.footer-section p {
+  font-size: 14px;
+  color: #ddd;
 }
 
 .footer-section ul {
@@ -428,26 +532,27 @@ body {
 /* Bottom do footer */
 .footer-bottom {
   text-align: center;
-  border-top: 1px solid #ccc;
+  border-top: 1px solid #333;
   padding-top: 15px;
   font-size: 13px;
-  color: #666;
+  color: #aaa;
 }
+
 .icone-mao-card {
   max-width: 600px;
   margin: 40px auto;
   padding: 30px 25px;
   text-align: center;
-  background: linear-gradient(135deg, #fff9c4, #fff176, #ffe57f); 
+  background: linear-gradient(135deg, #fff9c4, #fff176, #ffe57f);
   border-radius: 25px;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
   border: 2px solid #f0e68c;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .icone-mao-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
 }
 
 .icone-mao-card img {
@@ -484,8 +589,14 @@ body {
 
 /* Animação de entrada */
 @keyframes popupFade {
-  from { transform: scale(0.9); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 /* PopUP modal acima  */
@@ -494,18 +605,15 @@ body {
   #listaPostagens {
     justify-content: center;
   }
-
   .postagem {
-    width: 90%; 
+    width: 90%;
   }
-
   .add-card {
     width: 70px;
     height: 70px;
     font-size: 28px;
   }
-
   .icone-mao img {
-    width: 160px; 
+    width: 160px;
   }
 }

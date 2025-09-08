@@ -19,11 +19,14 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(response => response.json().then(data => ({ status: response.status, body: data })))
             .then(({ status, body }) => {
                 if (status === 200 && body.success) {
-                    alert(body.message);
-
-                    localStorage.setItem('token', body.token);          //Token de segurança enviado para o localStorage
-                    localStorage.setItem('userNome', body.userNome);
-                    window.location.href = 'inicio.html';
+                    Swal.fire({ title: "Sucesso!", text: "Login realizado com sucesso!", icon: "success", timer: 1500, showConfirmButton: false }).then(() => {
+                        setTimeout(() => {
+                            localStorage.setItem('token', body.token);
+                            localStorage.setItem('userNome', body.userNome);
+                            localStorage.setItem('userId', body.userId);
+                            window.location.href = 'inicio.html';
+                        }, 10); 
+                    });
                 } else {
                     alert(body.message || 'Erro no login.');
                 }
