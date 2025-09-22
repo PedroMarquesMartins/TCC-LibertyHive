@@ -58,7 +58,13 @@ document.addEventListener('DOMContentLoaded', async function () {
                 <p><strong>Tipo:</strong> ${tipo_string}</p>
                 <p><strong>Doação:</strong> ${doacao_string}</p>
                 <small>${escapeHtml(p.cidade || "")} - ${escapeHtml(p.uf || "")}</small>
+                <div class="d-flex gap-2 mt-2">
+                    <button class="btn btn-outline-primary btn-sm ver-detalhes-btn">Ver Detalhes</button>
+                </div>
             `;
+            card.querySelector('.ver-detalhes-btn').addEventListener('click', () => {
+                window.location.href = `detalhesItem.html?id=${p.id}`;
+            });
 
             frag.appendChild(card);
         });
@@ -165,9 +171,7 @@ function adicionarBotaoFavoritos() {
                 try {
                     const response = await fetch("http://localhost:8080/favoritos?postagemId=" + postagemId, {
                         method: "POST",
-                        headers: {
-                            "Authorization": `Bearer ${token}`
-                        }
+                        headers: { "Authorization": `Bearer ${token}` }
                     });
 
                     const data = await response.json();
@@ -214,7 +218,6 @@ function adicionarBotaoFavoritos() {
 function salvarFavorito(postagem) {
     let favoritos = JSON.parse(localStorage.getItem("favoritos")) || [];
 
-    // evita duplicados
     const jaExiste = favoritos.some(f => f.id === postagem.id);
 
     if (!jaExiste) {

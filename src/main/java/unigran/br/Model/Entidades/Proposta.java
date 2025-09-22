@@ -3,7 +3,7 @@ package unigran.br.Model.Entidades;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "proposta") // garante o nome exato da tabela
+@Table(name = "proposta")
 public class Proposta {
 
     @Id
@@ -12,21 +12,14 @@ public class Proposta {
 
     private Integer status;
 
-    @Column(name = "userId01", nullable = false)
-    private Integer userId01;
+    private Long userId01;
+    private Long userId02;
 
-    @Column(name = "userId02")
-    private Integer userId02;
-
-    @Column(name = "itemDesejadoId", nullable = false)
-    private Integer itemDesejadoId;
-
-    @Column(name = "itemOferecidoId", nullable = false)
-    private Integer itemOferecidoId;
+    private Long itemDesejadoId;
+    private Long itemOferecidoId;
 
     private Integer avaliarPerfil;
 
-    // Getters e Setters
     public Long getId() {
         return id;
     }
@@ -41,31 +34,31 @@ public class Proposta {
         this.status = status;
     }
 
-    public Integer getUserId01() {
+    public Long getUserId01() {
         return userId01;
     }
-    public void setUserId01(Integer userId01) {
+    public void setUserId01(Long userId01) {
         this.userId01 = userId01;
     }
 
-    public Integer getUserId02() {
+    public Long getUserId02() {
         return userId02;
     }
-    public void setUserId02(Integer userId02) {
+    public void setUserId02(Long userId02) {
         this.userId02 = userId02;
     }
 
-    public Integer getItemDesejadoId() {
+    public Long getItemDesejadoId() {
         return itemDesejadoId;
     }
-    public void setItemDesejadoId(Integer itemDesejadoId) {
+    public void setItemDesejadoId(Long itemDesejadoId) {
         this.itemDesejadoId = itemDesejadoId;
     }
 
-    public Integer getItemOferecidoId() {
+    public Long getItemOferecidoId() {
         return itemOferecidoId;
     }
-    public void setItemOferecidoId(Integer itemOferecidoId) {
+    public void setItemOferecidoId(Long itemOferecidoId) {
         this.itemOferecidoId = itemOferecidoId;
     }
 

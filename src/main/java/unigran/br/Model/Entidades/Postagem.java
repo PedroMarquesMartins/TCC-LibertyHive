@@ -13,6 +13,7 @@ public class Postagem {
     private String userNome;
     private Boolean isProdOuServico;
     private Boolean isDoacao;
+    private Boolean disponibilidade;
     private String nomePostagem;
 
     @Column(columnDefinition = "TEXT")
@@ -122,6 +123,14 @@ public class Postagem {
     }
     public void setProdOuServico(Boolean prodOuServico) {
         isProdOuServico = prodOuServico;
+    }
+
+    public Boolean getDisponibilidade() {
+        return disponibilidade;
+    }
+
+    public void setDisponibilidade(Boolean disponibilidade) {
+        this.disponibilidade = disponibilidade;
     }
 
     public String getCidade() {

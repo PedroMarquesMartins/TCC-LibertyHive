@@ -57,7 +57,7 @@ public class PostagemController {
         if (!localidadeService.getCidadesPorUF(uf).contains(cidade))
             return ResponseEntity.badRequest().body(Map.of("error", "Cidade não pertence à UF informada ou não existe."));
 
-        // Ao menos 1 categoria de interesse obrigatória
+        //Ao menos 1 categoria de interesse obrigatória
         if ((categoriaInteresse1 == null || categoriaInteresse1.isBlank())
                 && (categoriaInteresse2 == null || categoriaInteresse2.isBlank())
                 && (categoriaInteresse3 == null || categoriaInteresse3.isBlank())) {
@@ -77,6 +77,7 @@ public class PostagemController {
         postagem.setNomePostagem(nomePostagem);
         postagem.setDescricao(descricao);
         postagem.setCategoria(categoria);
+        postagem.setDisponibilidade(true);
 
         // Salva categorias em colunas separadas (se existir no model)
         postagem.setCategoriaInteresse1(categoriaInteresse1);
@@ -145,7 +146,10 @@ public class PostagemController {
         if (cadastro == null)
             return ResponseEntity.status(401).build();
 //Aplicação de Filtro, buscando apenas as postagens relacionadas ao ID
-        List<Postagem> postagensUsuario = postagemDAO.listarPorUserID(cadastro.getId());
+        List<Postagem> postagensUsuario = postagemDAO.listarPorUserID(cadastro.getId())
+                .stream()
+                .filter(Postagem::getDisponibilidade) //filtra apenas disponíveis
+                .toList();
         return ResponseEntity.ok(postagensUsuario);
     }
 
@@ -164,7 +168,9 @@ public class PostagemController {
             return ResponseEntity.status(401).build();
         }
 
-        List<Postagem> todasPostagens = postagemDAO.listarTodas();
+        List<Postagem> todasPostagens = postagemDAO.listarTodas().stream()
+                .filter(p -> Boolean.TRUE.equals(p.getDisponibilidade()))
+                .toList();
         return ResponseEntity.ok(todasPostagens);
     }
 
@@ -184,7 +190,7 @@ public class PostagemController {
         }
 
         Postagem postagem = postagemDAO.encontrarPostagemPorId(id);
-        if (postagem == null) {
+        if (postagem == null || !Boolean.TRUE.equals(postagem.getDisponibilidade())) {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(postagem);
