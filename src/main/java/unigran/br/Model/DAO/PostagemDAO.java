@@ -5,6 +5,8 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import org.springframework.stereotype.Repository;
 import unigran.br.Model.Entidades.Postagem;
+
+import java.util.Collections;
 import java.util.List;
 
 @Repository
@@ -43,24 +45,42 @@ public class PostagemDAO {
         }
     }
 
-    public List<Postagem> listarTodas() {
-        return em.createQuery("SELECT p FROM Postagem p", Postagem.class).getResultList();
-    }
-
     public void fechar() {
         em.close();
         emf.close();
     }
 
-    public List<Postagem> listarPorUserNome(String userNome) {
-        return em.createQuery("SELECT p FROM Postagem p WHERE p.userNome = :userNome", Postagem.class)
-                .setParameter("userNome", userNome)
-                .getResultList();
+    public List<Postagem> listarTodas() {
+        EntityManager em = emf.createEntityManager();
+        try {
+            List<Postagem> result = em.createQuery("SELECT p FROM Postagem p", Postagem.class)
+                    .getResultList();
+            return result != null ? result : Collections.emptyList();
+        } finally {
+            em.close();
+        }
     }
 
-    public List<Postagem> listarPorUserID(Long userID) {
-        return em.createQuery("SELECT p FROM Postagem p WHERE p.userID = :userID", Postagem.class)
-                .setParameter("userID", userID)
-                .getResultList();
+    public List<Postagem> listarPorUserNome(String userNome) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            return em.createQuery("SELECT p FROM Postagem p WHERE p.userNome = :userNome", Postagem.class)
+                    .setParameter("userNome", userNome)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    public List<Postagem> listarPorUserID(Long userId) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            return em.createQuery(
+                    "SELECT p FROM Postagem p WHERE p.userID = :userId",
+                    Postagem.class
+            ).setParameter("userId", userId).getResultList();
+        } finally {
+            em.close();
+        }
     }
 }

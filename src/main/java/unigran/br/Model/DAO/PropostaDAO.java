@@ -48,16 +48,36 @@ public class PropostaDAO {
         return em.createQuery("SELECT p FROM Proposta p", Proposta.class).getResultList();
     }
 
-    public void fechar() {
-        em.close();
-        emf.close();
-    }
-
     public List<Proposta> listarPorUsuario(Long userId) {
         return em.createQuery(
                         "SELECT p FROM Proposta p WHERE p.userId01 = :userId OR p.userId02 = :userId",
                         Proposta.class)
                 .setParameter("userId", userId)
                 .getResultList();
+    }
+
+    public boolean existsByItemDesejadoIdAndItemOferecidoId(Long itemDesejadoId, Long itemOferecidoId) {
+        Long count = em.createQuery(
+                        "SELECT COUNT(p) FROM Proposta p WHERE p.itemDesejadoId = :itemDesejadoId AND p.itemOferecidoId = :itemOferecidoId",
+                        Long.class)
+                .setParameter("itemDesejadoId", itemDesejadoId)
+                .setParameter("itemOferecidoId", itemOferecidoId)
+                .getSingleResult();
+        return count != null && count > 0;
+    }
+
+    public boolean existsByItemDesejadoIdAndUserId01(Long itemDesejadoId, Long userId01) {
+        Long count = em.createQuery(
+                        "SELECT COUNT(p) FROM Proposta p WHERE p.itemDesejadoId = :itemDesejadoId AND p.userId01 = :userId01",
+                        Long.class)
+                .setParameter("itemDesejadoId", itemDesejadoId)
+                .setParameter("userId01", userId01)
+                .getSingleResult();
+        return count != null && count > 0;
+    }
+
+    public void fechar() {
+        em.close();
+        emf.close();
     }
 }

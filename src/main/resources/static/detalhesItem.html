@@ -86,10 +86,9 @@
       </div>
     </div>
 
-    <div class="lista-itens-usuario" id="listaItensUsuario">
-    </div>
+    <div class="lista-itens-usuario" id="listaItensUsuario"></div>
   </div>
-  <button id="btnPropor" class="btn btn-warning">Propor Troca</button>
+  <button id="btnPropor" class="btn btn-warning">Propor Negócio</button>
 </main>
 
 <script>
@@ -98,8 +97,20 @@ const itemId = queryParams.get("id");
 const token = localStorage.getItem("token");
 if(!token) window.location.href = 'login.html';
 
+function toBool(v) {
+    if (v === true || v === 1) return true;
+    if (v === false || v === 0) return false;
+    if (typeof v === 'string') {
+        const s = v.trim().toLowerCase();
+        return s === 'true' || s === '1' || s === 'sim' || s === 'yes';
+    }
+    return Boolean(v);
+}
+
 let itemSelecionadoId = null;
 let propostasExistentes = [];
+let userLogado = localStorage.getItem("userNome");
+let isDoacao = false; 
 
 async function carregarPropostas() {
     try {
@@ -109,8 +120,8 @@ async function carregarPropostas() {
         if(!resp.ok) throw new Error("Erro ao buscar propostas");
         const data = await resp.json();
         propostasExistentes = data.map(p => ({
-            itemDesejadoId: p.itemDesejado.id,
-            itemOferecidoId: p.itemOferecido.id
+            itemDesejadoId: p.itemDesejado?.id ?? null,
+            itemOferecidoId: p.itemOferecido?.id ?? null
         }));
     } catch(err) {
         console.error("Erro ao carregar propostas:", err);
@@ -127,10 +138,10 @@ async function carregarDetalhes() {
 
         document.getElementById("nomePostagem").textContent = item.nomePostagem;
         document.getElementById("imgPrincipal").src = item.imagem ? `data:image/jpeg;base64,${item.imagem}` : './imagens/placeholder.png';
-        document.getElementById("categoriaItem").textContent = "Categoria: " + item.categoria;
-        document.getElementById("tipoItem").textContent = item.isProdOuServico ? "Produto" : "Serviço";
-        document.getElementById("ufItem").textContent = "UF: " + item.uf;
-        document.getElementById("nomeUsuario").textContent = "Usuário: " + item.userNome;
+        document.getElementById("categoriaItem").textContent = "Categoria: " + (item.categoria ?? "");
+        document.getElementById("tipoItem").textContent = toBool(item.isProdOuServico ?? item.prodOuServico ?? false) ? "Produto" : "Serviço";
+        document.getElementById("ufItem").textContent = "UF: " + (item.uf ?? "");
+        document.getElementById("nomeUsuario").textContent = "Usuário: " + (item.userNome ?? "");
         document.getElementById("descricaoItem").textContent = item.descricao || "";
 
         const catInteresse = [item.categoriaInteresse1,item.categoriaInteresse2,item.categoriaInteresse3].filter(Boolean).join(", ");
@@ -147,37 +158,58 @@ async function carregarDetalhes() {
             }
         });
 
-        const respUser = await fetch("http://localhost:8080/api/postagens/listar", {
-            headers: { "Authorization": `Bearer ${token}` }
-        });
-        const itensUsuario = await respUser.json();
-        const container = document.getElementById("listaItensUsuario");
-        container.innerHTML = "";
+        isDoacao = toBool(item.isDoacao ?? item.doacao ?? false);
 
-        itensUsuario.forEach(p => {
-            const card = document.createElement("div");
-            card.className = "item-card";
+        const listaElem = document.getElementById("listaItensUsuario");
+        const btnPropor = document.getElementById("btnPropor");
 
-            const imgSrc = p.imagem ? `data:image/jpeg;base64,${p.imagem}` : './imagens/placeholder.png';
-            const catInteresse = [p.categoriaInteresse1,p.categoriaInteresse2,p.categoriaInteresse3].filter(Boolean).join(", ");
+        if ((item.userNome ?? "") === (userLogado ?? "")) {
+            listaElem.style.display = "none";
+            btnPropor.style.display = "none";
+            return;
+        }
 
-            card.innerHTML = `
-                <img src="${imgSrc}" alt="${p.nomePostagem}">
-                <h6>${p.nomePostagem}</h6>
-                <p>${p.isProdOuServico ? "Produto" : "Serviço"}</p>
-                <p>UF: ${p.uf}</p>
-                <p>Categoria: ${p.categoria}</p>
-                <p>Categorias de interesse: ${catInteresse || "Nenhuma"}</p>
-            `;
+        if (isDoacao) {
+            listaElem.style.display = "none";
+            btnPropor.textContent = "Solicitar Doação";
+        } else {
+            listaElem.style.display = "";
+            btnPropor.textContent = "Propor Negócio";
+        }
 
-            card.addEventListener("click", () => {
-                document.querySelectorAll(".item-card.selected").forEach(c => c.classList.remove("selected"));
-                card.classList.add("selected");
-                itemSelecionadoId = p.id;
+        if (!isDoacao) {
+            const respUser = await fetch("http://localhost:8080/api/postagens/listar", {
+                headers: { "Authorization": `Bearer ${token}` }
             });
+            const itensUsuario = await respUser.json();
+            const container = document.getElementById("listaItensUsuario");
+            container.innerHTML = "";
 
-            container.appendChild(card);
-        });
+            itensUsuario.forEach(p => {
+                const card = document.createElement("div");
+                card.className = "item-card";
+
+                const imgSrc = p.imagem ? `data:image/jpeg;base64,${p.imagem}` : './imagens/placeholder.png';
+                const catInteresseP = [p.categoriaInteresse1,p.categoriaInteresse2,p.categoriaInteresse3].filter(Boolean).join(", ");
+
+                card.innerHTML = `
+                    <img src="${imgSrc}" alt="${p.nomePostagem}">
+                    <h6>${p.nomePostagem}</h6>
+                    <p>${toBool(p.isProdOuServico ?? p.prodOuServico ?? false) ? "Produto" : "Serviço"}</p>
+                    <p>UF: ${p.uf ?? ""}</p>
+                    <p>Categoria: ${p.categoria ?? ""}</p>
+                    <p style="font-size:11px;color:#666">Interesse: ${catInteresseP || "Nenhuma"}</p>
+                `;
+
+                card.addEventListener("click", () => {
+                    document.querySelectorAll(".item-card.selected").forEach(c => c.classList.remove("selected"));
+                    card.classList.add("selected");
+                    itemSelecionadoId = p.id;
+                });
+
+                container.appendChild(card);
+            });
+        }
 
     } catch(e){
         console.error(e);
@@ -186,38 +218,77 @@ async function carregarDetalhes() {
 }
 
 document.getElementById("btnPropor").addEventListener("click", async () => {
-    if(!itemSelecionadoId){
-        Swal.fire({ title:"Atenção", text:"Selecione um item seu para propor a troca.", icon:"warning" });
-        return;
-    }
-
     const itemDesejadoId = itemId;
-    const itemOferecidoId = itemSelecionadoId;
+    let itemOferecidoId = itemSelecionadoId;
 
-    const jaExiste = propostasExistentes.some(p => 
-        p.itemDesejadoId == itemDesejadoId && p.itemOferecidoId == itemOferecidoId
-    );
+    if (isDoacao) {
+        itemOferecidoId = null;
+    } else {
+        if (!itemSelecionadoId) {
+            Swal.fire({ 
+                title: "Atenção", 
+                text: "Selecione um item seu para propor o negócio.", 
+                icon: "warning" 
+            });
+            return;
+        }
+    }
 
-    if(jaExiste){
-        Swal.fire({ title:"Atenção", text:"Você já enviou uma proposta com esses itens.", icon:"warning" });
+    let jaExiste = false;
+    if (isDoacao) {
+        jaExiste = propostasExistentes.some(p => p.itemDesejadoId == itemDesejadoId);
+    } else {
+        jaExiste = propostasExistentes.some(p =>
+            p.itemDesejadoId == itemDesejadoId && p.itemOferecidoId == itemOferecidoId
+        );
+    }
+
+    if (jaExiste) {
+        Swal.fire({ 
+            title: "Atenção", 
+            text: isDoacao ? "Você já solicitou doação para este item." : "Você já enviou uma proposta com esses itens.", 
+            icon: "warning" 
+        });
         return;
     }
 
-    try{
-        const resp = await fetch(`http://localhost:8080/api/propostas/criar?itemDesejadoId=${itemDesejadoId}&itemOferecidoId=${itemOferecidoId}`, {
+    const confirm = await Swal.fire({
+        title: isDoacao ? "Confirmar solicitação de doação?" : "Confirmar proposta?",
+        text: isDoacao ? "Deseja realmente solicitar esta doação?" : "Deseja realmente propor este negócio?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: isDoacao ? "Sim, solicitar" : "Sim, propor",
+        cancelButtonText: "Cancelar"
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    try {
+        let url = `http://localhost:8080/api/propostas/criar?itemDesejadoId=${itemDesejadoId}`;
+        if (itemOferecidoId) url += `&itemOferecidoId=${itemOferecidoId}`;
+
+        const resp = await fetch(url, {
             method: "POST",
             headers: { "Authorization": `Bearer ${token}` }
         });
         const data = await resp.json();
-        if(resp.ok){
-            Swal.fire({ title:"Sucesso!", text:"Proposta criada com sucesso!", icon:"success" });
-            propostasExistentes.push({itemDesejadoId, itemOferecidoId});
+        if (resp.ok) {
+            Swal.fire({ 
+                title: "Sucesso!", 
+                text: isDoacao ? "Solicitação de doação enviada!" : "Proposta criada com sucesso!", 
+                icon: "success" 
+            });
+            propostasExistentes.push({ itemDesejadoId, itemOferecidoId: itemOferecidoId ?? null });
         } else {
-            Swal.fire({ title:"Erro", text: data.message || "Não foi possível criar a proposta.", icon:"error" });
+            Swal.fire({ 
+                title: "Erro", 
+                text: data.message || "Não foi possível criar a proposta.", 
+                icon: "error" 
+            });
         }
-    } catch(err){
+    } catch (err) {
         console.error(err);
-        Swal.fire({ title:"Erro", text:"Falha ao criar proposta.", icon:"error" });
+        Swal.fire({ title: "Erro", text: "Falha ao criar proposta.", icon: "error" });
     }
 });
 

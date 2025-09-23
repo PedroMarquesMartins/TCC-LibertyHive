@@ -2,6 +2,15 @@ document.addEventListener('DOMContentLoaded', async function () {
     const nome = localStorage.getItem('userNome');
     document.getElementById('usuarioNome').textContent = nome || "visitante";
 
+    const containerTopo = document.getElementById('listaProdutos').parentNode;
+    const btnPropostas = document.createElement('button');
+    btnPropostas.className = 'btn btn-outline-success mb-3';
+    btnPropostas.textContent = 'Minhas Propostas';
+    btnPropostas.addEventListener('click', () => {
+        window.location.href = 'minhasPropostas.html';
+    });
+    containerTopo.insertBefore(btnPropostas, containerTopo.firstChild);
+
     const lista = document.getElementById('listaProdutos');
     lista.innerHTML = "<p class='text-muted'>Carregando postagens...</p>";
 

@@ -12,8 +12,10 @@ import unigran.br.Model.Entidades.Cadastro;
 import unigran.br.Model.Entidades.Postagem;
 import unigran.br.Model.Entidades.Proposta;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/propostas")
@@ -36,33 +38,50 @@ public class PropostaController {
     public ResponseEntity<?> criarProposta(
             @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader,
             @RequestParam Long itemDesejadoId,
-            @RequestParam Long itemOferecidoId
+            @RequestParam(required = false) Long itemOferecidoId
     ) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(401).body(Map.of("message", "Token inválido ou ausente."));
         }
 
         String token = authHeader.substring(7);
-        String userNome = jwtUtil.extrairUserNome(token);
-        Cadastro usuarioProponente = cadastroDAO.encontrarPorUserNome(userNome);
+        Cadastro usuarioProponente = cadastroDAO.encontrarPorUserNome(jwtUtil.extrairUserNome(token));
         if (usuarioProponente == null) {
             return ResponseEntity.status(401).body(Map.of("message", "Usuário não encontrado."));
         }
 
         Postagem itemDesejado = postagemDAO.encontrarPostagemPorId(itemDesejadoId);
-        Postagem itemOferecido = postagemDAO.encontrarPostagemPorId(itemOferecidoId);
-
-        if (itemDesejado == null || itemOferecido == null) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Um ou ambos os itens não foram encontrados."));
+        if (itemDesejado == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Item desejado não encontrado."));
         }
 
-        Long userIdDesejado = itemDesejado.getUserID();
-        Long userIdOferecedor = itemOferecido.getUserID();
+        boolean isDoacao = Boolean.TRUE.equals(itemDesejado.getDoacao());
 
+        boolean existe;
+        if (isDoacao) {
+            existe = propostaDAO.existsByItemDesejadoIdAndUserId01(itemDesejadoId, usuarioProponente.getId());
+        } else {
+            if (itemOferecidoId == null) {
+                return ResponseEntity.badRequest().body(Map.of("message", "É necessário informar um item oferecido para troca."));
+            }
+            existe = propostaDAO.existsByItemDesejadoIdAndItemOferecidoId(itemDesejadoId, itemOferecidoId);
+        }
+
+        if (existe) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Você já enviou esta proposta."));
+        }
+
+        Postagem itemOferecido = null;
+        if (!isDoacao) {
+            itemOferecido = postagemDAO.encontrarPostagemPorId(itemOferecidoId);
+            if (itemOferecido == null) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Item oferecido não encontrado."));
+            }
+        }
         Proposta proposta = new Proposta();
         proposta.setStatus(1);
-        proposta.setUserId01(userIdOferecedor);
-        proposta.setUserId02(userIdDesejado);
+        proposta.setUserId01(usuarioProponente.getId());
+        proposta.setUserId02(itemDesejado.getUserID());
         proposta.setItemDesejadoId(itemDesejadoId);
         proposta.setItemOferecidoId(itemOferecidoId);
         proposta.setAvaliarPerfil(3);
@@ -90,56 +109,65 @@ public class PropostaController {
             Long userId = cadastro.getId();
             List<Proposta> propostas = propostaDAO.listarPorUsuario(userId);
 
-            List<Map<String, Object>> resposta = propostas.stream()
-                    .map(p -> {
-                        Postagem itemDesejado = postagemDAO.encontrarPostagemPorId(p.getItemDesejadoId());
-                        Postagem itemOferecido = postagemDAO.encontrarPostagemPorId(p.getItemOferecidoId());
+            List<Map<String, Object>> resposta = propostas.stream().map(p -> {
+                Postagem itemDesejado = postagemDAO.encontrarPostagemPorId(p.getItemDesejadoId());
+                Postagem itemOferecido = (p.getItemOferecidoId() != null)
+                        ? postagemDAO.encontrarPostagemPorId(p.getItemOferecidoId())
+                        : null;
 
-                        if (itemDesejado == null || itemOferecido == null) return null;
+                if (itemDesejado == null) return null;
 
-                        boolean podeCancelar = p.getUserId01().equals(userId);
-                        boolean podeConcluir = !p.getUserId01().equals(userId) && p.getStatus() == 1;
-                        boolean podeRecusar = !p.getUserId01().equals(userId) && p.getStatus() == 1;
+                boolean podeCancelar = p.getUserId01().equals(userId);
+                boolean podeConcluir = !p.getUserId01().equals(userId) && p.getStatus() == 1;
+                boolean podeRecusar = !p.getUserId01().equals(userId) && p.getStatus() == 1;
 
-                        return Map.of(
-                                "idProposta", p.getId(),
-                                "status", p.getStatus(),
-                                "userId01", p.getUserId01(),
-                                "userId02", p.getUserId02(),
-                                "itemDesejado", Map.of(
-                                        "id", itemDesejado.getId(),
-                                        "nomePostagem", itemDesejado.getNomePostagem(),
-                                        "descricao", itemDesejado.getDescricao(),
-                                        "categoria", itemDesejado.getCategoria(),
-                                        "disponibilidade", itemDesejado.getDisponibilidade(),
-                                        "cidade", itemDesejado.getCidade(),
-                                        "uf", itemDesejado.getUf()
-                                ),
-                                "itemOferecido", Map.of(
-                                        "id", itemOferecido.getId(),
-                                        "nomePostagem", itemOferecido.getNomePostagem(),
-                                        "descricao", itemOferecido.getDescricao(),
-                                        "categoria", itemOferecido.getCategoria(),
-                                        "disponibilidade", itemOferecido.getDisponibilidade(),
-                                        "cidade", itemOferecido.getCidade(),
-                                        "uf", itemOferecido.getUf()
-                                ),
-                                "podeCancelar", podeCancelar,
-                                "podeConcluir", podeConcluir,
-                                "podeRecusar", podeRecusar
-                        );
-                    })
-                    .filter(java.util.Objects::nonNull)
-                    .toList();
+                Map<String, Object> propostaMap = new HashMap<>();
+                propostaMap.put("idProposta", p.getId());
+                propostaMap.put("status", p.getStatus());
+                propostaMap.put("userId01", p.getUserId01());
+                propostaMap.put("userId02", p.getUserId02());
+
+                Map<String, Object> itemDesejadoMap = new HashMap<>();
+                itemDesejadoMap.put("id", itemDesejado.getId());
+                itemDesejadoMap.put("nomePostagem", itemDesejado.getNomePostagem());
+                itemDesejadoMap.put("descricao", itemDesejado.getDescricao());
+                itemDesejadoMap.put("categoria", itemDesejado.getCategoria());
+                itemDesejadoMap.put("disponibilidade", itemDesejado.getDisponibilidade());
+                itemDesejadoMap.put("cidade", itemDesejado.getCidade());
+                itemDesejadoMap.put("uf", itemDesejado.getUf());
+
+                propostaMap.put("itemDesejado", itemDesejadoMap);
+
+                if (itemOferecido != null) {
+                    Map<String, Object> itemOferecidoMap = new HashMap<>();
+                    itemOferecidoMap.put("id", itemOferecido.getId());
+                    itemOferecidoMap.put("nomePostagem", itemOferecido.getNomePostagem());
+                    itemOferecidoMap.put("descricao", itemOferecido.getDescricao());
+                    itemOferecidoMap.put("categoria", itemOferecido.getCategoria());
+                    itemOferecidoMap.put("disponibilidade", itemOferecido.getDisponibilidade());
+                    itemOferecidoMap.put("cidade", itemOferecido.getCidade());
+                    itemOferecidoMap.put("uf", itemOferecido.getUf());
+
+                    propostaMap.put("itemOferecido", itemOferecidoMap);
+                } else {
+                    propostaMap.put("itemOferecido", null);
+                }
+
+                propostaMap.put("podeCancelar", podeCancelar);
+                propostaMap.put("podeConcluir", podeConcluir);
+                propostaMap.put("podeRecusar", podeRecusar);
+
+                return propostaMap;
+            }).filter(Objects::nonNull).toList();
 
             return ResponseEntity.ok(resposta);
 
         } catch (Exception e) {
             System.err.println("Erro ao listar propostas: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.status(500).body(Map.of("message", "Erro ao listar propostas: " + e.getMessage()));
         }
     }
-
     @PostMapping("/acao")
     public ResponseEntity<?> atualizarStatusProposta(
             @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader,
@@ -177,13 +205,16 @@ public class PropostaController {
                 }
                 proposta.setStatus(2);
 
-                Postagem itemDesejado = postagemDAO.encontrarPostagemPorId(Long.valueOf(proposta.getItemDesejadoId()));
-                Postagem itemOferecido = postagemDAO.encontrarPostagemPorId(Long.valueOf(proposta.getItemOferecidoId()));
+                Postagem itemDesejado = postagemDAO.encontrarPostagemPorId(proposta.getItemDesejadoId());
+                Postagem itemOferecido = (proposta.getItemOferecidoId() != null)
+                        ? postagemDAO.encontrarPostagemPorId(proposta.getItemOferecidoId())
+                        : null;
+
                 if (itemDesejado != null) itemDesejado.setDisponibilidade(false);
                 if (itemOferecido != null) itemOferecido.setDisponibilidade(false);
 
                 postagemDAO.atualizarPostagem(itemDesejado);
-                postagemDAO.atualizarPostagem(itemOferecido);
+                if (itemOferecido != null) postagemDAO.atualizarPostagem(itemOferecido);
                 break;
 
             case "recusar":
@@ -196,7 +227,6 @@ public class PropostaController {
             default:
                 return ResponseEntity.badRequest().body(Map.of("message", "Ação inválida."));
         }
-
         propostaDAO.atualizarProposta(proposta);
         return ResponseEntity.ok(Map.of("message", "Proposta atualizada com sucesso!", "status", proposta.getStatus()));
     }
