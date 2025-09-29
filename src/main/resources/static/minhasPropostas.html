@@ -2,168 +2,98 @@
 <html lang="pt-BR">
 
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8" />
     <title>Minhas Propostas</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-
-        .proposta-card {
-            display: flex;
-            justify-content: space-between;
-            background-color: #fff;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .item-card {
-            width: 48%;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 10px;
-            background-color: #fafafa;
-        }
-
-        .item-card h3 {
-            margin-top: 0;
-        }
-
-        .acoes {
-            margin-top: 10px;
-        }
-
-        .acoes button {
-            margin-right: 5px;
-            padding: 5px 10px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .cancelar {
-            background-color: #f44336;
-            color: white;
-        }
-
-        .concluir {
-            background-color: #4caf50;
-            color: white;
-        }
-
-        .recusar {
-            background-color: #ff9800;
-            color: white;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="./Style/styleMinhasPropostas.css">
 </head>
 
 <body>
-    <h1>Minhas Propostas</h1>
-    <div id="propostasContainer"></div>
+    <header class="bg-warning py-2 shadow-sm">
+        <div class="container-fluid d-flex justify-content-between align-items-center">
 
-    <script>
-        const token = localStorage.getItem('token');
-        async function carregarPropostas() {
-            try {
-                const res = await fetch('http://localhost:8080/api/propostas/listarPropostas', {
-                    headers: {
-                        'Authorization': 'Bearer ' + token
-                    }
-                });
-                if (!res.ok) throw new Error('Erro ao buscar propostas');
+            <a class="navbar-brand fw-bold" href="#">
+                <img src="imagens/logo.png" alt="LibertyHive" width="40" />
+            </a>
 
-                const propostas = await res.json();
-                const container = document.getElementById('propostasContainer');
-                container.innerHTML = '';
-                propostas.forEach(p => {
-                    const card = document.createElement('div');
-                    card.classList.add('proposta-card');
+            <div class="d-flex align-items-center gap-2">
+                <button type="button" class="btn btn-outline-danger btn-sm rounded-circle" title="Meus Favoritos"
+                    onclick="window.location.href='favoritos.html'">
+                    <i class="bi bi-heart"></i>
+                </button>
+                <button type="button" class="btn btn-outline-dark btn-sm rounded-circle" title="Configurações"
+                    onclick="window.location.href='configuracao.html'">
+                    <i class="bi bi-gear"></i>
+                </button>
+            </div>
 
-                    const itemDesejado = document.createElement('div');
-                    itemDesejado.classList.add('item-card');
-                    itemDesejado.innerHTML = `
-                        <h3>${p.itemDesejado.nomePostagem}</h3>
-                        <p>${p.itemDesejado.descricao}</p>
-                        <p><b>Categoria:</b> ${p.itemDesejado.categoria}</p>
-                        <p><b>Cidade:</b> ${p.itemDesejado.cidade} - ${p.itemDesejado.uf}</p>
-                        <p><b>Disponibilidade:</b> ${p.itemDesejado.disponibilidade ? 'Sim' : 'Não'}</p>
-                    `;
-                    const itemOferecido = document.createElement('div');
-                    itemOferecido.classList.add('item-card');
-                    if (p.itemOferecido) {
-                        itemOferecido.innerHTML = `
-                            <h3>${p.itemOferecido.nomePostagem}</h3>
-                            <p>${p.itemOferecido.descricao}</p>
-                            <p><b>Categoria:</b> ${p.itemOferecido.categoria}</p>
-                            <p><b>Cidade:</b> ${p.itemOferecido.cidade} - ${p.itemOferecido.uf}</p>
-                            <p><b>Disponibilidade:</b> ${p.itemOferecido.disponibilidade ? 'Sim' : 'Não'}</p>
-                        `;
-                    } else {
-                        itemOferecido.innerHTML = '<h3>Doação</h3><p>Não há item oferecido</p>';
-                    }
+        </div>
+    </header>
+    <main class="container flex-grow-1 py-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0">Minhas Propostas</h1>
+            <button class="btn btn-outline-secondary" id="btnVoltar">
+                <i class="bi bi-arrow-left"></i> Voltar
+            </button>
+        </div>
 
-                    const acoes = document.createElement('div');
-                    acoes.classList.add('acoes');
+        <section>
+            <h2 class="h5 text-secondary mb-3">Abertas (Pendentes)</h2>
+            <div id="abertas" class="propostas-grid">
+            </div>
+        </section>
 
-                    if (p.podeCancelar) {
-                        const btnCancelar = document.createElement('button');
-                        btnCancelar.classList.add('cancelar');
-                        btnCancelar.innerText = 'Cancelar';
-                        btnCancelar.onclick = () => atualizarStatus(p.idProposta, 'cancelar');
-                        acoes.appendChild(btnCancelar);
-                    }
-                    if (p.podeConcluir) {
-                        const btnConcluir = document.createElement('button');
-                        btnConcluir.classList.add('concluir');
-                        btnConcluir.innerText = 'Concluir';
-                        btnConcluir.onclick = () => atualizarStatus(p.idProposta, 'concluir');
-                        acoes.appendChild(btnConcluir);
-                    }
-                    if (p.podeRecusar) {
-                        const btnRecusar = document.createElement('button');
-                        btnRecusar.classList.add('recusar');
-                        btnRecusar.innerText = 'Recusar';
-                        btnRecusar.onclick = () => atualizarStatus(p.idProposta, 'recusar');
-                        acoes.appendChild(btnRecusar);
-                    }
+        <section class="mt-5">
+            <h2 class="h5 text-secondary mb-3">Encerradas (Concluídas / Canceladas / Recusadas)</h2>
+            <div id="encerradas" class="propostas-grid">
+            </div>
+        </section>
+    </main>
 
-                    card.appendChild(itemDesejado);
-                    card.appendChild(itemOferecido);
-                    card.appendChild(acoes);
-                    container.appendChild(card);
-                });
+    <footer class="footer mt-auto">
+        <div class="container py-5">
+            <div class="row gy-4">
 
-            } catch (err) {
-                console.error(err);
-                alert('Erro ao carregar propostas');
-            }
-        }
+                <div class="col-md-4">
+                    <h5 class="text-white">Sobre</h5>
+                    <p class="text-muted small mb-0">
+                        Plataforma para trocar produtos e serviços de forma segura e prática.
+                    </p>
+                </div>
 
-        async function atualizarStatus(propostaId, acao) {
-            try {
-                const res = await fetch(`http://localhost:8080/api/propostas/acao?propostaId=${propostaId}&acao=${acao}`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': 'Bearer ' + token
-                    }
-                });
-                if (!res.ok) throw new Error('Erro ao atualizar proposta');
-                carregarPropostas();
-            } catch (err) {
-                console.error(err);
-                alert('Erro ao atualizar proposta');
-            }
-        }
+                <div class="col-md-4">
+                    <h5 class="text-white">Links Úteis</h5>
+                    <ul class="list-unstyled small">
+                        <li><a href="#">Fale Conosco</a></li>
+                        <li><a href="#">Suporte</a></li>
+                        <li><a href="#">Denúncias</a></li>
+                        <li><a href="#">Termos de Uso</a></li>
+                        <li><a href="#">Política de Privacidade</a></li>
+                    </ul>
+                </div>
 
+                <div class="col-md-4">
+                    <h5 class="text-white">Redes Sociais</h5>
+                    <div class="d-flex gap-3">
+                        <a href="#"><i class="bi bi-facebook"></i></a>
+                        <a href="#"><i class="bi bi-twitter"></i></a>
+                        <a href="#"><i class="bi bi-instagram"></i></a>
+                        <a href="#"><i class="bi bi-linkedin"></i></a>
+                    </div>
+                </div>
 
-        
-        carregarPropostas();
-    </script>
+            </div>
+
+            <div class="footer-bottom text-center pt-4 mt-4 border-top">
+                <small class="text-muted">© 2025 LibertyHive. Todos os direitos reservados.</small>
+            </div>
+        </div>
+    </footer>
+
+    <script src="minhasPropostas.js"></script>
 </body>
 
 </html>

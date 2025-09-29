@@ -1,14 +1,14 @@
 document.addEventListener('DOMContentLoaded', async function () {
     const nome = localStorage.getItem('userNome');
     document.getElementById('usuarioNome').textContent = nome || "visitante";
+    const dropdownUserName = document.getElementById('dropdownUserName');
+    if (dropdownUserName) {
+        dropdownUserName.textContent = nome || "visitante";
+    }
 
     const containerTopo = document.getElementById('listaProdutos').parentNode;
     const btnPropostas = document.createElement('button');
-    btnPropostas.className = 'btn btn-outline-success mb-3';
-    btnPropostas.textContent = 'Minhas Propostas';
-    btnPropostas.addEventListener('click', () => {
-        window.location.href = 'minhasPropostas.html';
-    });
+
     containerTopo.insertBefore(btnPropostas, containerTopo.firstChild);
 
     const lista = document.getElementById('listaProdutos');
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 <p><strong>Doação:</strong> ${doacao_string}</p>
                 <small>${escapeHtml(p.cidade || "")} - ${escapeHtml(p.uf || "")}</small>
                 <div class="d-flex gap-2 mt-2">
-                    <button class="btn btn-outline-primary btn-sm ver-detalhes-btn">Ver Detalhes</button>
+                    <button class="btn btn-outline-danger btn-sm ver-detalhes-btn">Ver Detalhes</button>
                 </div>
             `;
             card.querySelector('.ver-detalhes-btn').addEventListener('click', () => {
@@ -92,6 +92,16 @@ document.addEventListener('DOMContentLoaded', async function () {
         lista.innerHTML = "<p class='text-danger'>Erro de conexão com o servidor.</p>";
     }
 });
+
+const token = localStorage.getItem('token');
+
+function abrirConfiguracoes() {
+    if (!token) {
+        alert("Você precisa estar logado.");
+        return;
+    }
+    window.location.href = `configuracao.html?token=${encodeURIComponent(token)}`;
+}
 
 function verMeusItens() { window.location.href = 'meusItens.html'; }
 

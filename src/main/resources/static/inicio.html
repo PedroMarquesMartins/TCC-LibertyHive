@@ -26,15 +26,41 @@
       </form>
 
       <div class="d-flex align-items-center gap-3">
-        <button type="button" class="btn btn-outline-dark btn-sm rounded-circle"><i class="bi bi-bell"></i></button>
 
         <button type="button" class="btn btn-outline-danger btn-sm rounded-circle" title="Meus Favoritos"
           onclick="window.location.href='favoritos.html'">
           <i class="bi bi-heart"></i>
         </button>
 
-        <button type="button" class="btn btn-outline-dark btn-sm rounded-circle"><i class="bi bi-person"></i></button>
-        <button type="button" class="btn btn-outline-dark btn-sm rounded-circle"><i class="bi bi-gear"></i></button>
+        <div class="dropdown">
+          <button class="btn btn-outline-dark btn-sm rounded-circle dropdown-toggle" type="button" id="userMenu"
+            data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-person"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userMenu">
+            <li>
+              <h6 class="dropdown-header" id="dropdownUserName">[Nome e Sobrenome]</h6>
+            </li>
+            <li><a class="dropdown-item" href="configuracao.html">Informação Pessoal</a></li>
+            <li><a class="dropdown-item" href="favoritos.html">Favoritos</a></li>
+            <li><a class="dropdown-item" href="meusItens.html">Meus Itens</a></li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            <li>
+              <button type="button" class="btn btn-outline-dark btn-sm rounded-circle" onclick="logout()" title="Sair">
+                <i class="bi bi-box-arrow-right"></i>
+              </button>
+            </li>
+          </ul>
+        </div>
+
+
+
+        <button type="button" class="btn btn-outline-dark btn-sm rounded-circle" title="Configurações"
+          onclick="window.location.href='configuracao.html'">
+          <i class="bi bi-gear"></i>
+        </button>
         <button type="button" class="btn btn-outline-dark btn-sm rounded-circle" onclick="logout()" title="Sair">
           <i class="bi bi-box-arrow-right"></i>
         </button>
@@ -54,7 +80,7 @@
         </div>
       </div>
       <div class="col-md-4">
-        <div class="card h-100 shadow-sm py-4 border border-dark clickable">
+        <div class="card h-100 shadow-sm py-4 border border-dark">
           <i class="bi bi-box display-3 mb-3 text-warning"></i>
           <h5>Explore o mundo das trocas</h5>
           <small class="text-muted">comece já!</small>
@@ -67,6 +93,11 @@
           <h5>Acessar minha Área Match</h5>
         </div>
       </div>
+    </div>
+    <div class="d-flex justify-content-center my-3">
+      <button class="btn-propostas" onclick="window.location.href='minhasPropostas.html'">
+        <i class="bi bi-box"></i> Minhas Propostas
+      </button>
     </div>
 
     <div class="mt-5 mb-3 d-flex align-items-center justify-content-between flex-wrap gap-2">

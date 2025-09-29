@@ -71,7 +71,14 @@ public class PostagemDAO {
             em.close();
         }
     }
-
+    public void atualizarUserNomePostagens(String userNomeAntigo, String userNomeNovo) {
+        em.getTransaction().begin();
+        em.createQuery("UPDATE Postagem p SET p.userNome = :novoNome WHERE p.userNome = :antigoNome")
+                .setParameter("novoNome", userNomeNovo)
+                .setParameter("antigoNome", userNomeAntigo)
+                .executeUpdate();
+        em.getTransaction().commit();
+    }
     public List<Postagem> listarPorUserID(Long userId) {
         EntityManager em = emf.createEntityManager();
         try {
