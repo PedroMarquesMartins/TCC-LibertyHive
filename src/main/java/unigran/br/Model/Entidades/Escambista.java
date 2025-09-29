@@ -1,25 +1,34 @@
 package unigran.br.Model.Entidades;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import javax.persistence.*;
+import java.time.LocalDate;
 
 @Entity
-@Table(name = "escambista") // garante que mapeia exatamente essa tabela
+@Table(name = "escambista")
 public class Escambista {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false) // porque no banco está "not null"
+    @Column(nullable = false)
     private Integer userId;
 
     private String userNome;
     private String nomeEscambista;
     private Integer avaliacao;
     private String contato;
-    private String email;
     private String endereco;
+    private String cpf;
 
-    // Getters e Setters
+    @Column(name = "datanasc")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private LocalDate dataNasc;
+
+    @Column(name = "quernotifi")
+    private Boolean querNotifi;
+
     public Long getId() {
         return id;
     }
@@ -68,19 +77,35 @@ public class Escambista {
         this.contato = contato;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     public String getEndereco() {
         return endereco;
     }
 
     public void setEndereco(String endereco) {
         this.endereco = endereco;
+    }
+
+    public String getCpf() {
+        return cpf;
+    }
+
+    public void setCpf(String cpf) {
+        this.cpf = cpf;
+    }
+
+    public LocalDate getDataNasc() {
+        return dataNasc;
+    }
+
+    public void setDataNasc(LocalDate dataNasc) {
+        this.dataNasc = dataNasc;
+    }
+
+    public Boolean getQuerNotifi() {
+        return querNotifi;
+    }
+
+    public void setQuerNotifi(Boolean querNotifi) {
+        this.querNotifi = querNotifi;
     }
 }

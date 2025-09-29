@@ -1,6 +1,15 @@
 document.addEventListener('DOMContentLoaded', async function () {
     const nome = localStorage.getItem('userNome');
     document.getElementById('usuarioNome').textContent = nome || "visitante";
+    const dropdownUserName = document.getElementById('dropdownUserName');
+    if (dropdownUserName) {
+        dropdownUserName.textContent = nome || "visitante";
+    }
+
+    const containerTopo = document.getElementById('listaProdutos').parentNode;
+    const btnPropostas = document.createElement('button');
+
+    containerTopo.insertBefore(btnPropostas, containerTopo.firstChild);
 
     const lista = document.getElementById('listaProdutos');
     lista.innerHTML = "<p class='text-muted'>Carregando postagens...</p>";
@@ -58,7 +67,13 @@ document.addEventListener('DOMContentLoaded', async function () {
                 <p><strong>Tipo:</strong> ${tipo_string}</p>
                 <p><strong>Doação:</strong> ${doacao_string}</p>
                 <small>${escapeHtml(p.cidade || "")} - ${escapeHtml(p.uf || "")}</small>
+                <div class="d-flex gap-2 mt-2">
+                    <button class="btn btn-outline-danger btn-sm ver-detalhes-btn">Ver Detalhes</button>
+                </div>
             `;
+            card.querySelector('.ver-detalhes-btn').addEventListener('click', () => {
+                window.location.href = `detalhesItem.html?id=${p.id}`;
+            });
 
             frag.appendChild(card);
         });
@@ -77,6 +92,16 @@ document.addEventListener('DOMContentLoaded', async function () {
         lista.innerHTML = "<p class='text-danger'>Erro de conexão com o servidor.</p>";
     }
 });
+
+const token = localStorage.getItem('token');
+
+function abrirConfiguracoes() {
+    if (!token) {
+        alert("Você precisa estar logado.");
+        return;
+    }
+    window.location.href = `configuracao.html?token=${encodeURIComponent(token)}`;
+}
 
 function verMeusItens() { window.location.href = 'meusItens.html'; }
 
@@ -165,9 +190,7 @@ function adicionarBotaoFavoritos() {
                 try {
                     const response = await fetch("http://localhost:8080/favoritos?postagemId=" + postagemId, {
                         method: "POST",
-                        headers: {
-                            "Authorization": `Bearer ${token}`
-                        }
+                        headers: { "Authorization": `Bearer ${token}` }
                     });
 
                     const data = await response.json();
@@ -214,7 +237,6 @@ function adicionarBotaoFavoritos() {
 function salvarFavorito(postagem) {
     let favoritos = JSON.parse(localStorage.getItem("favoritos")) || [];
 
-    // evita duplicados
     const jaExiste = favoritos.some(f => f.id === postagem.id);
 
     if (!jaExiste) {

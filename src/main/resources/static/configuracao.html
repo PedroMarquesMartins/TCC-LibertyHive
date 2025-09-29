@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Configuração - LibertyHive</title>
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="./Style/styleConfiguracao.css" />
+</head>
+
+<body class="d-flex flex-column min-vh-100 bg-light">
+    <header class="navbar navbar-expand-lg bg-warning shadow-sm px-3">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="inicio.html">
+                <img src="imagens/logo.png" alt="LibertyHive" width="40" />
+            </a>
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn btn-outline-dark btn-sm rounded-circle" onclick="voltarInicio()">
+                    <i class="bi bi-arrow-left"></i>
+                </button>
+                <button class="btn btn-outline-dark btn-sm rounded-circle" onclick="logout()" title="Sair">
+                    <i class="bi bi-box-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container my-4">
+        <div class="row g-4">
+            <div class="col-lg-3">
+                <div class="d-grid gap-2">
+                    <button id="btnEditarPerfil" class="btn btn-opcao"><i class="bi bi-pencil-square"></i> Editar
+                        Perfil</button>
+                    <button id="btnConta" class="btn btn-opcao"><i class="bi bi-person-circle"></i> Conta</button>
+                    <button id="btnMinhasPropostas" class="btn btn-opcao"><i class="bi bi-arrow-left-right"></i> Minhas
+                        Propostas</button>
+                    <button id="btnMinhaAvaliacao" class="btn btn-opcao"><i class="bi bi-star"></i> Minha
+                        Avaliação</button>
+                    <button id="btnNotificacoes" class="btn btn-opcao"><i class="bi bi-bell"></i> Notificações</button>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div id="painelEditarPerfil" class="painel">
+                    <h3 class="mb-3">Editar Perfil</h3>
+                    <form id="formPerfil">
+                        <div class="mb-2">
+                            <label class="form-label">Nome Real</label>
+                            <input type="text" id="editNomeReal" class="form-control">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Contato</label>
+                            <input type="text" id="editContato" class="form-control">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Endereço</label>
+                            <input type="text" id="editEndereco" class="form-control">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">CPF</label>
+                            <input type="text" id="editCpf" class="form-control">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Data de Nascimento</label>
+                            <input type="date" id="editDataNasc" class="form-control">
+                        </div>
+                        <button type="button" id="salvarPerfil" class="btn btn-success mt-2">Salvar Perfil</button>
+                    </form>
+                </div>
+
+                <div id="painelConta" class="painel" style="display:none;">
+                    <h3 class="mb-3">Configurações da Conta</h3>
+                    <form id="formConta">
+                        <div class="mb-2">
+                            <label class="form-label">Email</label>
+                            <input type="email" id="contaEmail" class="form-control">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Username</label>
+                            <input type="text" id="contaUserNome" class="form-control">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Nova Senha</label>
+                            <input type="password" id="contaSenha" class="form-control">
+                            <div class="form-text">Deixe em branco para não alterar.</div>
+                        </div>
+                        <button type="button" id="salvarConta" class="btn btn-success mt-2">Salvar Conta</button>
+                    </form>
+                </div>
+
+                <div id="painelMinhasPropostas" class="painel" style="display:none;">
+                    <h3>Minhas Propostas</h3>
+                    <p class="text-muted">Acesse a página de propostas para ver mais detalhes.</p>
+                </div>
+
+                <div id="painelMinhaAvaliacao" class="painel" style="display:none;">
+                    <h3>Minha Avaliação</h3>
+                    <p class="text-muted">Conteúdo da sua avaliação e histórico.</p>
+                </div>
+
+                <div id="painelNotificacoes" class="painel" style="display:none;">
+                    <h3>Notificações por E-mail</h3>
+                    <p class="text-muted">Controle se você deseja receber e-mails sobre novas propostas e atualizações.
+                    </p>
+                    <form id="formNotificacoes">
+                        <div class="form-check form-switch fs-5">
+                            <input class="form-check-input" type="checkbox" role="switch" id="toggleNotificacoes"
+                                checked>
+                            <label class="form-check-label" for="toggleNotificacoes">Receber notificações por
+                                e-mail</label>
+                        </div>
+                        <button type="button" id="salvarNotificacoes" class="btn btn-success mt-3">Salvar
+                            Preferências</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- PERFIL DIREITA -->
+            <div class="col-lg-3">
+                <div class="card shadow-sm p-3 text-center">
+                    <img id="perfilIcone" src="imagens/perfilicone.png" alt="Ícone de Perfil" class="perfil-img mb-3">
+                    <h5 id="displayNomeReal" class="fw-bold mb-0"></h5>
+                    <p id="displayUserNome" class="text-muted">@</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer mt-auto">
+        <div class="container py-4">
+            <div class="row gy-4">
+
+                <div class="col-md-4">
+                    <h5 class="text-white">Sobre</h5>
+                    <p class="text-muted small">
+                        Plataforma para trocar produtos e serviços de forma segura e prática.
+                    </p>
+                </div>
+
+                <div class="col-md-4">
+                    <h5 class="text-white">Links Úteis</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#">Fale Conosco</a></li>
+                        <li><a href="#">Suporte</a></li>
+                        <li><a href="#">Denúncias</a></li>
+                        <li><a href="#">Termos de Uso</a></li>
+                        <li><a href="#">Política de Privacidade</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-md-4">
+                    <h5 class="text-white">Redes Sociais</h5>
+                    <div class="d-flex gap-3">
+                        <a href="#"><i class="bi bi-facebook"></i></a>
+                        <a href="#"><i class="bi bi-twitter"></i></a>
+                        <a href="#"><i class="bi bi-instagram"></i></a>
+                        <a href="#"><i class="bi bi-linkedin"></i></a>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="footer-bottom text-center pt-3 mt-3 border-top">
+                <small class="text-muted">© 2025 LibertyHive. Todos os direitos reservados.</small>
+            </div>
+        </div>
+    </footer>
+
+    <script src="Configuracao.js"></script>
+</body>
+
+</html>

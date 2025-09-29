@@ -80,7 +80,7 @@ public class FavoritoController {
             List<Map<String, Object>> resposta = favoritos.stream()
                     .map(fav -> {
                         Postagem p = postagemDAO.encontrarPostagemPorId(fav.getPostagemId());
-                        if (p == null) {
+                        if (p == null || !Boolean.TRUE.equals(p.getDisponibilidade())) {
                             return null;
                         }
                         return Map.of(

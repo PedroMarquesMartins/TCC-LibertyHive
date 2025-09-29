@@ -32,7 +32,14 @@ public class EscambistaDAO {
         em.merge(escambista);
         em.getTransaction().commit();
     }
-
+    public void atualizarUserNome(String userNomeAntigo, String userNomeNovo) {
+        em.getTransaction().begin();
+        em.createQuery("UPDATE Escambista e SET e.userNome = :novoNome WHERE e.userNome = :antigoNome")
+                .setParameter("novoNome", userNomeNovo)
+                .setParameter("antigoNome", userNomeAntigo)
+                .executeUpdate();
+        em.getTransaction().commit();
+    }
     public Escambista encontrarEscambistaPorId(Long id) {
         return em.find(Escambista.class, id);
     }
@@ -41,6 +48,16 @@ public class EscambistaDAO {
         try {
             return em.createQuery("SELECT e FROM Escambista e WHERE e.userId = :userId", Escambista.class)
                     .setParameter("userId", userId)
+                    .getSingleResult();
+        } catch (NoResultException | NonUniqueResultException e) {
+            return null;
+        }
+    }
+
+    public Escambista encontrarPorUserNome(String userNome) {
+        try {
+            return em.createQuery("SELECT e FROM Escambista e WHERE e.userNome = :userNome", Escambista.class)
+                    .setParameter("userNome", userNome)
                     .getSingleResult();
         } catch (NoResultException | NonUniqueResultException e) {
             return null;

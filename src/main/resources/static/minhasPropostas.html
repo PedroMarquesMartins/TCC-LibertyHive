@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Minhas Propostas</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="./Style/styleMinhasPropostas.css">
+</head>
+
+<body>
+    <header class="bg-warning py-2 shadow-sm">
+        <div class="container-fluid d-flex justify-content-between align-items-center">
+
+            <a class="navbar-brand fw-bold" href="#">
+                <img src="imagens/logo.png" alt="LibertyHive" width="40" />
+            </a>
+
+            <div class="d-flex align-items-center gap-2">
+                <button type="button" class="btn btn-outline-danger btn-sm rounded-circle" title="Meus Favoritos"
+                    onclick="window.location.href='favoritos.html'">
+                    <i class="bi bi-heart"></i>
+                </button>
+                <button type="button" class="btn btn-outline-dark btn-sm rounded-circle" title="Configurações"
+                    onclick="window.location.href='configuracao.html'">
+                    <i class="bi bi-gear"></i>
+                </button>
+            </div>
+
+        </div>
+    </header>
+    <main class="container flex-grow-1 py-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0">Minhas Propostas</h1>
+            <button class="btn btn-outline-secondary" id="btnVoltar">
+                <i class="bi bi-arrow-left"></i> Voltar
+            </button>
+        </div>
+
+        <section>
+            <h2 class="h5 text-secondary mb-3">Abertas (Pendentes)</h2>
+            <div id="abertas" class="propostas-grid">
+            </div>
+        </section>
+
+        <section class="mt-5">
+            <h2 class="h5 text-secondary mb-3">Encerradas (Concluídas / Canceladas / Recusadas)</h2>
+            <div id="encerradas" class="propostas-grid">
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer mt-auto">
+        <div class="container py-5">
+            <div class="row gy-4">
+
+                <div class="col-md-4">
+                    <h5 class="text-white">Sobre</h5>
+                    <p class="text-muted small mb-0">
+                        Plataforma para trocar produtos e serviços de forma segura e prática.
+                    </p>
+                </div>
+
+                <div class="col-md-4">
+                    <h5 class="text-white">Links Úteis</h5>
+                    <ul class="list-unstyled small">
+                        <li><a href="#">Fale Conosco</a></li>
+                        <li><a href="#">Suporte</a></li>
+                        <li><a href="#">Denúncias</a></li>
+                        <li><a href="#">Termos de Uso</a></li>
+                        <li><a href="#">Política de Privacidade</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-md-4">
+                    <h5 class="text-white">Redes Sociais</h5>
+                    <div class="d-flex gap-3">
+                        <a href="#"><i class="bi bi-facebook"></i></a>
+                        <a href="#"><i class="bi bi-twitter"></i></a>
+                        <a href="#"><i class="bi bi-instagram"></i></a>
+                        <a href="#"><i class="bi bi-linkedin"></i></a>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="footer-bottom text-center pt-4 mt-4 border-top">
+                <small class="text-muted">© 2025 LibertyHive. Todos os direitos reservados.</small>
+            </div>
+        </div>
+    </footer>
+
+    <script src="minhasPropostas.js"></script>
+</body>
+
+</html>

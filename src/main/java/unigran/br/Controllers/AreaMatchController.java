@@ -56,7 +56,7 @@ public class AreaMatchController {
                 if (outraPostagem.getUserID().equals(cadastro.getId())) continue;
 
                 if (vistos.contains(outraPostagem.getId())) continue;
-
+                if (!Boolean.TRUE.equals(outraPostagem.getDisponibilidade())) continue;
                 boolean match = interesses.stream()
                         .anyMatch(i -> i != null && i.equalsIgnoreCase(outraPostagem.getCategoria()))
                         && Stream.of(
@@ -74,8 +74,8 @@ public class AreaMatchController {
         List<Map<String, Object>> listaFinal = new ArrayList<>();
 
         for (Postagem p : resultadoMap.values()) {
+            if (!Boolean.TRUE.equals(p.getDisponibilidade())) continue;
             Escambista escambista = escambistaDAO.encontrarPorUserId(p.getUserID().intValue());
-
             Integer avaliacao = (escambista != null) ? escambista.getAvaliacao() : null;
 
             Map<String, Object> itemMap = new HashMap<>();

@@ -59,7 +59,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             <p class="card-text"><strong>Tipo:</strong> ${postagem.isProdOuServico ? "Produto" : "Serviço"}</p>
             <p class="card-text"><strong>Doação/Voluntário:</strong> ${postagem.doacao ? "Sim" : "Não"}</p>
             <p class="text-muted"><strong>Local:</strong> ${postagem.cidade || ""} - ${postagem.uf || ""}</p>
-            <p class="text-muted"><strong>Data de criação:</strong> ${postagem.dataCriacao || ""}</p>
             <button class="btn btn-sm btn-danger btn-remove">
                 <i class="bi bi-x-circle"></i> Remover
             </button>
