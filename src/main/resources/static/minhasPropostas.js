@@ -3,7 +3,7 @@ if (!token) {
     document.body.innerHTML = '<div style="padding:30px;text-align:center;"><h2>Você precisa estar logado.</h2></div>';
 }
 
-document.getElementById('btnVoltar').addEventListener('click', () => {
+document.getElementById('btnVoltar')?.addEventListener('click', () => {
     window.location.href = 'inicio.html';
 });
 
@@ -16,6 +16,68 @@ function statusBadgeClass(status) {
         default: return ['Desconhecido', 'badge-status'];
     }
 }
+function getLoggedUser() {
+    const userIdStr = localStorage.getItem('userId');
+    const userNome = localStorage.getItem('userNome');
+
+    const userId = userIdStr ? parseInt(userIdStr, 10) : null;
+
+    if (!userId || !userNome) {
+        console.error('Usuário não logado corretamente (token inválido ou userId não definido)');
+        return null;
+    }
+    return { userId, userNome };
+}
+
+function getLoggedUserFromStorageOrToken() {
+    const possibleIdKeys = ['userId', 'userID', 'id'];
+    const possibleNameKeys = ['userNome', 'userName', 'username', 'nome'];
+
+    let id = null;
+    for (const k of possibleIdKeys) {
+        const v = localStorage.getItem(k);
+        if (v !== null && v !== undefined && v !== '') {
+            const n = Number(v);
+            if (!isNaN(n)) { id = n; break; }
+        }
+    }
+    let nome = null;
+    for (const k of possibleNameKeys) {
+        const v = localStorage.getItem(k);
+        if (v) { nome = v; break; }
+    }
+    if (id) return { id, nome };
+
+    if (token && token.split && token.split('.').length === 3) {
+        try {
+            const payload = token.split('.')[1];
+            let b64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+            while (b64.length % 4) b64 += '=';
+            const jsonStr = atob(b64);
+            const obj = JSON.parse(jsonStr);
+            const possibleIdFields = ['id', 'userId', 'user_id', 'sub', 'userid'];
+            const possibleNameFields = ['name', 'nome', 'preferred_username', 'username', 'user_nome'];
+            for (const f of possibleIdFields) {
+                if (obj[f] !== undefined && obj[f] !== null) {
+                    const n = Number(obj[f]);
+                    if (!isNaN(n)) id = n;
+                }
+            }
+            for (const f of possibleNameFields) {
+                if (!nome && obj[f]) nome = obj[f];
+            }
+            if (id) {
+                localStorage.setItem('userId', String(id));
+                if (nome) localStorage.setItem('userNome', String(nome));
+                return { id, nome };
+            }
+        } catch (err) {
+            console.debug('não foi possível decodificar token como JWT', err);
+        }
+    }
+
+    return null;
+}
 
 async function carregarPropostas() {
     try {
@@ -23,7 +85,7 @@ async function carregarPropostas() {
             headers: { 'Authorization': 'Bearer ' + token }
         });
         if (!res.ok) {
-            const txt = await res.text();
+            const txt = await res.text().catch(() => '');
             console.error('Erro listarPropostas:', res.status, txt);
             throw new Error('Erro ao carregar propostas');
         }
@@ -36,17 +98,17 @@ async function carregarPropostas() {
 }
 
 function criarItemCardHTML(item) {
-        const placeholderUrl = 'https://via.placeholder.com/400x300/CCCCCC/FFFFFF?text=Sem+Imagem';
-    const imgSrc = item.imagem ? `data:image/jpeg;base64,${item.imagem}` : placeholderUrl;
+    const placeholderUrl = 'https://via.placeholder.com/400x300/CCCCCC/FFFFFF?text=Sem+Imagem';
+    const imgSrc = item?.imagem ? `data:image/jpeg;base64,${item.imagem}` : placeholderUrl;
     return `
-            <div>
-                <img src="${imgSrc}" alt="${escapeHtml(item.nomePostagem)}">
-                <h3>${escapeHtml(item.nomePostagem || '---')}</h3>
-                ${item.userNome ? `<div class="small-muted">Dono: ${escapeHtml(item.userNome)}</div>` : ''}
-                <div class="item-meta">${escapeHtml(item.categoria || '')} • ${escapeHtml(item.uf || '')}</div>
-                <div class="small-muted">${escapeHtml(item.descricao || '')}</div>
-            </div>
-            `;
+        <div>
+            <img src="${imgSrc}" alt="${escapeHtml(item.nomePostagem)}">
+            <h3>${escapeHtml(item.nomePostagem || '---')}</h3>
+            ${item.userNome ? `<div class="small-muted">Dono: ${escapeHtml(item.userNome)}</div>` : ''}
+            <div class="item-meta">${escapeHtml(item.categoria || '')} • ${escapeHtml(item.uf || '')}</div>
+            <div class="small-muted">${escapeHtml(item.descricao || '')}</div>
+        </div>
+    `;
 }
 
 function escapeHtml(str) {
@@ -61,6 +123,7 @@ function escapeHtml(str) {
 function renderPropostas(propostas) {
     const abertasEl = document.getElementById('abertas');
     const encerradasEl = document.getElementById('encerradas');
+    if (!abertasEl || !encerradasEl) return;
     abertasEl.innerHTML = '';
     encerradasEl.innerHTML = '';
 
@@ -80,11 +143,8 @@ function renderPropostas(propostas) {
             ? `Você propôs para ${escapeHtml(quemRecebeu)}`
             : `${escapeHtml(quemPropôs)} propôs para você`;
 
-        const itemDesejado = p.itemDesejado || {};
-        const itemOferecido = p.itemOferecido || null;
-
-        const itemDesejadoHTML = criarItemCardHTML(itemDesejado);
-        const itemOferecidoHTML = itemOferecido ? criarItemCardHTML(itemOferecido) : `<div><h3>Doação</h3><p class="small-muted">Sem item oferecido</p></div>`;
+        const itemDesejadoHTML = criarItemCardHTML(p.itemDesejado || {});
+        const itemOferecidoHTML = p.itemOferecido ? criarItemCardHTML(p.itemOferecido) : `<div><h3>Doação</h3><p class="small-muted">Sem item oferecido</p></div>`;
 
         const container = document.createElement('div');
         container.className = 'proposta-card';
@@ -109,11 +169,11 @@ function renderPropostas(propostas) {
                 Swal.fire({
                     title: div.querySelector('h3').textContent,
                     html: `
-                                <p><strong>Usuário:</strong> ${escapeHtml(div.querySelector('.small-muted')?.textContent.replace('Dono: ', '') || '---')}</p>
-                                <p><strong>Categoria:</strong> ${escapeHtml(div.querySelector('.item-meta')?.textContent.split('•')[0].trim() || '')}</p>
-                                <p><strong>Cidade/UF:</strong> ${escapeHtml(div.querySelector('.item-meta')?.textContent.split('•')[1]?.trim() || '')}</p>
-                                <p><strong>Doação:</strong> ${div.querySelector('h3').textContent === 'Doação' ? 'Sim' : 'Não'}</p>
-                            `,
+                        <p><strong>Usuário:</strong> ${escapeHtml(div.querySelector('.small-muted')?.textContent.replace('Dono: ', '') || '---')}</p>
+                        <p><strong>Categoria:</strong> ${escapeHtml(div.querySelector('.item-meta')?.textContent.split('•')[0].trim() || '')}</p>
+                        <p><strong>Cidade/UF:</strong> ${escapeHtml(div.querySelector('.item-meta')?.textContent.split('•')[1]?.trim() || '')}</p>
+                        <p><strong>Doação:</strong> ${div.querySelector('h3').textContent === 'Doação' ? 'Sim' : 'Não'}</p>
+                    `,
                     imageUrl: div.querySelector('img')?.src || null,
                     imageAlt: div.querySelector('h3')?.textContent || ''
                 });
@@ -160,6 +220,46 @@ function renderPropostas(propostas) {
                 btn.onclick = () => confirmarAcao(p.idProposta, 'recusar');
                 actions.appendChild(btn);
             }
+            const btnChat = document.createElement('button');
+            btnChat.className = 'chat';
+            btnChat.textContent = 'Chat';
+            btnChat.onclick = async () => {
+                const loggedUser = getLoggedUser();
+                if (!loggedUser) {
+                    alert('Erro: usuário não identificado corretamente.');
+                    return;
+                }
+
+                const { userId: userIdLogado, userNome: userNomeLogado } = loggedUser;
+
+                const outroId = p.enviadoPeloUsuarioLogado ? p.userId02 : p.userId01;
+                const outroNome = p.enviadoPeloUsuarioLogado ? p.receptorNome : p.proponenteNome;
+
+                if (!outroId || !outroNome) {
+                    alert('Erro: usuário alvo do chat não identificado.');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`http://localhost:8080/chat/criar?userId01=${userIdLogado}&userId02=${outroId}&userNome01=${encodeURIComponent(userNomeLogado)}&userNome02=${encodeURIComponent(outroNome)}`, {
+                        method: 'POST',
+                        headers: { 'Authorization': 'Bearer ' + token }
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok && data.id) {
+                        window.location.href = `chat.html?chatId=${data.id}`;
+                    } else {
+                        console.error('Erro resposta servidor:', data);
+                        alert('Erro ao criar ou carregar chat.');
+                    }
+                } catch (err) {
+                    console.error('Erro ao tentar criar chat:', err);
+                    alert('Falha na conexão com o servidor.');
+                }
+            };
+            actions.appendChild(btnChat);
         }
 
         container.appendChild(row);
@@ -171,17 +271,13 @@ function renderPropostas(propostas) {
     if (abertas.length === 0) {
         abertasEl.innerHTML = '<div class="no-propostas">Nenhuma proposta pendente.</div>';
     } else {
-        abertas.forEach(p => {
-            abertasEl.appendChild(buildCard(p));
-        });
+        abertas.forEach(p => abertasEl.appendChild(buildCard(p)));
     }
 
     if (finalizadas.length === 0) {
         encerradasEl.innerHTML = '<div class="no-propostas">Nenhuma proposta encerrada.</div>';
     } else {
-        finalizadas.forEach(p => {
-            encerradasEl.appendChild(buildCard(p));
-        });
+        finalizadas.forEach(p => encerradasEl.appendChild(buildCard(p)));
     }
 }
 
@@ -203,7 +299,7 @@ async function confirmarAcao(propostaId, acao) {
             headers: { 'Authorization': 'Bearer ' + token }
         });
         if (!res.ok) {
-            const txt = await res.text();
+            const txt = await res.text().catch(() => '');
             console.error('Erro atualizarStatus', res.status, txt);
             throw new Error('Erro ao atualizar proposta');
         }

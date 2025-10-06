@@ -219,6 +219,19 @@ h1.h3.mb-0 {
     font-size: 13px;
     color: #aaa;
 }
+button.chat {
+    background-color: #ffd622; 
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+button.chat:hover {
+    background-color: #e6b619; 
+}
 
 #btnVoltar {
     background-color: white;

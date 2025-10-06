@@ -3,14 +3,12 @@ document.addEventListener("DOMContentLoaded", function () {
         window.location.href = 'cadastro.html';
     });
 
-    //Leitura do formulário etc
     document.getElementById('formLogin').addEventListener('submit', function (event) {
         event.preventDefault();
 
         const user = document.getElementById('user').value;
         const senha = document.getElementById('senha').value;
 
-        //Direcionar rota
         fetch('http://localhost:8080/api/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -24,6 +22,8 @@ document.addEventListener("DOMContentLoaded", function () {
                             localStorage.setItem('token', body.token);
                             localStorage.setItem('userNome', body.userNome);
                             localStorage.setItem('userId', body.userId);
+                            console.log('Resposta do login:', body);
+
                             window.location.href = 'inicio.html';
                         }, 10); 
                     });

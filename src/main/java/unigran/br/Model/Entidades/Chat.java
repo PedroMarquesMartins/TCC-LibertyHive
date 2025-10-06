@@ -1,6 +1,7 @@
 package unigran.br.Model.Entidades;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "chat")
@@ -9,24 +10,22 @@ public class Chat {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(columnDefinition = "TEXT")
-    private String mensagem;
-
-    private Double valorProposto;
-
-    private Boolean bloqueado;
-
-    @Column(length = 255)
+    private BigDecimal valorProposto;
+    private Boolean bloqueado = false;
     private String userNome01;
-
-    @Column(length = 255)
     private String userNome02;
+    private Long userId01;
+    private Long userId02;
 
-    private Integer userId01;
+    public Chat() {}
 
-    private Integer userId02;
-
-    // Getters e Setters
+    public Chat(Long userId01, Long userId02, String userNome01, String userNome02) {
+        this.userId01 = userId01;
+        this.userId02 = userId02;
+        this.userNome01 = userNome01;
+        this.userNome02 = userNome02;
+        this.bloqueado = false;
+    }
 
     public Long getId() {
         return id;
@@ -36,19 +35,11 @@ public class Chat {
         this.id = id;
     }
 
-    public String getMensagem() {
-        return mensagem;
-    }
-
-    public void setMensagem(String mensagem) {
-        this.mensagem = mensagem;
-    }
-
-    public Double getValorProposto() {
+    public BigDecimal getValorProposto() {
         return valorProposto;
     }
 
-    public void setValorProposto(Double valorProposto) {
+    public void setValorProposto(BigDecimal valorProposto) {
         this.valorProposto = valorProposto;
     }
 
@@ -76,19 +67,19 @@ public class Chat {
         this.userNome02 = userNome02;
     }
 
-    public Integer getUserId01() {
+    public Long getUserId01() {
         return userId01;
     }
 
-    public void setUserId01(Integer userId01) {
+    public void setUserId01(Long userId01) {
         this.userId01 = userId01;
     }
 
-    public Integer getUserId02() {
+    public Long getUserId02() {
         return userId02;
     }
 
-    public void setUserId02(Integer userId02) {
+    public void setUserId02(Long userId02) {
         this.userId02 = userId02;
     }
 }
