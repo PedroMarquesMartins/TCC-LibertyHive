@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Chat</title>
+    <link rel="icon" type="image/png" href="favicon.png" />
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            display: flex;
+            justify-content: center;
+            padding: 30px;
+        }
+
+        .chat-container {
+            background: white;
+            border-radius: 12px;
+            width: 600px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+
+        header h2 {
+            margin: 0;
+        }
+
+        .actions button {
+            margin-left: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .actions button:hover {
+            background-color: #0056b3;
+        }
+
+        main {
+            margin-top: 20px;
+            min-height: 250px;
+            background: #fafafa;
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            overflow-y: auto;
+        }
+
+        .mensagem {
+            background: #e8f0ff;
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin: 6px 0;
+            word-wrap: break-word;
+            font-size: 14px;
+        }
+
+        .mensagem.eu {
+            background: #d4edda;
+            align-self: flex-end;
+        }
+
+        .mensagem .dataHora {
+            display: block;
+            font-size: 11px;
+            color: #555;
+            margin-top: 4px;
+        }
+
+        .rodape {
+            margin-top: 20px;
+            display: flex;
+        }
+
+        .rodape input {
+            flex: 1;
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+
+        .rodape button {
+            margin-left: 8px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+
+        .rodape button:hover {
+            background-color: #1e7e34;
+        }
+
+        #btnVoltar {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        #btnVoltar:hover {
+            background-color: #68655a;
+        }
+        
+    </style>
+</head>
+
+<body>
+    <div class="chat-container">
+        <header>
+            <h2 id="chatTitle">Chat</h2>
+            <div class="actions">
+                <button id="btnBloquear">Bloquear</button>
+                <button id="btnProposta">Informar Valor</button>
+                <button id="btnVoltar">Voltar</button>
+            </div>
+        </header>
+
+        <main id="chatArea">
+            <p>Carregando chat...</p>
+        </main>
+
+        <div class="rodape">
+            <input type="text" id="msgInput" placeholder="Digite sua mensagem...">
+            <button id="btnEnviar">Enviar</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        const token = localStorage.getItem('token');
+        const userIdLogado = localStorage.getItem('userId');
+        const userNomeLogado = localStorage.getItem('userNome');
+
+        if (!token || !userIdLogado) {
+            document.body.innerHTML = '<div style="padding:30px;text-align:center;"><h2>Você precisa estar logado.</h2></div>';
+            throw new Error('Usuário não logado');
+        }
+
+        const chatTitle = document.getElementById('chatTitle');
+        const chatArea = document.getElementById('chatArea');
+        const msgInput = document.getElementById('msgInput');
+        const btnEnviar = document.getElementById('btnEnviar');
+        const btnBloquear = document.getElementById('btnBloquear');
+        const btnProposta = document.getElementById('btnProposta');
+        const btnVoltar = document.getElementById('btnVoltar');
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const chatId = urlParams.get('chatId');
+        if (!chatId) throw new Error('ChatId ausente');
+
+        let chatBloqueado = false;
+
+        function formatarDataHora(dtStr) {
+            const dt = new Date(dtStr);
+            return dt.toLocaleDateString('pt-BR') + ' ' + dt.toLocaleTimeString('pt-BR');
+        }
+
+        async function carregarChat() {
+            try {
+                const resp = await fetch(`http://localhost:8080/chat/${chatId}`, {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                if (!resp.ok) throw new Error("Erro ao carregar chat.");
+                const chat = await resp.json();
+
+                const outroNome = (userIdLogado == chat.userId01) ? chat.userNome02 : chat.userNome01;
+                chatTitle.textContent = `Chat com ${outroNome}`;
+
+                chatBloqueado = chat.bloqueado === true;
+                btnBloquear.textContent = chatBloqueado ? "Desbloquear" : "Bloquear";
+
+                const respMsgs = await fetch(`http://localhost:8080/chat/${chatId}/mensagens`, {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                let mensagens = [];
+                if (respMsgs.ok) mensagens = await respMsgs.json();
+
+                chatArea.innerHTML = `
+                    <p><strong>Participantes:</strong> ${chat.userNome01} e ${chat.userNome02}</p>
+                    <p><strong>Valor proposto:</strong> ${chat.valorProposto ?? 'Não definido'}</p>
+                    <hr>
+                `;
+
+                mensagens.forEach(m => {
+                    const div = document.createElement("div");
+                    div.className = (m.userId == userIdLogado) ? "mensagem eu" : "mensagem outro";
+                    const nome = (m.userId == userIdLogado) ? 'Você' : (m.userId == chat.userId01 ? chat.userNome01 : chat.userNome02);
+                    const dataHora = m.dataHora ? formatarDataHora(m.dataHora) : '';
+                    div.innerHTML = `<strong>${nome}:</strong> ${m.mensagem}<span class="dataHora">${dataHora}</span>`;
+                    chatArea.appendChild(div);
+                });
+
+                chatArea.scrollTop = chatArea.scrollHeight;
+            } catch (err) {
+                console.error("Erro ao carregar chat:", err);
+                chatArea.innerHTML = "<p style='color:red;'>Erro ao carregar chat.</p>";
+            }
+        }
+
+        carregarChat();
+        setInterval(carregarChat, 3000); 
+
+        btnEnviar.addEventListener("click", async () => {
+            const msg = msgInput.value.trim();
+            if (!msg) return;
+
+            if (chatBloqueado) {
+                Swal.fire("Chat bloqueado", "Não é possível enviar mensagens neste chat.", "warning");
+                return;
+            }
+
+            try {
+                const resp = await fetch(`http://localhost:8080/chat/${chatId}/mensagem`, {
+                    method: "POST",
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                    body: JSON.stringify({ mensagem: msg })
+                });
+                if (resp.ok) {
+                    msgInput.value = "";
+                    carregarChat();
+                } else {
+                    Swal.fire("Erro", "Não foi possível enviar a mensagem.", "error");
+                }
+            } catch (err) {
+                console.error(err);
+                Swal.fire("Erro", "Não foi possível enviar a mensagem.", "error");
+            }
+        });
+
+        btnBloquear.addEventListener("click", async () => {
+            const confirm = await Swal.fire({
+                title: `Você quer ${chatBloqueado ? 'desbloquear' : 'bloquear'} este chat?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sim',
+                cancelButtonText: 'Não'
+            });
+
+            if (confirm.isConfirmed) {
+                try {
+                    const resp = await fetch(`http://localhost:8080/chat/${chatId}/bloquear`, {
+                        method: "PUT",
+                        headers: { 'Authorization': 'Bearer ' + token }
+                    });
+                    if (resp.ok) {
+                        const text = await resp.text();
+                        Swal.fire("Sucesso", text, "success");
+                        carregarChat();
+                    } else {
+                        Swal.fire("Erro", "Não foi possível alterar o bloqueio.", "error");
+                    }
+                } catch (err) {
+                    console.error(err);
+                    Swal.fire("Erro", "Erro ao alterar o bloqueio.", "error");
+                }
+            }
+        });
+
+        btnProposta.addEventListener("click", async () => {
+            const { value: valor } = await Swal.fire({
+                title: 'Insira o valor da proposta',
+                input: 'number',
+                inputLabel: 'Valor',
+                inputPlaceholder: 'R$',
+                showCancelButton: true,
+                inputValidator: (v) => !v || v <= 0 ? 'Informe um valor válido' : null
+            });
+
+            if (valor) {
+                try {
+                    const resp = await fetch(`http://localhost:8080/chat/${chatId}/valor`, {
+                        method: "PUT",
+                        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                        body: JSON.stringify({ valorProposto: parseFloat(valor) })
+                    });
+                    if (resp.ok) {
+                        Swal.fire("Sucesso", "Valor atualizado!", "success");
+                        carregarChat();
+                    } else Swal.fire("Erro", "Não foi possível atualizar o valor.", "error");
+                } catch (err) {
+                    console.error(err);
+                    Swal.fire("Erro", "Erro ao atualizar valor.", "error");
+                }
+            }
+        });
+
+        btnVoltar.addEventListener("click", () => {
+            window.location.href = `inicio.html?token=${encodeURIComponent(token)}`;
+        });
+    </script>
+</body>
+</html>

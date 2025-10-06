@@ -42,12 +42,13 @@ public class LoginController {
         Map<String, Object> response = new HashMap<>();
 
         if (usuario != null) {
-            String token = jwtUtil.gerarToken(usuario.getUserNome()); //Geração de Token de entrada (Segurança)
+            String token = jwtUtil.gerarToken(usuario.getUserNome());
 
             response.put("success", true);
             response.put("message", "Login realizado com sucesso!");
             response.put("token", token);
             response.put("userNome", usuario.getUserNome());
+            response.put("userId", usuario.getId());
             return ResponseEntity.ok(response);
         } else {
             response.put("success", false);

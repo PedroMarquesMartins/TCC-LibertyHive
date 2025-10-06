@@ -169,7 +169,6 @@
             text-align: center;
         }
 
-        /* Botão principal */
         #btnPropor {
             margin-top: 25px;
             width: 100%;
@@ -360,6 +359,23 @@
         .carrossel-btn.end-0 {
             right: 10px;
         }
+
+        #btnChatProposta {
+            margin-top: 10px;
+            width: 100%;
+            font-weight: 600;
+            border-radius: 10px;
+            padding: 14px;
+            background-color: #ffca28;
+            border: none;
+            color: #000;
+            transition: 0.2s;
+        }
+
+        #btnChatProposta:hover {
+            background-color: #ffb300;
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 
@@ -430,12 +446,25 @@
 
     </main>
 
-
     <script>
         const queryParams = new URLSearchParams(window.location.search);
         const itemId = queryParams.get("id");
         const token = localStorage.getItem("token");
         if (!token) window.location.href = 'login.html';
+
+        let itemDetalhe = null;
+        let itemSelecionadoId = null;
+        let propostasExistentes = [];
+        let userLogado = localStorage.getItem("userNome");
+        let isDoacao = false;
+
+        function getLoggedUser() {
+            const userIdStr = localStorage.getItem('userId');
+            const userNome = localStorage.getItem('userNome');
+            const userId = userIdStr ? parseInt(userIdStr, 10) : null;
+            if (!userId || !userNome) return null;
+            return { userId, userNome };
+        }
 
         function toBool(v) {
             if (v === true || v === 1) return true;
@@ -447,18 +476,12 @@
             return Boolean(v);
         }
 
-        let itemSelecionadoId = null;
-        let propostasExistentes = [];
-        let userLogado = localStorage.getItem("userNome");
-        let isDoacao = false;
         function scrollLista(direcao) {
             const lista = document.getElementById("listaProdutos");
             const larguraCard = 330 + 16;
-            lista.scrollBy({
-                left: direcao * larguraCard,
-                behavior: "smooth"
-            });
+            lista.scrollBy({ left: direcao * larguraCard, behavior: "smooth" });
         }
+
         async function carregarPropostas() {
             try {
                 const resp = await fetch("http://localhost:8080/api/propostas/listarPropostas", {
@@ -482,6 +505,7 @@
                 });
                 if (!resp.ok) throw new Error("Item não encontrado");
                 const item = await resp.json();
+                itemDetalhe = item;
 
                 document.getElementById("nomePostagem").textContent = item.nomePostagem;
                 document.getElementById("imgPrincipal").src = item.imagem ? `data:image/jpeg;base64,${item.imagem}` : './imagens/placeholder.png';
@@ -509,6 +533,10 @@
 
                 const listaElem = document.getElementById("listaItensUsuario");
                 const btnPropor = document.getElementById("btnPropor");
+                const containerBotoes = btnPropor.parentNode;
+
+                let btnChatExistente = document.getElementById("btnChatProposta");
+                if (btnChatExistente) containerBotoes.removeChild(btnChatExistente);
 
                 if ((item.userNome ?? "") === (userLogado ?? "")) {
                     listaElem.style.display = "none";
@@ -523,6 +551,43 @@
                     listaElem.style.display = "";
                     btnPropor.textContent = "Propor Negócio";
                 }
+                btnPropor.style.display = "";
+
+                const btnChat = document.createElement('button');
+                btnChat.id = 'btnChatProposta';
+                btnChat.className = btnPropor.className || 'btn btn-primary';
+                btnChat.textContent = 'Chat';
+
+                btnChat.onclick = async () => {
+                    const loggedUser = getLoggedUser();
+                    if (!loggedUser) { alert('Erro: usuário não identificado corretamente.'); return; }
+
+                    const { userId: userIdLogado, userNome: userNomeLogado } = loggedUser;
+                    const outroId = itemDetalhe.userID; 
+                    const outroNome = itemDetalhe.userNome;
+                    console.log("IDs para chat:", userIdLogado, outroId);
+
+                    if (!outroId || !outroNome) { alert('Erro: usuário alvo do chat não identificado.'); return; }
+
+                    try {
+                        const response = await fetch(`http://localhost:8080/chat/criar?userId01=${userIdLogado}&userId02=${outroId}&userNome01=${encodeURIComponent(userNomeLogado)}&userNome02=${encodeURIComponent(outroNome)}`, {
+                            method: 'POST',
+                            headers: { 'Authorization': 'Bearer ' + token }
+                        });
+                        const data = await response.json();
+                        if (response.ok && data.id) {
+                            window.location.href = `chat.html?chatId=${data.id}`;
+                        } else {
+                            console.error('Erro resposta servidor:', data);
+                            alert('Erro ao criar ou carregar chat.');
+                        }
+                    } catch (err) {
+                        console.error('Erro ao tentar criar chat:', err);
+                        alert('Falha na conexão com o servidor.');
+                    }
+                };
+
+                btnPropor.insertAdjacentElement('afterend', btnChat);
 
                 if (!isDoacao) {
                     const respUser = await fetch("http://localhost:8080/api/postagens/listar", {
@@ -537,15 +602,14 @@
                         card.className = "item-card";
 
                         const imgSrc = p.imagem ? `data:image/jpeg;base64,${p.imagem}` : './imagens/placeholder.png';
-                        const catInteresseP = [p.categoriaInteresse1, p.categoriaInteresse2, p.categoriaInteresse3].filter(Boolean).join(", ");
 
                         card.innerHTML = `
-    <img src="${imgSrc}" alt="${p.nomePostagem}">
-    <h6 title="${p.nomePostagem}">${p.nomePostagem}</h6>
-    <p><strong>${toBool(p.isProdOuServico ?? p.prodOuServico ?? false) ? "Produto" : "Serviço"}</strong></p>
-    <p class="text-muted" style="font-size:12px">UF: ${p.uf ?? ""}</p>
-    <p class="text-muted" style="font-size:12px">Categoria: ${p.categoria ?? ""}</p>
-`;
+                    <img src="${imgSrc}" alt="${p.nomePostagem}">
+                    <h6 title="${p.nomePostagem}">${p.nomePostagem}</h6>
+                    <p><strong>${toBool(p.isProdOuServico ?? p.prodOuServico ?? false) ? "Produto" : "Serviço"}</strong></p>
+                    <p class="text-muted" style="font-size:12px">UF: ${p.uf ?? ""}</p>
+                    <p class="text-muted" style="font-size:12px">Categoria: ${p.categoria ?? ""}</p>
+                `;
 
                         card.addEventListener("click", () => {
                             document.querySelectorAll(".item-card.selected").forEach(c => c.classList.remove("selected"));
@@ -567,27 +631,15 @@
             const itemDesejadoId = itemId;
             let itemOferecidoId = itemSelecionadoId;
 
-            if (isDoacao) {
-                itemOferecidoId = null;
-            } else {
-                if (!itemSelecionadoId) {
-                    Swal.fire({
-                        title: "Atenção",
-                        text: "Selecione um item seu para propor o negócio.",
-                        icon: "warning"
-                    });
-                    return;
-                }
+            if (isDoacao) itemOferecidoId = null;
+            else if (!itemSelecionadoId) {
+                Swal.fire({ title: "Atenção", text: "Selecione um item seu para propor o negócio.", icon: "warning" });
+                return;
             }
 
-            let jaExiste = false;
-            if (isDoacao) {
-                jaExiste = propostasExistentes.some(p => p.itemDesejadoId == itemDesejadoId);
-            } else {
-                jaExiste = propostasExistentes.some(p =>
-                    p.itemDesejadoId == itemDesejadoId && p.itemOferecidoId == itemOferecidoId
-                );
-            }
+            let jaExiste = isDoacao
+                ? propostasExistentes.some(p => p.itemDesejadoId == itemDesejadoId)
+                : propostasExistentes.some(p => p.itemDesejadoId == itemDesejadoId && p.itemOferecidoId == itemOferecidoId);
 
             if (jaExiste) {
                 Swal.fire({
@@ -619,18 +671,10 @@
                 });
                 const data = await resp.json();
                 if (resp.ok) {
-                    Swal.fire({
-                        title: "Sucesso!",
-                        text: isDoacao ? "Solicitação de doação enviada!" : "Proposta criada com sucesso!",
-                        icon: "success"
-                    });
+                    Swal.fire({ title: "Sucesso!", text: isDoacao ? "Solicitação de doação enviada!" : "Proposta criada com sucesso!", icon: "success" });
                     propostasExistentes.push({ itemDesejadoId, itemOferecidoId: itemOferecidoId ?? null });
                 } else {
-                    Swal.fire({
-                        title: "Erro",
-                        text: data.message || "Não foi possível criar a proposta.",
-                        icon: "error"
-                    });
+                    Swal.fire({ title: "Erro", text: data.message || "Não foi possível criar a proposta.", icon: "error" });
                 }
             } catch (err) {
                 console.error(err);
@@ -649,33 +693,19 @@
             lista.innerHTML = "<p class='text-muted'>Carregando postagens...</p>";
 
             try {
-                const token = localStorage.getItem("token");
-                if (!token) {
-                    lista.innerHTML = "<p class='text-danger'>Você precisa estar logado para ver as postagens.</p>";
-                    return;
-                }
+                if (!token) { lista.innerHTML = "<p class='text-danger'>Você precisa estar logado para ver as postagens.</p>"; return; }
 
                 const response = await fetch("http://localhost:8080/api/postagens/listar-todas", {
-                    method: "GET",
                     headers: { "Authorization": `Bearer ${token}` }
                 });
 
-                if (!response.ok) {
-                    lista.innerHTML = "<p class='text-danger'>Erro ao carregar postagens.</p>";
-                    return;
-                }
+                if (!response.ok) { lista.innerHTML = "<p class='text-danger'>Erro ao carregar postagens.</p>"; return; }
 
                 const postagens = await response.json();
                 lista.innerHTML = "";
+                if (!postagens || postagens.length === 0) { lista.innerHTML = "<p class='text-muted'>Nenhuma postagem encontrada.</p>"; return; }
 
-                if (!postagens || postagens.length === 0) {
-                    lista.innerHTML = "<p class='text-muted'>Nenhuma postagem encontrada.</p>";
-                    return;
-                }
-
-                const params = new URLSearchParams(window.location.search);
-                const idAtual = params.get("id");
-
+                const idAtual = new URLSearchParams(window.location.search).get("id");
                 const frag = document.createDocumentFragment();
 
                 postagens.forEach(p => {
@@ -683,22 +713,16 @@
 
                     const card = document.createElement('div');
                     card.className = 'product-card';
-
-                    const cat = (p.categoria || '').toString();
-                    const nomePost = (p.nomePostagem || '').toString();
-
                     card.dataset.id = p.id;
 
-                    let imgSrc = "./imagens/placeholder.png";
-                    if (p.imagem) imgSrc = `data:image/jpeg;base64,${p.imagem}`;
-
-                    const doacao_string = p.doacao ? "Sim" : "Não";
-                    const tipo_string = p.isProdOuServico ? "Produto" : "Serviço";
+                    const imgSrc = p.imagem ? `data:image/jpeg;base64,${p.imagem}` : "./imagens/placeholder.png";
+                    const doacao_string = toBool(p.isDoacao ?? p.doacao ?? false) ? "Sim" : "Não";
+                    const tipo_string = toBool(p.isProdOuServico ?? p.prodOuServico ?? false) ? "Produto" : "Serviço";
 
                     card.innerHTML = `
-                <img src="${imgSrc}" alt="${escapeHtml(nomePost)}">
-                <h3>${escapeHtml(nomePost)}</h3>
-                <p><strong>Categoria:</strong> ${escapeHtml(cat)}</p>
+                <img src="${imgSrc}" alt="${escapeHtml(p.nomePostagem || '')}">
+                <h3>${escapeHtml(p.nomePostagem || '')}</h3>
+                <p><strong>Categoria:</strong> ${escapeHtml(p.categoria || '')}</p>
                 <p><strong>Tipo:</strong> ${tipo_string}</p>
                 <p><strong>Doação:</strong> ${doacao_string}</p>
                 <small>${escapeHtml(p.cidade || "")} - ${escapeHtml(p.uf || "")}</small>
@@ -713,53 +737,17 @@
                     });
 
                     card.querySelector('.fav-btn').addEventListener('click', async () => {
-                        if (!token) {
-                            Swal.fire({
-                                title: 'Erro',
-                                text: 'Você precisa estar logado para favoritar.',
-                                icon: 'error'
-                            });
-                            return;
-                        }
-
+                        if (!token) { Swal.fire({ title: 'Erro', text: 'Você precisa estar logado para favoritar.', icon: 'error' }); return; }
                         try {
                             const response = await fetch("http://localhost:8080/favoritos?postagemId=" + p.id, {
                                 method: "POST",
                                 headers: { "Authorization": `Bearer ${token}` }
                             });
-
                             const data = await response.json();
-
-                            if (response.ok) {
-                                Swal.fire({
-                                    title: 'Item favoritado!',
-                                    text: data.message,
-                                    icon: 'success',
-                                    timer: 2000,
-                                    showConfirmButton: false
-                                });
-                            } else if (response.status === 409) {
-                                Swal.fire({
-                                    title: 'Já favoritado',
-                                    text: data.message,
-                                    icon: 'info',
-                                    timer: 2000,
-                                    showConfirmButton: false
-                                });
-                            } else {
-                                Swal.fire({
-                                    title: 'Erro',
-                                    text: data.message || 'Não foi possível favoritar este item.',
-                                    icon: 'error'
-                                });
-                            }
-                        } catch (error) {
-                            Swal.fire({
-                                title: 'Erro',
-                                text: 'Não foi possível conectar ao servidor.',
-                                icon: 'error'
-                            });
-                        }
+                            if (response.ok) Swal.fire({ title: 'Item favoritado!', text: data.message, icon: 'success', timer: 2000, showConfirmButton: false });
+                            else if (response.status === 409) Swal.fire({ title: 'Já favoritado', text: data.message, icon: 'info', timer: 2000, showConfirmButton: false });
+                            else Swal.fire({ title: 'Erro', text: data.message || 'Não foi possível favoritar este item.', icon: 'error' });
+                        } catch { Swal.fire({ title: 'Erro', text: 'Não foi possível conectar ao servidor.', icon: 'error' }); }
                     });
 
                     frag.appendChild(card);

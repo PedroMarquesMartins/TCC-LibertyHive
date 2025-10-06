@@ -11,73 +11,131 @@ import java.util.List;
 @Repository
 public class PropostaDAO {
     private EntityManagerFactory emf;
-    private EntityManager em;
 
     public PropostaDAO() {
         emf = Persistence.createEntityManagerFactory("meuBancoDeDados");
-        em = emf.createEntityManager();
+    }
+
+    private EntityManager getEntityManager() {
+        return emf.createEntityManager();
     }
 
     public void salvarProposta(Proposta proposta) {
+        EntityManager em = getEntityManager();
         proposta.setId(null);
-        em.getTransaction().begin();
-        em.persist(proposta);
-        em.getTransaction().commit();
+        try {
+            em.getTransaction().begin();
+            em.persist(proposta);
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            throw e;
+        } finally {
+            em.close();
+        }
     }
 
     public void atualizarProposta(Proposta proposta) {
-        em.getTransaction().begin();
-        em.merge(proposta);
-        em.getTransaction().commit();
+        EntityManager em = getEntityManager();
+        try {
+            em.getTransaction().begin();
+            em.merge(proposta);
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            throw e;
+        } finally {
+            em.close();
+        }
     }
 
     public Proposta encontrarPorId(Long id) {
-        return em.find(Proposta.class, id);
+        EntityManager em = getEntityManager();
+        try {
+            return em.find(Proposta.class, id);
+        } finally {
+            em.close();
+        }
     }
 
     public void removerProposta(Long id) {
-        Proposta proposta = encontrarPorId(id);
-        if (proposta != null) {
-            em.getTransaction().begin();
-            em.remove(proposta);
-            em.getTransaction().commit();
+        EntityManager em = getEntityManager();
+        try {
+            Proposta proposta = em.find(Proposta.class, id);
+            if (proposta != null) {
+                em.getTransaction().begin();
+                em.remove(proposta);
+                em.getTransaction().commit();
+            }
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            throw e;
+        } finally {
+            em.close();
         }
     }
 
     public List<Proposta> listarTodas() {
-        return em.createQuery("SELECT p FROM Proposta p", Proposta.class).getResultList();
+        EntityManager em = getEntityManager();
+        try {
+            return em.createQuery("SELECT p FROM Proposta p", Proposta.class).getResultList();
+        } finally {
+            em.close();
+        }
     }
 
     public List<Proposta> listarPorUsuario(Long userId) {
-        return em.createQuery(
-                        "SELECT p FROM Proposta p WHERE p.userId01 = :userId OR p.userId02 = :userId",
-                        Proposta.class)
-                .setParameter("userId", userId)
-                .getResultList();
+        EntityManager em = getEntityManager();
+        try {
+            return em.createQuery(
+                            "SELECT p FROM Proposta p WHERE p.userId01 = :userId OR p.userId02 = :userId",
+                            Proposta.class)
+                    .setParameter("userId", userId)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
     }
 
     public boolean existsByItemDesejadoIdAndItemOferecidoId(Long itemDesejadoId, Long itemOferecidoId) {
-        Long count = em.createQuery(
-                        "SELECT COUNT(p) FROM Proposta p WHERE p.itemDesejadoId = :itemDesejadoId AND p.itemOferecidoId = :itemOferecidoId",
-                        Long.class)
-                .setParameter("itemDesejadoId", itemDesejadoId)
-                .setParameter("itemOferecidoId", itemOferecidoId)
-                .getSingleResult();
-        return count != null && count > 0;
+        EntityManager em = getEntityManager();
+        try {
+            Long count = em.createQuery(
+                            "SELECT COUNT(p) FROM Proposta p WHERE p.itemDesejadoId = :itemDesejadoId AND p.itemOferecidoId = :itemOferecidoId",
+                            Long.class)
+                    .setParameter("itemDesejadoId", itemDesejadoId)
+                    .setParameter("itemOferecidoId", itemOferecidoId)
+                    .getSingleResult();
+            return count != null && count > 0;
+        } finally {
+            em.close();
+        }
     }
 
     public boolean existsByItemDesejadoIdAndUserId01(Long itemDesejadoId, Long userId01) {
-        Long count = em.createQuery(
-                        "SELECT COUNT(p) FROM Proposta p WHERE p.itemDesejadoId = :itemDesejadoId AND p.userId01 = :userId01",
-                        Long.class)
-                .setParameter("itemDesejadoId", itemDesejadoId)
-                .setParameter("userId01", userId01)
-                .getSingleResult();
-        return count != null && count > 0;
+        EntityManager em = getEntityManager();
+        try {
+            Long count = em.createQuery(
+                            "SELECT COUNT(p) FROM Proposta p WHERE p.itemDesejadoId = :itemDesejadoId AND p.userId01 = :userId01",
+                            Long.class)
+                    .setParameter("itemDesejadoId", itemDesejadoId)
+                    .setParameter("userId01", userId01)
+                    .getSingleResult();
+            return count != null && count > 0;
+        } finally {
+            em.close();
+        }
     }
 
     public void fechar() {
-        em.close();
-        emf.close();
+        if (emf != null && emf.isOpen()) {
+            emf.close();
+        }
     }
 }
