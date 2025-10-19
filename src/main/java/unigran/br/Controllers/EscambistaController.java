@@ -53,9 +53,7 @@ public class EscambistaController {
         if (dadosAtualizados.getQuerNotifi() != null) {
             escambistaAtual.setQuerNotifi(dadosAtualizados.getQuerNotifi());
         }
-
         escambistaDAO.atualizarEscambista(escambistaAtual);
-
         return ResponseEntity.ok(Map.of("message", "Perfil atualizado com sucesso."));
     }
 }

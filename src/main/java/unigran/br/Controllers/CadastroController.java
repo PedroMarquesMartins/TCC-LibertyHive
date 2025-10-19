@@ -80,7 +80,6 @@ public class CadastroController {
         Escambista novoEscambista = new Escambista();
         novoEscambista.setUserId(Math.toIntExact(idGerado));
         novoEscambista.setUserNome(cadastro.getUserNome());
-        novoEscambista.setAvaliacao(3);
         novoEscambista.setQuerNotifi(true);
 
         escambistaDAO.salvarEscambista(novoEscambista);

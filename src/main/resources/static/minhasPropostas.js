@@ -1,4 +1,9 @@
 const token = localStorage.getItem('token');
+let propostaIdParaAvaliar = null;
+let idAvaliado = null;
+let nomeAvaliado = null;
+let notaSelecionada = 0;
+
 if (!token) {
     document.body.innerHTML = '<div style="padding:30px;text-align:center;"><h2>Você precisa estar logado.</h2></div>';
 }
@@ -16,67 +21,25 @@ function statusBadgeClass(status) {
         default: return ['Desconhecido', 'badge-status'];
     }
 }
+
 function getLoggedUser() {
     const userIdStr = localStorage.getItem('userId');
     const userNome = localStorage.getItem('userNome');
-
     const userId = userIdStr ? parseInt(userIdStr, 10) : null;
-
     if (!userId || !userNome) {
-        console.error('Usuário não logado corretamente (token inválido ou userId não definido)');
+        console.error('Usuário não logado corretamente');
         return null;
     }
     return { userId, userNome };
 }
 
-function getLoggedUserFromStorageOrToken() {
-    const possibleIdKeys = ['userId', 'userID', 'id'];
-    const possibleNameKeys = ['userNome', 'userName', 'username', 'nome'];
-
-    let id = null;
-    for (const k of possibleIdKeys) {
-        const v = localStorage.getItem(k);
-        if (v !== null && v !== undefined && v !== '') {
-            const n = Number(v);
-            if (!isNaN(n)) { id = n; break; }
-        }
-    }
-    let nome = null;
-    for (const k of possibleNameKeys) {
-        const v = localStorage.getItem(k);
-        if (v) { nome = v; break; }
-    }
-    if (id) return { id, nome };
-
-    if (token && token.split && token.split('.').length === 3) {
-        try {
-            const payload = token.split('.')[1];
-            let b64 = payload.replace(/-/g, '+').replace(/_/g, '/');
-            while (b64.length % 4) b64 += '=';
-            const jsonStr = atob(b64);
-            const obj = JSON.parse(jsonStr);
-            const possibleIdFields = ['id', 'userId', 'user_id', 'sub', 'userid'];
-            const possibleNameFields = ['name', 'nome', 'preferred_username', 'username', 'user_nome'];
-            for (const f of possibleIdFields) {
-                if (obj[f] !== undefined && obj[f] !== null) {
-                    const n = Number(obj[f]);
-                    if (!isNaN(n)) id = n;
-                }
-            }
-            for (const f of possibleNameFields) {
-                if (!nome && obj[f]) nome = obj[f];
-            }
-            if (id) {
-                localStorage.setItem('userId', String(id));
-                if (nome) localStorage.setItem('userNome', String(nome));
-                return { id, nome };
-            }
-        } catch (err) {
-            console.debug('não foi possível decodificar token como JWT', err);
-        }
-    }
-
-    return null;
+function escapeHtml(str) {
+    return (str || '').toString()
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
 
 async function carregarPropostas() {
@@ -84,16 +47,13 @@ async function carregarPropostas() {
         const res = await fetch('http://localhost:8080/api/propostas/listarPropostas', {
             headers: { 'Authorization': 'Bearer ' + token }
         });
-        if (!res.ok) {
-            const txt = await res.text().catch(() => '');
-            console.error('Erro listarPropostas:', res.status, txt);
-            throw new Error('Erro ao carregar propostas');
-        }
+        if (!res.ok) throw new Error('Erro ao carregar propostas');
         const propostas = await res.json();
         renderPropostas(propostas);
     } catch (err) {
         console.error(err);
-        document.getElementById('abertas').innerHTML = '<div class="no-propostas">Erro ao carregar propostas.</div>';
+        document.getElementById('abertas').innerHTML =
+            '<div class="no-propostas">Erro ao carregar propostas.</div>';
     }
 }
 
@@ -111,19 +71,9 @@ function criarItemCardHTML(item) {
     `;
 }
 
-function escapeHtml(str) {
-    return (str || '').toString()
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-
 function renderPropostas(propostas) {
     const abertasEl = document.getElementById('abertas');
     const encerradasEl = document.getElementById('encerradas');
-    if (!abertasEl || !encerradasEl) return;
     abertasEl.innerHTML = '';
     encerradasEl.innerHTML = '';
 
@@ -137,6 +87,7 @@ function renderPropostas(propostas) {
 
     function buildCard(p) {
         const [statusText, statusClass] = statusBadgeClass(p.status);
+        const loggedUser = getLoggedUser();
         const quemPropôs = p.proponenteNome || `Usuário ${p.userId01 || ''}`;
         const quemRecebeu = p.receptorNome || `Usuário ${p.userId02 || ''}`;
         const infoQuem = (p.enviadoPeloUsuarioLogado)
@@ -144,11 +95,12 @@ function renderPropostas(propostas) {
             : `${escapeHtml(quemPropôs)} propôs para você`;
 
         const itemDesejadoHTML = criarItemCardHTML(p.itemDesejado || {});
-        const itemOferecidoHTML = p.itemOferecido ? criarItemCardHTML(p.itemOferecido) : `<div><h3>Doação</h3><p class="small-muted">Sem item oferecido</p></div>`;
+        const itemOferecidoHTML = p.itemOferecido
+            ? criarItemCardHTML(p.itemOferecido)
+            : `<div><h3>Doação</h3><p class="small-muted">Sem item oferecido</p></div>`;
 
         const container = document.createElement('div');
         container.className = 'proposta-card';
-
         const row = document.createElement('div');
         row.className = 'row-proposta';
         row.style.flex = '1';
@@ -162,23 +114,22 @@ function renderPropostas(propostas) {
         divOferecido.innerHTML = itemOferecidoHTML;
 
         [divDesejado, divOferecido].forEach(div => {
-            const btnSim = document.createElement("button");
-            btnSim.textContent = "VER DETALHES";
-            btnSim.className = "detalhes";
-            btnSim.onclick = () => {
+            const btnDetalhes = document.createElement("button");
+            btnDetalhes.textContent = "VER DETALHES";
+            btnDetalhes.className = "detalhes";
+            btnDetalhes.onclick = () => {
                 Swal.fire({
                     title: div.querySelector('h3').textContent,
                     html: `
                         <p><strong>Usuário:</strong> ${escapeHtml(div.querySelector('.small-muted')?.textContent.replace('Dono: ', '') || '---')}</p>
                         <p><strong>Categoria:</strong> ${escapeHtml(div.querySelector('.item-meta')?.textContent.split('•')[0].trim() || '')}</p>
                         <p><strong>Cidade/UF:</strong> ${escapeHtml(div.querySelector('.item-meta')?.textContent.split('•')[1]?.trim() || '')}</p>
-                        <p><strong>Doação:</strong> ${div.querySelector('h3').textContent === 'Doação' ? 'Sim' : 'Não'}</p>
                     `,
                     imageUrl: div.querySelector('img')?.src || null,
                     imageAlt: div.querySelector('h3')?.textContent || ''
                 });
             };
-            div.appendChild(btnSim);
+            div.appendChild(btnDetalhes);
         });
 
         row.appendChild(divDesejado);
@@ -186,128 +137,210 @@ function renderPropostas(propostas) {
 
         const actions = document.createElement('div');
         actions.className = 'acoes';
-
         const badge = document.createElement('div');
         badge.className = statusClass;
         badge.textContent = statusText;
-
         const quemEl = document.createElement('div');
         quemEl.className = 'meta';
         quemEl.textContent = infoQuem;
-
         actions.appendChild(badge);
         actions.appendChild(quemEl);
 
-        if (p.status === 1 && p.idProposta && !isNaN(p.idProposta)) {
-            if (p.podeCancelar) {
-                const btn = document.createElement('button');
-                btn.className = 'cancelar';
-                btn.textContent = 'Cancelar';
-                btn.onclick = () => confirmarAcao(p.idProposta, 'cancelar');
-                actions.appendChild(btn);
-            }
-            if (p.podeConcluir) {
-                const btn = document.createElement('button');
-                btn.className = 'concluir';
-                btn.textContent = 'Concluir';
-                btn.onclick = () => confirmarAcao(p.idProposta, 'concluir');
-                actions.appendChild(btn);
-            }
-            if (p.podeRecusar) {
-                const btn = document.createElement('button');
-                btn.className = 'recusar';
-                btn.textContent = 'Recusar';
-                btn.onclick = () => confirmarAcao(p.idProposta, 'recusar');
-                actions.appendChild(btn);
-            }
-            const btnChat = document.createElement('button');
-            btnChat.className = 'chat';
-            btnChat.textContent = 'Chat';
-            btnChat.onclick = async () => {
-                const loggedUser = getLoggedUser();
-                if (!loggedUser) {
-                    alert('Erro: usuário não identificado corretamente.');
-                    return;
-                }
-
-                const { userId: userIdLogado, userNome: userNomeLogado } = loggedUser;
-
-                const outroId = p.enviadoPeloUsuarioLogado ? p.userId02 : p.userId01;
-                const outroNome = p.enviadoPeloUsuarioLogado ? p.receptorNome : p.proponenteNome;
-
-                if (!outroId || !outroNome) {
-                    alert('Erro: usuário alvo do chat não identificado.');
-                    return;
-                }
-
-                try {
-                    const response = await fetch(`http://localhost:8080/chat/criar?userId01=${userIdLogado}&userId02=${outroId}&userNome01=${encodeURIComponent(userNomeLogado)}&userNome02=${encodeURIComponent(outroNome)}`, {
-                        method: 'POST',
-                        headers: { 'Authorization': 'Bearer ' + token }
+        if (p.status === 1 && loggedUser) {
+            if (p.enviadoPeloUsuarioLogado) { 
+                const btnCancelar = document.createElement('button');
+                btnCancelar.className = 'cancelar';
+                btnCancelar.textContent = 'Cancelar';
+                btnCancelar.onclick = async () => {
+                    const confirm = await Swal.fire({
+                        title: 'Deseja cancelar a proposta?',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Sim',
+                        cancelButtonText: 'Não'
                     });
-
-                    const data = await response.json();
-
-                    if (response.ok && data.id) {
-                        window.location.href = `chat.html?chatId=${data.id}`;
-                    } else {
-                        console.error('Erro resposta servidor:', data);
-                        alert('Erro ao criar ou carregar chat.');
+                    if (confirm.isConfirmed) {
+                        await fetch(`http://localhost:8080/api/propostas/acao?propostaId=${p.idProposta}&acao=cancelar`, {
+                            method: 'POST',
+                            headers: { 'Authorization': 'Bearer ' + token }
+                        });
+                        carregarPropostas();
                     }
-                } catch (err) {
-                    console.error('Erro ao tentar criar chat:', err);
-                    alert('Falha na conexão com o servidor.');
-                }
-            };
-            actions.appendChild(btnChat);
+                };
+                actions.appendChild(btnCancelar);
+            } else { 
+                const btnAceitar = document.createElement('button');
+                btnAceitar.className = 'aceitar';
+                btnAceitar.textContent = 'Aceitar';
+                btnAceitar.onclick = async () => {
+                    const confirm = await Swal.fire({
+                        title: 'Aceitar proposta?',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Sim',
+                        cancelButtonText: 'Não'
+                    });
+                    if (confirm.isConfirmed) {
+                        await fetch(`http://localhost:8080/api/propostas/acao?propostaId=${p.idProposta}&acao=concluir`, {
+                            method: 'POST',
+                            headers: { 'Authorization': 'Bearer ' + token }
+                        });
+                        carregarPropostas();
+                    }
+                };
+                const btnRecusar = document.createElement('button');
+                btnRecusar.className = 'recusar';
+                btnRecusar.textContent = 'Recusar';
+                btnRecusar.onclick = async () => {
+                    const confirm = await Swal.fire({
+                        title: 'Recusar proposta?',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Sim',
+                        cancelButtonText: 'Não'
+                    });
+                    if (confirm.isConfirmed) {
+                        await fetch(`http://localhost:8080/api/propostas/acao?propostaId=${p.idProposta}&acao=recusar`, {
+                            method: 'POST',
+                            headers: { 'Authorization': 'Bearer ' + token }
+                        });
+                        carregarPropostas();
+                    }
+                };
+                actions.appendChild(btnAceitar);
+                actions.appendChild(btnRecusar);
+            }
+        } else if (p.status === 2 && loggedUser) {
+            const btnAvaliar = document.createElement('button');
+            btnAvaliar.className = 'avaliar';
+            btnAvaliar.textContent = 'Avaliar Perfil';
+            btnAvaliar.onclick = () => abrirModalAvaliacao(p);
+            actions.appendChild(btnAvaliar);
         }
+
+        const btnChat = document.createElement('button');
+        btnChat.className = 'chat';
+        btnChat.textContent = 'Chat';
+        btnChat.onclick = async () => {
+            if (!loggedUser) return alert('Erro: usuário não identificado.');
+            const outroId = p.enviadoPeloUsuarioLogado ? p.userId02 : p.userId01;
+            const outroNome = p.enviadoPeloUsuarioLogado ? p.receptorNome : p.proponenteNome;
+            const resp = await fetch(`http://localhost:8080/chat/criar?userId01=${loggedUser.userId}&userId02=${outroId}&userNome01=${encodeURIComponent(loggedUser.userNome)}&userNome02=${encodeURIComponent(outroNome)}`, {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + token }
+            });
+            const data = await resp.json();
+            if (resp.ok && data.id) {
+                window.location.href = `chat.html?chatId=${data.id}`;
+            } else alert('Erro ao abrir chat.');
+        };
+        actions.appendChild(btnChat);
 
         container.appendChild(row);
         container.appendChild(actions);
-
         return container;
     }
 
-    if (abertas.length === 0) {
-        abertasEl.innerHTML = '<div class="no-propostas">Nenhuma proposta pendente.</div>';
-    } else {
-        abertas.forEach(p => abertasEl.appendChild(buildCard(p)));
-    }
-
-    if (finalizadas.length === 0) {
-        encerradasEl.innerHTML = '<div class="no-propostas">Nenhuma proposta encerrada.</div>';
-    } else {
-        finalizadas.forEach(p => encerradasEl.appendChild(buildCard(p)));
-    }
+    abertas.forEach(p => abertasEl.appendChild(buildCard(p)));
+    finalizadas.forEach(p => encerradasEl.appendChild(buildCard(p)));
 }
 
-async function confirmarAcao(propostaId, acao) {
-    const labels = { cancelar: 'cancelar', concluir: 'concluir', recusar: 'recusar' };
-    const confirm = await Swal.fire({
-        title: `Confirma ${labels[acao]}?`,
-        text: `Deseja realmente ${labels[acao]} esta proposta?`,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Sim',
-        cancelButtonText: 'Cancelar'
+function abrirModalAvaliacao(p) {
+    const { userId: userLogado } = getLoggedUser();
+    idAvaliado = (userLogado === p.userId01) ? p.userId02 : p.userId01;
+    nomeAvaliado = (userLogado === p.userId01) ? p.receptorNome : p.proponenteNome;
+    propostaIdParaAvaliar = p.idProposta;
+    document.getElementById('avaliarNome').textContent = nomeAvaliado;
+    atualizarEstrelas(0);
+    notaSelecionada = 0;
+    const modal = new bootstrap.Modal(document.getElementById('avaliacaoModal'));
+    modal.show();
+}
+
+
+function atualizarEstrelas(nota) {
+    document.querySelectorAll('#estrelas .star').forEach(star => {
+        const valor = parseInt(star.dataset.value);
+        star.style.color = valor <= nota ? '#f4b400' : '#ccc';
+        star.classList.toggle('selecionada', valor <= nota);
     });
-    if (!confirm.isConfirmed) return;
+    const textos = ['Selecione uma nota', 'Péssimo 😠', 'Ruim 😕', 'Regular 😐', 'Bom 🙂', 'Excelente 😄'];
+    document.getElementById('avaliacaoTexto').textContent = textos[nota] || textos[0];
+}
+
+document.querySelectorAll('#estrelas .star').forEach(star => {
+    star.addEventListener('click', () => {
+        notaSelecionada = parseInt(star.dataset.value);
+        atualizarEstrelas(notaSelecionada);
+    });
+});
+
+document.getElementById('btnEnviarAvaliacao')?.addEventListener('click', async () => {
+    console.log('btnEnviarAvaliacao clicado, notaSelecionada:', notaSelecionada);
+
+    if (!notaSelecionada) {
+        mostrarAviso('warning', 'Selecione uma nota antes de enviar.');
+        return;
+    }
 
     try {
-        const res = await fetch(`http://localhost:8080/api/propostas/acao?propostaId=${propostaId}&acao=${acao}`, {
-            method: 'POST',
-            headers: { 'Authorization': 'Bearer ' + token }
+        console.log('Enviando avaliação para o servidor...', {
+            propostaId: propostaIdParaAvaliar,
+            nota: notaSelecionada,
+            usuarioAvaliadoId: idAvaliado
         });
-        if (!res.ok) {
-            const txt = await res.text().catch(() => '');
-            console.error('Erro atualizarStatus', res.status, txt);
-            throw new Error('Erro ao atualizar proposta');
-        }
-        await carregarPropostas();
-    } catch (err) {
-        console.error(err);
-        Swal.fire({ title: 'Erro', text: 'Não foi possível atualizar a proposta.', icon: 'error' });
-    }
-}
 
+        const resp = await fetch(`http://localhost:8080/api/propostas/avaliar`, {
+            method: 'POST',
+            headers: { 
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                propostaId: propostaIdParaAvaliar,
+                nota: notaSelecionada,
+                usuarioAvaliadoId: idAvaliado
+            })
+        });
+
+        const data = await resp.json().catch(() => ({}));
+
+        if (resp.ok) {
+            mostrarAviso('success', data.message || 'Avaliação enviada com sucesso!');
+        } else if (resp.status === 409) {
+            mostrarAviso('warning', data.message || 'Esta proposta já foi avaliada.');
+        } else {
+            mostrarAviso('error', data.message || 'Erro ao enviar avaliação.');
+        }
+    } catch (err) {
+        console.error('Erro ao enviar avaliação:', err);
+        mostrarAviso('error', 'Falha ao conectar ao servidor.');
+    }
+
+    bootstrap.Modal.getInstance(document.getElementById('avaliacaoModal')).hide();
+});
+
+function mostrarAviso(tipo, mensagem) {
+    const avisoEl = document.getElementById('avisoModal');
+    const avisoModal = new bootstrap.Modal(avisoEl);
+    const avisoTexto = document.getElementById('avisoTexto');
+    const avisoIcon = document.getElementById('avisoIcon');
+    const avisoHeader = avisoEl.querySelector('.modal-header');
+    avisoTexto.textContent = mensagem;
+    avisoHeader.className = 'modal-header text-white';
+    switch (tipo) {
+        case 'success':
+            avisoHeader.classList.add('bg-success');
+            avisoIcon.className = 'bi bi-check-circle fs-1 mb-3 text-success';
+            break;
+        case 'warning':
+            avisoHeader.classList.add('bg-warning');
+            avisoIcon.className = 'bi bi-exclamation-triangle fs-1 mb-3 text-warning';
+            break;
+        default:
+            avisoHeader.classList.add('bg-danger');
+            avisoIcon.className = 'bi bi-x-circle fs-1 mb-3 text-danger';
+    }
+    avisoModal.show();
+}
 carregarPropostas();

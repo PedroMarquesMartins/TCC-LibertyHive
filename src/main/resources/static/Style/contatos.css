@@ -1,0 +1,156 @@
+html,
+body {
+    height: 100%;
+}
+
+body {
+    background: linear-gradient(180deg, #ffd600 0%, #fff9c4 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+
+main {
+    flex: 1;
+}
+
+header {
+    background-color: #fdd835;
+    color: #333;
+}
+
+#btnVoltar {
+    background-color: #fff;
+    color: #444;
+    border: 2px solid #fbc02d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#btnVoltar:hover {
+    background-color: #fbc02d;
+    color: white;
+    transform: translateY(-1px);
+}
+
+#listaContatos {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.contato-card {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 15px 18px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid #f9e79f;
+}
+
+.contato-card:hover {
+    transform: scale(1.02);
+    background-color: #fffde7;
+    box-shadow: 0 5px 14px rgba(0, 0, 0, 0.12);
+}
+
+.contato-foto {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 15px;
+    border: 2px solid #fdd835;
+}
+
+.contato-detalhes {
+    flex-grow: 1;
+}
+
+.contato-nome {
+    display: block;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #f57f17;
+}
+
+.contato-ultima {
+    font-size: 0.9rem;
+    color: #555;
+    margin-top: 3px;
+}
+
+.contato-data {
+    font-size: 0.8rem;
+    color: #777;
+    white-space: nowrap;
+    text-align: right;
+}
+
+.footer {
+    background: #202020;
+    color: #f5f5f5;
+}
+
+.footer a {
+    color: #bbb;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer a:hover {
+    color: #d4a017;
+}
+
+.footer h5 {
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #fdd835;
+}
+
+.footer .bi {
+    font-size: 1.4rem;
+    transition: transform 0.2s ease, color 0.3s ease;
+}
+
+.footer .bi:hover {
+    color: #d4a017;
+    transform: scale(1.1);
+}
+
+.footer-bottom {
+    font-size: 13px;
+    color: #aaa;
+    border-top: 1px solid #333;
+}
+
+@media (max-width: 576px) {
+    header h2 {
+        font-size: 1.2rem;
+    }
+
+    .contato-card {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
+
+    .contato-foto {
+        margin-right: 0;
+    }
+
+    .contato-data {
+        text-align: center;
+    }
+}

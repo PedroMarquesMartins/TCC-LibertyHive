@@ -6,14 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import unigran.br.JwtUtil;
-import unigran.br.Model.DAO.CadastroDAO;
-import unigran.br.Model.DAO.EscambistaDAO;
-import unigran.br.Model.DAO.PostagemDAO;
-import unigran.br.Model.DAO.PropostaDAO;
-import unigran.br.Model.Entidades.Cadastro;
-import unigran.br.Model.Entidades.Escambista;
-import unigran.br.Model.Entidades.Postagem;
-import unigran.br.Model.Entidades.Proposta;
+import unigran.br.Model.DAO.*;
+import unigran.br.Model.Entidades.*;
 import unigran.br.Services.EmailService;
 
 import java.util.HashMap;
@@ -35,10 +29,17 @@ public class PropostaController {
     private CadastroDAO cadastroDAO;
     @Autowired
     private EscambistaDAO escambistaDAO;
+    private AvaliacaoDAO avaliacaoDAO = new AvaliacaoDAO();
     @Autowired
     private JwtUtil jwtUtil;
     @Autowired
     private EmailService emailService;
+
+    private Cadastro getAuthenticatedUser(String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) return null;
+        String token = authHeader.substring(7);
+        return cadastroDAO.encontrarPorUserNome(jwtUtil.extrairUserNome(token));
+    }
 
     @PostMapping("/criar")
     public ResponseEntity<?> criarProposta(
@@ -49,9 +50,7 @@ public class PropostaController {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(401).body(Map.of("message", "Token inválido ou ausente."));
         }
-
-        String token = authHeader.substring(7);
-        Cadastro usuarioProponente = cadastroDAO.encontrarPorUserNome(jwtUtil.extrairUserNome(token));
+        Cadastro usuarioProponente = getAuthenticatedUser(authHeader);
         if (usuarioProponente == null) {
             return ResponseEntity.status(401).body(Map.of("message", "Usuário não encontrado."));
         }
@@ -60,17 +59,14 @@ public class PropostaController {
         if (itemDesejado == null) {
             return ResponseEntity.badRequest().body(Map.of("message", "Item desejado não encontrado."));
         }
-
         if (itemDesejado.getUserID().equals(usuarioProponente.getId())) {
             return ResponseEntity.badRequest().body(Map.of("message", "Você não pode propor negócio para o seu próprio item."));
         }
-
         if (Boolean.FALSE.equals(itemDesejado.getDisponibilidade())) {
             return ResponseEntity.badRequest().body(Map.of("message", "O item desejado não está disponível."));
         }
 
         boolean isDoacao = Boolean.TRUE.equals(itemDesejado.getDoacao());
-
         boolean existe;
         Postagem itemOferecido = null;
 
@@ -80,19 +76,16 @@ public class PropostaController {
             if (itemOferecidoId == null) {
                 return ResponseEntity.badRequest().body(Map.of("message", "É necessário informar um item oferecido para troca."));
             }
-
             itemOferecido = postagemDAO.encontrarPostagemPorId(itemOferecidoId);
             if (itemOferecido == null) {
                 return ResponseEntity.badRequest().body(Map.of("message", "Item oferecido não encontrado."));
             }
-
             if (!itemOferecido.getUserID().equals(usuarioProponente.getId())) {
                 return ResponseEntity.status(403).body(Map.of("message", "Você só pode oferecer itens que são seus."));
             }
             if (Boolean.FALSE.equals(itemOferecido.getDisponibilidade())) {
                 return ResponseEntity.badRequest().body(Map.of("message", "O item oferecido não está disponível."));
             }
-
             existe = propostaDAO.existsByItemDesejadoIdAndItemOferecidoId(itemDesejadoId, itemOferecidoId);
         }
 
@@ -106,23 +99,20 @@ public class PropostaController {
         proposta.setUserId02(itemDesejado.getUserID());
         proposta.setItemDesejadoId(itemDesejadoId);
         proposta.setItemOferecidoId(itemOferecidoId);
-        proposta.setAvaliarPerfil(3);
-
         propostaDAO.salvarProposta(proposta);
 
         try {
             Cadastro usuarioReceptor = cadastroDAO.encontrarCadastroPorId(proposta.getUserId02());
             Escambista escambistaReceptor = escambistaDAO.encontrarPorUserId(Math.toIntExact(proposta.getUserId02()));
-
             if (usuarioReceptor != null && escambistaReceptor != null && Boolean.TRUE.equals(escambistaReceptor.getQuerNotifi())) {
-                String nomeReceptor = usuarioReceptor.getUserNome();
-                String emailReceptor = usuarioReceptor.getEmail();
-                String nomeProponente = usuarioProponente.getUserNome();
-                String nomeItemDesejado = itemDesejado.getNomePostagem();
-
-                emailService.enviarAlertaNovaProposta(emailReceptor, nomeReceptor, nomeProponente, nomeItemDesejado);
+                emailService.enviarAlertaNovaProposta(
+                        usuarioReceptor.getEmail(),
+                        usuarioReceptor.getUserNome(),
+                        usuarioProponente.getUserNome(),
+                        itemDesejado.getNomePostagem()
+                );
             }
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
 
         return ResponseEntity.ok(Map.of("message", "Proposta criada com sucesso!", "propostaId", proposta.getId()));
@@ -130,108 +120,76 @@ public class PropostaController {
 
     @GetMapping("/listarPropostas")
     @Transactional(readOnly = true)
-    public ResponseEntity<?> listarPropostas(
-            @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
-
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity.status(401).body(Map.of("message", "Token inválido ou ausente."));
-        }
-
-        String token = authHeader.substring(7);
-        Cadastro cadastro = cadastroDAO.encontrarPorUserNome(jwtUtil.extrairUserNome(token));
+    public ResponseEntity<?> listarPropostas(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
+        Cadastro cadastro = getAuthenticatedUser(authHeader);
         if (cadastro == null) {
-            return ResponseEntity.status(401).body(Map.of("message", "Usuário não encontrado."));
+            return ResponseEntity.status(401).body(Map.of("message", "Token inválido ou usuário não encontrado."));
         }
 
         try {
             Long userId = cadastro.getId();
             List<Proposta> propostas = propostaDAO.listarPorUsuario(userId);
 
-            List<Map<String, Object>> resposta = propostas.stream().map(p -> {
-                Postagem itemDesejado = postagemDAO.encontrarPostagemPorId(p.getItemDesejadoId());
-                Postagem itemOferecido = (p.getItemOferecidoId() != null)
-                        ? postagemDAO.encontrarPostagemPorId(p.getItemOferecidoId())
-                        : null;
+            List<Map<String, Object>> resposta = propostas.stream()
+                    .map(p -> {
+                        Postagem itemDesejado = postagemDAO.encontrarPostagemPorId(p.getItemDesejadoId());
+                        Postagem itemOferecido = (p.getItemOferecidoId() != null)
+                                ? postagemDAO.encontrarPostagemPorId(p.getItemOferecidoId())
+                                : null;
 
-                if (itemDesejado == null) return null;
+                        if (itemDesejado == null) return null;
+                        if ((Boolean.FALSE.equals(itemDesejado.getDisponibilidade())) ||
+                                (itemOferecido != null && Boolean.FALSE.equals(itemOferecido.getDisponibilidade()))) {
+                            if (p.getStatus() == 1) {
+                                p.setStatus(3);
+                                propostaDAO.atualizarProposta(p);
+                            }
+                        }
 
-                boolean podeCancelar = p.getUserId01().equals(userId);
-                boolean podeConcluir = !p.getUserId01().equals(userId) && p.getStatus() == 1;
-                boolean podeRecusar = !p.getUserId01().equals(userId) && p.getStatus() == 1;
+                        boolean podeCancelar = p.getUserId01().equals(userId) && p.getStatus() == 1;
+                        boolean podeConcluir = !p.getUserId01().equals(userId) && p.getStatus() == 1;
+                        boolean podeRecusar = !p.getUserId01().equals(userId) && p.getStatus() == 1;
 
-                String receptorNome = itemDesejado.getUserNome();
-                String proponenteNome = null;
-                if (itemOferecido != null && itemOferecido.getUserNome() != null) {
-                    proponenteNome = itemOferecido.getUserNome();
-                } else {
-                    try {
-                        Cadastro c = cadastroDAO.encontrarCadastroPorId(p.getUserId01());
-                        if (c != null) proponenteNome = c.getUserNome();
-                    } catch (Exception ex) {
-                    }
-                }
+                        String receptorNome = itemDesejado.getUserNome();
+                        String proponenteNome = (itemOferecido != null && itemOferecido.getUserNome() != null)
+                                ? itemOferecido.getUserNome()
+                                : cadastroDAO.encontrarCadastroPorId(p.getUserId01()).getUserNome();
 
-                String statusLabel;
-                switch (Objects.requireNonNullElse(p.getStatus(), -1)) {
-                    case 1: statusLabel = "Pendente"; break;
-                    case 0: statusLabel = "Cancelada"; break;
-                    case 2: statusLabel = "Concluída"; break;
-                    case 3: statusLabel = "Recusada"; break;
-                    default: statusLabel = "Desconhecido"; break;
-                }
+                        String statusLabel = switch (Objects.requireNonNullElse(p.getStatus(), -1)) {
+                            case 1 -> "Pendente";
+                            case 0 -> "Cancelada";
+                            case 2 -> "Concluída";
+                            case 3 -> "Recusada";
+                            default -> "Desconhecido";
+                        };
 
-                Map<String, Object> propostaMap = new HashMap<>();
-                propostaMap.put("idProposta", p.getId());
-                propostaMap.put("status", p.getStatus());
-                propostaMap.put("statusLabel", statusLabel);
-                propostaMap.put("userId01", p.getUserId01());
-                propostaMap.put("userId02", p.getUserId02());
-                propostaMap.put("enviadoPeloUsuarioLogado", p.getUserId01().equals(userId));
-                propostaMap.put("proponenteNome", proponenteNome);
-                propostaMap.put("receptorNome", receptorNome);
+                        Map<String, Object> propostaMap = new HashMap<>();
+                        propostaMap.put("idProposta", p.getId());
+                        propostaMap.put("status", p.getStatus());
+                        propostaMap.put("statusLabel", statusLabel);
+                        propostaMap.put("userId01", p.getUserId01());
+                        propostaMap.put("userId02", p.getUserId02());
+                        propostaMap.put("enviadoPeloUsuarioLogado", p.getUserId01().equals(userId));
+                        propostaMap.put("proponenteNome", proponenteNome);
+                        propostaMap.put("receptorNome", receptorNome);
+                        propostaMap.put("itemDesejado", itemDesejado);
+                        propostaMap.put("itemOferecido", itemOferecido);
+                        propostaMap.put("podeCancelar", podeCancelar);
+                        propostaMap.put("podeConcluir", podeConcluir);
+                        propostaMap.put("podeRecusar", podeRecusar);
 
-                Map<String, Object> itemDesejadoMap = new HashMap<>();
-                itemDesejadoMap.put("id", itemDesejado.getId());
-                itemDesejadoMap.put("nomePostagem", itemDesejado.getNomePostagem());
-                itemDesejadoMap.put("descricao", itemDesejado.getDescricao());
-                itemDesejadoMap.put("categoria", itemDesejado.getCategoria());
-                itemDesejadoMap.put("disponibilidade", itemDesejado.getDisponibilidade());
-                itemDesejadoMap.put("cidade", itemDesejado.getCidade());
-                itemDesejadoMap.put("uf", itemDesejado.getUf());
-                itemDesejadoMap.put("userNome", itemDesejado.getUserNome());
-                if (itemDesejado.getImagem() != null) {
-                    itemDesejadoMap.put("imagem", itemDesejado.getImagem());
-                }
-                propostaMap.put("itemDesejado", itemDesejadoMap);
+                        Map<String, Object> avaliacaoInfo = avaliacaoDAO.calcularMediaPorUsuarioId(itemDesejado.getUserID());
+                        propostaMap.put("avaliacaoUsuario", avaliacaoInfo.getOrDefault("media", 0));
 
-                if (itemOferecido != null) {
-                    Map<String, Object> itemOferecidoMap = new HashMap<>();
-                    itemOferecidoMap.put("id", itemOferecido.getId());
-                    itemOferecidoMap.put("nomePostagem", itemOferecido.getNomePostagem());
-                    itemOferecidoMap.put("descricao", itemOferecido.getDescricao());
-                    itemOferecidoMap.put("categoria", itemOferecido.getCategoria());
-                    itemOferecidoMap.put("disponibilidade", itemOferecido.getDisponibilidade());
-                    itemOferecidoMap.put("cidade", itemOferecido.getCidade());
-                    itemOferecidoMap.put("uf", itemOferecido.getUf());
-                    itemOferecidoMap.put("userNome", itemOferecido.getUserNome());
-                    if (itemOferecido.getImagem() != null) {
-                        itemOferecidoMap.put("imagem", itemOferecido.getImagem());
-                    }
-                    propostaMap.put("itemOferecido", itemOferecidoMap);
-                } else {
-                    propostaMap.put("itemOferecido", null);
-                }
-
-                propostaMap.put("podeCancelar", podeCancelar);
-                propostaMap.put("podeConcluir", podeConcluir);
-                propostaMap.put("podeRecusar", podeRecusar);
-
-                return propostaMap;
-            }).filter(Objects::nonNull).collect(Collectors.toList());
+                        return propostaMap;
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
 
             return ResponseEntity.ok(resposta);
 
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(500).body(Map.of("message", "Erro interno ao listar propostas."));
         }
     }
@@ -242,14 +200,9 @@ public class PropostaController {
             @RequestParam Long propostaId,
             @RequestParam String acao
     ) {
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity.status(401).body(Map.of("message", "Token inválido ou ausente."));
-        }
-
-        String token = authHeader.substring(7);
-        Cadastro usuario = cadastroDAO.encontrarPorUserNome(jwtUtil.extrairUserNome(token));
+        Cadastro usuario = getAuthenticatedUser(authHeader);
         if (usuario == null) {
-            return ResponseEntity.status(401).body(Map.of("message", "Usuário não encontrado."));
+            return ResponseEntity.status(401).body(Map.of("message", "Token inválido ou usuário não encontrado."));
         }
 
         Proposta proposta = propostaDAO.encontrarPorId(propostaId);
@@ -258,64 +211,128 @@ public class PropostaController {
         }
 
         Long currentUserId = usuario.getId();
-
         switch (acao.toLowerCase()) {
-            case "cancelar":
-                if (!proposta.getUserId01().equals(currentUserId)) {
-                    return ResponseEntity.status(403).body(Map.of("message", "Somente o usuário que criou a proposta pode cancelar."));
-                }
+            case "cancelar" -> {
+                if (!proposta.getUserId01().equals(currentUserId))
+                    return ResponseEntity.status(403).body(Map.of("message", "Somente o criador pode cancelar."));
                 proposta.setStatus(0);
-                break;
-
-            case "concluir":
-                if (proposta.getUserId01().equals(currentUserId)) {
+            }
+            case "concluir" -> {
+                if (proposta.getUserId01().equals(currentUserId))
                     return ResponseEntity.status(403).body(Map.of("message", "Não é possível concluir sua própria proposta."));
-                }
-                proposta.setStatus(2);
 
                 Postagem itemDesejado = postagemDAO.encontrarPostagemPorId(proposta.getItemDesejadoId());
                 Postagem itemOferecido = (proposta.getItemOferecidoId() != null)
                         ? postagemDAO.encontrarPostagemPorId(proposta.getItemOferecidoId())
                         : null;
 
-                if (itemDesejado != null) {
-                    itemDesejado.setDisponibilidade(false);
-                    postagemDAO.atualizarPostagem(itemDesejado);
+                if (itemDesejado == null || Boolean.FALSE.equals(itemDesejado.getDisponibilidade())) {
+                    return ResponseEntity.badRequest().body(Map.of("message", "O item desejado não está mais disponível."));
                 }
+                if (itemOferecido != null && Boolean.FALSE.equals(itemOferecido.getDisponibilidade())) {
+                    return ResponseEntity.badRequest().body(Map.of("message", "O item oferecido não está mais disponível."));
+                }
+                proposta.setStatus(2);
+                itemDesejado.setDisponibilidade(false);
+                postagemDAO.atualizarPostagem(itemDesejado);
+
                 if (itemOferecido != null) {
                     itemOferecido.setDisponibilidade(false);
                     postagemDAO.atualizarPostagem(itemOferecido);
                 }
+                propostaDAO.recusarOutrasPropostasPendentes(itemDesejado.getId(), itemOferecido != null ? itemOferecido.getId() : null, proposta.getId());
 
                 try {
                     Cadastro usuarioProponente = cadastroDAO.encontrarCadastroPorId(proposta.getUserId01());
                     Escambista escambistaProponente = escambistaDAO.encontrarPorUserId(Math.toIntExact(proposta.getUserId01()));
-
-                    if (usuarioProponente != null && escambistaProponente != null && Boolean.TRUE.equals(escambistaProponente.getQuerNotifi()) && itemDesejado != null) {
-                        String emailProponente = usuarioProponente.getEmail();
-                        String nomeProponente = usuarioProponente.getUserNome();
-                        String nomeItemDesejado = itemDesejado.getNomePostagem();
-                        String nomeItemOferecido = (itemOferecido != null) ? itemOferecido.getNomePostagem() : null;
-
-                        emailService.enviarNotificacaoPropostaAceita(emailProponente, nomeProponente, nomeItemDesejado, nomeItemOferecido);
+                    if (usuarioProponente != null && escambistaProponente != null && Boolean.TRUE.equals(escambistaProponente.getQuerNotifi())) {
+                        emailService.enviarNotificacaoPropostaAceita(
+                                usuarioProponente.getEmail(),
+                                usuarioProponente.getUserNome(),
+                                itemDesejado != null ? itemDesejado.getNomePostagem() : "",
+                                itemOferecido != null ? itemOferecido.getNomePostagem() : null
+                        );
                     }
-                } catch (Exception e) {
-
+                } catch (Exception ignored) {
                 }
-                break;
-
-            case "recusar":
-                if (proposta.getUserId01().equals(currentUserId)) {
+            }
+            case "recusar" -> {
+                if (proposta.getUserId01().equals(currentUserId))
                     return ResponseEntity.status(403).body(Map.of("message", "Não é possível recusar sua própria proposta."));
-                }
                 proposta.setStatus(3);
-                break;
-
-            default:
+            }
+            default -> {
                 return ResponseEntity.badRequest().body(Map.of("message", "Ação inválida."));
+            }
         }
 
         propostaDAO.atualizarProposta(proposta);
         return ResponseEntity.ok(Map.of("message", "Proposta atualizada com sucesso!", "status", proposta.getStatus()));
+    }
+
+    @PostMapping("/avaliar")
+    public ResponseEntity<?> avaliarUsuario(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader,
+            @RequestBody Map<String, Object> body
+    ) {
+        Cadastro usuarioAvaliador = getAuthenticatedUser(authHeader);
+
+        if (usuarioAvaliador == null) {
+            return ResponseEntity.status(401).body(Map.of("message", "Token inválido ou usuário não encontrado."));
+        }
+        if (body == null || !body.containsKey("propostaId") || !body.containsKey("nota") || !body.containsKey("usuarioAvaliadoId")) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Parâmetros 'propostaId', 'nota' e 'usuarioAvaliadoId' são obrigatórios."));
+        }
+        Long propostaId;
+        Long idUsuarioAvaliado;
+        Integer nota;
+        try {
+            propostaId = Long.valueOf(body.get("propostaId").toString());
+            idUsuarioAvaliado = Long.valueOf(body.get("usuarioAvaliadoId").toString());
+            nota = Integer.valueOf(body.get("nota").toString());
+        } catch (NumberFormatException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Parâmetros inválidos."));
+        }
+        Proposta proposta = propostaDAO.encontrarPorId(propostaId);
+        if (proposta == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Proposta não encontrada."));
+        }
+
+        if (!Objects.equals(proposta.getStatus(), 2)) {
+            return ResponseEntity.badRequest().body(Map.of("message", "A avaliação só é permitida para propostas concluídas."));
+        }
+
+        if (avaliacaoDAO.existePorUsuarioAvaliadorEProposta(usuarioAvaliador.getId(), propostaId)) {
+            return ResponseEntity.status(409).body(Map.of("message", "Você já avaliou este usuário nesta proposta."));
+        }
+
+        Avaliacao novaAvaliacao = new Avaliacao();
+        novaAvaliacao.setUsuarioAvaliadorId(usuarioAvaliador.getId());
+        novaAvaliacao.setUsuarioAvaliadoId(idUsuarioAvaliado);
+        novaAvaliacao.setPropostaId(propostaId);
+        novaAvaliacao.setNota(nota);
+
+        try {
+            avaliacaoDAO.salvarAvaliacao(novaAvaliacao);
+            return ResponseEntity.ok(Map.of("message", "Avaliação registrada com sucesso!", "avaliacaoId", novaAvaliacao.getId()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(Map.of("message", "Erro interno ao salvar a avaliação: " + e.getMessage()));
+        }
+    }
+
+    @GetMapping("/avaliacoes/{usuarioId}")
+    public ResponseEntity<?> obterMediaDeAvaliacoes(@PathVariable Long usuarioId) {
+        if (usuarioId == null || usuarioId <= 0) {
+            return ResponseEntity.badRequest().body(Map.of("message", "ID de usuário inválido."));
+        }
+        try {
+            Map<String, Object> resultado = avaliacaoDAO.calcularMediaPorUsuarioId(usuarioId);
+            return ResponseEntity.ok(resultado);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(Map.of("message", "Erro ao buscar as avaliações do usuário: " + e.getMessage()));
+        }
     }
 }
