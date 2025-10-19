@@ -5,6 +5,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import unigran.br.Model.DAO.AvaliacaoDAO;
 import unigran.br.Model.DAO.PostagemDAO;
 import unigran.br.Model.Entidades.Cadastro;
 import unigran.br.Model.DAO.CadastroDAO;
@@ -13,6 +14,8 @@ import unigran.br.JwtUtil;
 import unigran.br.Services.LocalidadeService;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +30,7 @@ public class PostagemController {
     private CadastroDAO cadastroDAO;
     @Autowired
     private LocalidadeService localidadeService;
+    private AvaliacaoDAO avaliacaoDAO = new AvaliacaoDAO();
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -79,7 +83,6 @@ public class PostagemController {
         postagem.setCategoria(categoria);
         postagem.setDisponibilidade(true);
 
-        // Salva categorias em colunas separadas (se existir no model)
         postagem.setCategoriaInteresse1(categoriaInteresse1);
         postagem.setCategoriaInteresse2(categoriaInteresse2);
         postagem.setCategoriaInteresse3(categoriaInteresse3);
@@ -117,7 +120,6 @@ public class PostagemController {
                 return ResponseEntity.status(500).body(Map.of("error", "Erro ao salvar imagens secundárias: " + e.getMessage()));
             }
         }
-//Salvando Definitivamente no banco, chamando o DAO com Hibernate
         postagemDAO.salvarPostagem(postagem);
         return ResponseEntity.ok(Map.of("message", "Postagem e imagens salvas com sucesso!", "id", postagem.getId()));
     }
@@ -156,8 +158,8 @@ public class PostagemController {
     //____________________________________________________________________________________________
     //Tela de INICIO !!
     @GetMapping("/listar-todas")
-    public ResponseEntity<List<Postagem>> listarTodas(
-            @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
+    public ResponseEntity<List<Map<String, Object>>> listarTodas(
+                                                                  @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(401).build();
@@ -171,7 +173,29 @@ public class PostagemController {
         List<Postagem> todasPostagens = postagemDAO.listarTodas().stream()
                 .filter(p -> Boolean.TRUE.equals(p.getDisponibilidade()))
                 .toList();
-        return ResponseEntity.ok(todasPostagens);
+
+        List<Map<String, Object>> resultadoFinal = new ArrayList<>();
+        for (Postagem p : todasPostagens) {
+            Map<String, Object> postagemMap = new HashMap<>();
+            postagemMap.put("id", p.getId());
+            postagemMap.put("userNome", p.getUserNome());
+            postagemMap.put("nomePostagem", p.getNomePostagem());
+            postagemMap.put("descricao", p.getDescricao());
+            postagemMap.put("categoria", p.getCategoria());
+            postagemMap.put("isProdOuServico", p.getIsProdOuServico());
+            postagemMap.put("doacao", p.getDoacao());
+            postagemMap.put("cidade", p.getCidade());
+            postagemMap.put("uf", p.getUf());
+            postagemMap.put("imagem", p.getImagem());
+            postagemMap.put("userID", p.getUserID());
+
+            Map<String, Object> avaliacaoInfo = avaliacaoDAO.calcularMediaPorUsuarioId(p.getUserID());
+            postagemMap.put("avaliacaoUsuario", avaliacaoInfo.get("media"));
+
+            resultadoFinal.add(postagemMap);
+        }
+
+        return ResponseEntity.ok(resultadoFinal);
     }
 
     //Tela Fazer Proposta Etapa 4______________________________________________________________________

@@ -4,9 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import unigran.br.JwtUtil;
 import unigran.br.Model.DAO.*;
 import unigran.br.Model.Entidades.*;
-import unigran.br.JwtUtil;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -25,21 +25,23 @@ public class AreaMatchController {
     @Autowired
     private AreaMatchVistoDAO areaMatchVistoDAO;
 
-
     @Autowired
     private FavoritoDAO favoritoDAO;
-
+    private AvaliacaoDAO avaliacaoDAO = new AvaliacaoDAO();
     @Autowired
     private JwtUtil jwtUtil;
 
     @GetMapping("/matches")
-    public ResponseEntity<List<Map<String, Object>>> listarMatches(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) return ResponseEntity.status(401).build();
-
+    public ResponseEntity<List<Map<String, Object>>> listarMatches(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(401).build();
+        }
         String token = authHeader.substring(7);
         Cadastro cadastro = cadastroDAO.encontrarPorUserNome(jwtUtil.extrairUserNome(token));
-        if (cadastro == null) return ResponseEntity.status(401).build();
-
+        if (cadastro == null) {
+            return ResponseEntity.status(401).build();
+        }
         List<Postagem> postagensUsuario = postagemDAO.listarPorUserID(cadastro.getId());
         List<Postagem> postagensOutros = postagemDAO.listarTodas();
 
@@ -48,13 +50,14 @@ public class AreaMatchController {
 
         for (Postagem minhaPostagem : postagensUsuario) {
             List<String> interesses = new ArrayList<>();
-            if (minhaPostagem.getCategoriaInteresse1() != null) interesses.add(minhaPostagem.getCategoriaInteresse1());
-            if (minhaPostagem.getCategoriaInteresse2() != null) interesses.add(minhaPostagem.getCategoriaInteresse2());
-            if (minhaPostagem.getCategoriaInteresse3() != null) interesses.add(minhaPostagem.getCategoriaInteresse3());
-
+            if (minhaPostagem.getCategoriaInteresse1() != null)
+                interesses.add(minhaPostagem.getCategoriaInteresse1());
+            if (minhaPostagem.getCategoriaInteresse2() != null)
+                interesses.add(minhaPostagem.getCategoriaInteresse2());
+            if (minhaPostagem.getCategoriaInteresse3() != null)
+                interesses.add(minhaPostagem.getCategoriaInteresse3());
             for (Postagem outraPostagem : postagensOutros) {
                 if (outraPostagem.getUserID().equals(cadastro.getId())) continue;
-
                 if (vistos.contains(outraPostagem.getId())) continue;
                 if (!Boolean.TRUE.equals(outraPostagem.getDisponibilidade())) continue;
                 boolean match = interesses.stream()
@@ -70,14 +73,11 @@ public class AreaMatchController {
                 }
             }
         }
-
         List<Map<String, Object>> listaFinal = new ArrayList<>();
-
         for (Postagem p : resultadoMap.values()) {
             if (!Boolean.TRUE.equals(p.getDisponibilidade())) continue;
-            Escambista escambista = escambistaDAO.encontrarPorUserId(p.getUserID().intValue());
-            Integer avaliacao = (escambista != null) ? escambista.getAvaliacao() : null;
-
+            Map<String, Object> avaliacaoInfo = avaliacaoDAO.calcularMediaPorUsuarioId(p.getUserID());
+            Double avaliacaoMedia = (Double) avaliacaoInfo.get("media");
             Map<String, Object> itemMap = new HashMap<>();
             itemMap.put("id", p.getId());
             itemMap.put("userNome", p.getUserNome());
@@ -91,8 +91,7 @@ public class AreaMatchController {
             itemMap.put("cidade", p.getCidade());
             itemMap.put("uf", p.getUf());
             itemMap.put("imagem", p.getImagem());
-            itemMap.put("avaliacaoUsuario", avaliacao);
-
+            itemMap.put("avaliacaoUsuario", avaliacaoMedia);
             listaFinal.add(itemMap);
         }
         return ResponseEntity.ok(listaFinal);
@@ -102,13 +101,15 @@ public class AreaMatchController {
     public ResponseEntity<?> marcarInteresse(
             @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader,
             @RequestParam Long itemOutroUsuarioId,
-            @RequestParam boolean sim
-    ) {
+            @RequestParam boolean sim) {
+
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(401).build();
         }
+
         String token = authHeader.substring(7);
         Cadastro cadastro = cadastroDAO.encontrarPorUserNome(jwtUtil.extrairUserNome(token));
+
         if (cadastro == null) {
             return ResponseEntity.status(401).build();
         }
@@ -140,8 +141,7 @@ public class AreaMatchController {
     @PostMapping("/favorito")
     public ResponseEntity<?> favoritar(
             @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader,
-            @RequestParam Long postagemId
-    ) {
+            @RequestParam Long postagemId) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(401).build();
         }

@@ -14,10 +14,9 @@ public class Escambista {
 
     @Column(nullable = false)
     private Integer userId;
-
+    private Integer avaliacaoId;
     private String userNome;
     private String nomeEscambista;
-    private Integer avaliacao;
     private String contato;
     private String endereco;
     private String cpf;
@@ -28,6 +27,14 @@ public class Escambista {
 
     @Column(name = "quernotifi")
     private Boolean querNotifi;
+
+    public Integer getAvaliacaoId() {
+        return avaliacaoId;
+    }
+
+    public void setAvaliacaoId(Integer avaliacaoId) {
+        this.avaliacaoId = avaliacaoId;
+    }
 
     public Long getId() {
         return id;
@@ -59,14 +66,6 @@ public class Escambista {
 
     public void setNomeEscambista(String nomeEscambista) {
         this.nomeEscambista = nomeEscambista;
-    }
-
-    public Integer getAvaliacao() {
-        return avaliacao;
-    }
-
-    public void setAvaliacao(Integer avaliacao) {
-        this.avaliacao = avaliacao;
     }
 
     public String getContato() {

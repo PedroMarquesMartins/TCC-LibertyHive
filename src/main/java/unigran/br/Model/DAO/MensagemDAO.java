@@ -1,40 +1,50 @@
 package unigran.br.Model.DAO;
 
-import javax.persistence.*;
-
 import org.springframework.stereotype.Repository;
 import unigran.br.Model.Entidades.Mensagem;
 
+import javax.persistence.*;
 import java.util.List;
-
 
 @Repository
 public class MensagemDAO {
 
     private EntityManagerFactory emf;
-    private EntityManager em;
 
     public MensagemDAO() {
         emf = Persistence.createEntityManagerFactory("meuBancoDeDados");
-        em = emf.createEntityManager();
     }
 
     public void salvar(Mensagem msg) {
-        em.getTransaction().begin();
-        em.persist(msg);
-        em.getTransaction().commit();
+        EntityManager em = emf.createEntityManager();
+        try {
+            em.getTransaction().begin();
+            em.persist(msg);
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) em.getTransaction().rollback();
+            e.printStackTrace();
+        } finally {
+            em.close();
+        }
     }
 
     public List<Mensagem> listarPorChat(Long chatId) {
-        return em.createQuery(
-                        "SELECT m FROM Mensagem m WHERE m.chatId = :chatId ORDER BY m.dataHora ASC",
-                        Mensagem.class
-                ).setParameter("chatId", chatId)
-                .getResultList();
+        EntityManager em = emf.createEntityManager();
+        List<Mensagem> mensagens = null;
+        try {
+            mensagens = em.createQuery(
+                            "SELECT m FROM Mensagem m WHERE m.chatId = :chatId ORDER BY m.dataHora ASC",
+                            Mensagem.class
+                    ).setParameter("chatId", chatId)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+        return mensagens;
     }
 
     public void fechar() {
-        em.close();
-        emf.close();
+        if (emf.isOpen()) emf.close();
     }
 }

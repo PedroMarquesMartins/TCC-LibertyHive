@@ -59,10 +59,12 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             const doacao_string = p.doacao ? "Sim" : "Não";
             const tipo_string = p.isProdOuServico ? "Produto" : "Serviço";
+            const avaliacaoHTML = criarHTMLAvaliacao(p.avaliacaoUsuario);
 
             card.innerHTML = `
                 <img src="${imgSrc}" alt="${escapeHtml(nomePost)}">
                 <h3>${escapeHtml(nomePost)}</h3>
+                ${avaliacaoHTML} 
                 <p><strong>Categoria:</strong> ${escapeHtml(cat)}</p>
                 <p><strong>Tipo:</strong> ${tipo_string}</p>
                 <p><strong>Doação:</strong> ${doacao_string}</p>
@@ -233,7 +235,23 @@ function adicionarBotaoFavoritos() {
         }
     });
 }
+function criarHTMLAvaliacao(media) {
+    if (media == null || media === 0) {
+        return '<div class="rating-stars" style="color: #6c757d;"><i>Sem avaliações</i></div>';
+    }
 
+    let estrelasHTML = '';
+    const notaArredondada = Math.round(media * 2) / 2;
+    const fullStars = Math.floor(notaArredondada);
+    const halfStar = (notaArredondada % 1 !== 0);
+    const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+
+    for (let i = 0; i < fullStars; i++) estrelasHTML += '<i class="bi bi-star-fill"></i>';
+    if (halfStar) estrelasHTML += '<i class="bi bi-star-half"></i>';
+    for (let i = 0; i < emptyStars; i++) estrelasHTML += '<i class="bi bi-star"></i>';
+
+    return `<div class="rating-stars">${estrelasHTML} <span class="rating-text">${media.toFixed(1)}</span></div>`;
+}
 function salvarFavorito(postagem) {
     let favoritos = JSON.parse(localStorage.getItem("favoritos")) || [];
 

@@ -25,46 +25,51 @@
           aria-label="Search" oninput="filtrarProdutos()" />
       </form>
 
-      <div class="d-flex align-items-center gap-3">
+<div class="d-flex align-items-center gap-3">
+    <button type="button" class="btn btn-outline-danger btn-sm rounded-circle" title="Meus Favoritos"
+        onclick="window.location.href='favoritos.html'">
+        <i class="bi bi-heart"></i>
+    </button>
 
-        <button type="button" class="btn btn-outline-danger btn-sm rounded-circle" title="Meus Favoritos"
-          onclick="window.location.href='favoritos.html'">
-          <i class="bi bi-heart"></i>
-        </button>
+    <button type="button" class="btn btn-outline-warning btn-sm rounded-circle" title="Contatos"
+        onclick="window.location.href='contatos.html'">
+        <i class="bi bi-people"></i>
+    </button>
 
-        <div class="dropdown">
-          <button class="btn btn-outline-dark btn-sm rounded-circle dropdown-toggle" type="button" id="userMenu"
+    <div class="dropdown">
+        <button class="btn btn-outline-dark btn-sm rounded-circle dropdown-toggle" type="button" id="userMenu"
             data-bs-toggle="dropdown" aria-expanded="false">
             <i class="bi bi-person"></i>
-          </button>
-          <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userMenu">
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userMenu">
             <li>
-              <h6 class="dropdown-header" id="dropdownUserName">[Nome e Sobrenome]</h6>
+                <h6 class="dropdown-header" id="dropdownUserName">[Nome e Sobrenome]</h6>
             </li>
             <li><a class="dropdown-item" href="configuracao.html">Informação Pessoal</a></li>
             <li><a class="dropdown-item" href="favoritos.html">Favoritos</a></li>
             <li><a class="dropdown-item" href="meusItens.html">Meus Itens</a></li>
+            <li><a class="dropdown-item" href="contatos.html">Contatos</a></li>
             <li>
-              <hr class="dropdown-divider">
+                <hr class="dropdown-divider">
             </li>
             <li>
-              <button type="button" class="btn btn-outline-dark btn-sm rounded-circle" onclick="logout()" title="Sair">
-                <i class="bi bi-box-arrow-right"></i>
-              </button>
+                <button type="button" class="btn btn-outline-dark btn-sm rounded-circle" onclick="logout()" title="Sair">
+                    <i class="bi bi-box-arrow-right"></i>
+                </button>
             </li>
-          </ul>
-        </div>
+        </ul>
+    </div>
 
+    <button type="button" class="btn btn-outline-dark btn-sm rounded-circle" title="Configurações"
+        onclick="window.location.href='configuracao.html'">
+        <i class="bi bi-gear"></i>
+    </button>
 
+    <button type="button" class="btn btn-outline-dark btn-sm rounded-circle" onclick="logout()" title="Sair">
+        <i class="bi bi-box-arrow-right"></i>
+    </button>
+</div>
 
-        <button type="button" class="btn btn-outline-dark btn-sm rounded-circle" title="Configurações"
-          onclick="window.location.href='configuracao.html'">
-          <i class="bi bi-gear"></i>
-        </button>
-        <button type="button" class="btn btn-outline-dark btn-sm rounded-circle" onclick="logout()" title="Sair">
-          <i class="bi bi-box-arrow-right"></i>
-        </button>
-      </div>
     </div>
   </header>
 

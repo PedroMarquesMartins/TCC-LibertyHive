@@ -37,6 +37,65 @@ public class PropostaDAO {
         }
     }
 
+    public void recusarOutrasPropostasPendentes(Long itemDesejadoId, Long itemOferecidoId, Long propostaIdAtual) {
+        EntityManager em = getEntityManager();
+        try {
+            em.getTransaction().begin();
+
+            String hql = "UPDATE Proposta p SET p.status = 3 WHERE p.status = 1 AND p.id <> :idAtual " +
+                    "AND (p.itemDesejadoId = :idDesejado OR p.itemOferecidoId = :idDesejado " +
+                    (itemOferecidoId != null ? " OR p.itemDesejadoId = :idOferecido OR p.itemOferecidoId = :idOferecido" : "") + ")";
+
+            var query = em.createQuery(hql);
+            query.setParameter("idAtual", propostaIdAtual);
+            query.setParameter("idDesejado", itemDesejadoId);
+            if (itemOferecidoId != null) {
+                query.setParameter("idOferecido", itemOferecidoId);
+            }
+
+            query.executeUpdate();
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
+    public void excluirPropostasComMesmoItem(Long propostaConcluidaId, Long itemDesejadoId, Long itemOferecidoId) {
+        EntityManager em = getEntityManager();
+        try {
+            em.getTransaction().begin();
+
+            em.createQuery("""
+                DELETE FROM Proposta p
+                WHERE p.id <> :propostaConcluidaId
+                AND p.status <> 2
+                AND (
+                    p.itemDesejadoId = :itemDesejadoId
+                    OR p.itemOferecidoId = :itemDesejadoId
+                    OR p.itemDesejadoId = :itemOferecidoId
+                    OR p.itemOferecidoId = :itemOferecidoId
+                )
+                """)
+                    .setParameter("propostaConcluidaId", propostaConcluidaId)
+                    .setParameter("itemDesejadoId", itemDesejadoId)
+                    .setParameter("itemOferecidoId", itemOferecidoId)
+                    .executeUpdate();
+
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
     public void atualizarProposta(Proposta proposta) {
         EntityManager em = getEntityManager();
         try {

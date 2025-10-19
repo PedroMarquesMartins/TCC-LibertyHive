@@ -9,8 +9,8 @@ import unigran.br.Model.DAO.ChatDAO;
 import unigran.br.Model.DAO.MensagemDAO;
 import unigran.br.Model.Entidades.Chat;
 import unigran.br.Model.Entidades.Mensagem;
-
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -124,5 +124,18 @@ public class ChatController {
         Mensagem msg = new Mensagem(chatId, userId, mensagemTexto);
         mensagemDAO.salvar(msg);
         return ResponseEntity.ok(msg);
+    }
+    @GetMapping("/usuario/{userId}")
+    public ResponseEntity<?> listarChatsPorUsuario(@PathVariable Long userId) {
+        try {
+            List<Chat> chats = chatDAO.listarPorUsuario(userId);
+            if (chats == null || chats.isEmpty()) {
+                return ResponseEntity.ok(Collections.emptyList());
+            }
+            return ResponseEntity.ok(chats);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro ao listar chats do usuário: " + e.getMessage());
+        }
     }
 }

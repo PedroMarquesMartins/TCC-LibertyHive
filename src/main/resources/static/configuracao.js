@@ -13,6 +13,72 @@ function esconderTodosPainel() {
     document.querySelectorAll('.painel').forEach(p => p.style.display = 'none');
 }
 
+function getUserIdFromStorage() {
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+        console.error("userId não encontrado no localStorage. É necessário fazer login novamente.");
+        return null;
+    }
+    return parseInt(userId, 10);
+}
+
+function criarHTMLAvaliacao(media, quantidade) {
+    if (quantidade === 0) {
+        return `
+            <div class="text-center text-muted">
+                <i class="bi bi-star" style="font-size: 2rem;"></i>
+                <p class="mt-2">Você ainda não possui avaliações.</p>
+            </div>`;
+    }
+
+    let estrelasHTML = '';
+    const notaArredondada = Math.round(media * 2) / 2;
+    const fullStars = Math.floor(notaArredondada);
+    const halfStar = (notaArredondada % 1 !== 0);
+    const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+
+    for (let i = 0; i < fullStars; i++) estrelasHTML += '<i class="bi bi-star-fill"></i>';
+    if (halfStar) estrelasHTML += '<i class="bi bi-star-half"></i>';
+    for (let i = 0; i < emptyStars; i++) estrelasHTML += '<i class="bi bi-star"></i>';
+
+    return `
+        <div class="text-center">
+            <div class="display-4" style="color: #ffc107;">${estrelasHTML}</div>
+            <p class="h5 mt-2 mb-1">Sua média é ${media.toFixed(1)} de 5</p>
+            <p class="text-muted">Baseado em ${quantidade} avaliações.</p>
+        </div>`;
+}
+
+async function carregarMinhaAvaliacao() {
+    const userId = getUserIdFromStorage();
+    if (!userId) {
+        Swal.fire('Erro de Sessão', 'Não foi possível encontrar seu ID de usuário. Por favor, faça login novamente.', 'error');
+        return;
+    }
+
+    const container = document.getElementById('minhaAvaliacaoContainer');
+    container.innerHTML = '<p>Carregando sua avaliação...</p>';
+
+    try {
+        const res = await fetch(`http://localhost:8080/api/propostas/avaliacoes/${userId}`, {
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+
+        if (!res.ok) {
+            const errorData = await res.json().catch(() => ({ message: 'Não foi possível buscar sua avaliação.' }));
+            throw new Error(errorData.message);
+        }
+
+        const data = await res.json();
+        container.innerHTML = criarHTMLAvaliacao(data.media, data.quantidade);
+
+    } catch (err) {
+        container.innerHTML = `<p class="text-danger">${err.message}</p>`;
+        Swal.fire('Erro', err.message, 'error');
+    }
+}
+
+
 async function carregarPerfil() {
     try {
         const userNome = localStorage.getItem('userNome');
@@ -173,6 +239,7 @@ document.getElementById('btnMinhasPropostas').addEventListener('click', () => {
 document.getElementById('btnMinhaAvaliacao').addEventListener('click', () => {
     esconderTodosPainel();
     painelMinhaAvaliacao.style.display = 'block';
+    carregarMinhaAvaliacao();
 });
 
 document.getElementById('btnNotificacoes').addEventListener('click', () => {

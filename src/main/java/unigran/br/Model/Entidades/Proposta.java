@@ -18,7 +18,6 @@ public class Proposta {
     private Long itemDesejadoId;
     private Long itemOferecidoId;
 
-    private Integer avaliarPerfil;
 
     public Long getId() {
         return id;
@@ -62,10 +61,4 @@ public class Proposta {
         this.itemOferecidoId = itemOferecidoId;
     }
 
-    public Integer getAvaliarPerfil() {
-        return avaliarPerfil;
-    }
-    public void setAvaliarPerfil(Integer avaliarPerfil) {
-        this.avaliarPerfil = avaliarPerfil;
-    }
 }

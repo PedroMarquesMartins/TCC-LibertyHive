@@ -67,7 +67,16 @@ public class EscambistaDAO {
     public List<Escambista> listarTodos() {
         return em.createQuery("SELECT e FROM Escambista e", Escambista.class).getResultList();
     }
-
+    public Escambista buscarPorUserId(int userId) {
+        try {
+            return em.createQuery(
+                            "SELECT e FROM Escambista e WHERE e.userId = :userId", Escambista.class)
+                    .setParameter("userId", userId)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
     public void removerEscambista(Long id) {
         Escambista escambista = encontrarEscambistaPorId(id);
         if (escambista != null) {
