@@ -51,7 +51,9 @@ async function carregarChat() {
         let mensagens = [];
         if (respMsgs.ok) mensagens = await respMsgs.json();
 
-        chatArea.innerHTML = ""; 
+        const estavaNoFim = (chatArea.scrollHeight - chatArea.scrollTop - chatArea.clientHeight) < 50;
+
+        chatArea.innerHTML = "";
         mensagens.forEach(m => {
             const div = document.createElement("div");
 
@@ -68,7 +70,9 @@ async function carregarChat() {
             chatArea.appendChild(div);
         });
 
-        chatArea.scrollTop = chatArea.scrollHeight;
+        if (estavaNoFim) {
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
     } catch (err) {
         console.error("Erro ao carregar chat:", err);
         chatArea.innerHTML = "<p style='color:red;'>Erro ao carregar chat.</p>";

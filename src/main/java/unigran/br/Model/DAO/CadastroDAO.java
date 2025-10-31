@@ -2,6 +2,7 @@ package unigran.br.Model.DAO;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
 import org.springframework.stereotype.Repository;
 import unigran.br.Model.Entidades.Cadastro;
@@ -50,6 +51,32 @@ public class CadastroDAO {
             em.getTransaction().commit();
         }
     }
+
+    public Cadastro buscarPorEmail(String email) {
+        try {
+            return em.createQuery("SELECT c FROM Cadastro c WHERE c.email = :email", Cadastro.class)
+                    .setParameter("email", email)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+    public void salvarOuAtualizar(Cadastro cadastro) {
+        em.getTransaction().begin();
+        if (cadastro.getId() == null) {
+            em.persist(cadastro);
+        } else {
+            em.merge(cadastro);
+        }
+        em.getTransaction().commit();
+    }
+
+    public void atualizar(Cadastro cadastro) {
+        em.getTransaction().begin();
+        em.merge(cadastro);
+        em.getTransaction().commit();
+    }
+
     public List<Cadastro> listarTodos() {
         return em.createQuery("SELECT c FROM Cadastro c", Cadastro.class).getResultList();
     }

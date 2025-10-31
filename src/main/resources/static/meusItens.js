@@ -195,7 +195,6 @@ function onChangeCategoriaInteresse(e) {
     atualizarOpcoes();
 }
 
-
 function atualizarOpcoes() {
     const container = document.getElementById("interessesContainer");
     const selects = [...container.querySelectorAll("select")];
@@ -208,7 +207,6 @@ function atualizarOpcoes() {
         });
     });
 }
-
 
 function iniciarCategoriasInteresse() {
     const container = document.getElementById("interessesContainer");
@@ -224,49 +222,67 @@ function mostrarFormulario() {
     document.getElementById("formAdicionar").style.display = "block";
 }
 
-//Leitura das entradas----------------------------------
 function getTipoItem() {
     const selecionado = document.querySelector('input[name="tipoItem"]:checked');
-    return selecionado ? selecionado.value : "Produto";
+    return selecionado ? selecionado.value : null;
 }
 
 function getIsDoacao() {
     const selecionado = document.querySelector('input[name="isDoacao"]:checked');
-    return selecionado ? selecionado.value : "0";
+    return selecionado ? selecionado.value : null;
 }
 
-/**/
+document.addEventListener("change", function (e) {
+    if (e.target.name === "isDoacao") {
+        const container = document.getElementById("interessesContainer");
+        const label = document.getElementById("labelInteresses");
+        if (e.target.value === "1") {
+            container.style.display = "none";
+            if (label) label.style.display = "none";
+        } else {
+            container.style.display = "block";
+            if (label) label.style.display = "block";
+            iniciarCategoriasInteresse();
+        }
+    }
+});
 
 function salvarItem() {
     const token = localStorage.getItem('token');
     if (!token) {
-        alert("Sessão inválida. Por favor, faça o login novamente.");
-        window.location.href = 'login.html';
+        Swal.fire({
+            icon: 'error',
+            title: 'Sessão inválida',
+            text: 'Por favor, faça o login novamente.',
+        }).then(() => { window.location.href = 'login.html'; });
         return;
     }
 
     const isDoacao = getIsDoacao();
     const tipoItem = getTipoItem();
+
+    if (!tipoItem || isDoacao === null) {
+        Swal.fire({ icon: 'warning', title: 'Campos obrigatórios', text: 'Preencha todos os campos.' });
+        return;
+    }
+
     const categoria = document.getElementById("categoria").value;
     const nomeItem = document.getElementById("nomeItem").value.trim();
     const descricaoItem = document.getElementById("descricaoItem").value.trim();
     const uf = document.getElementById("ufItem").value;
     const cidade = document.getElementById("cidadeItem").value.trim();
-    if (nomeItem.length > 255) {
-        alert("O nome da postagem não pode ter mais que 255 caracteres.");
+
+    if (!categoria || !nomeItem || !descricaoItem || !uf || !cidade) {
+        Swal.fire({ icon: 'warning', title: 'Campos obrigatórios', text: 'Preencha todos os campos.' });
         return;
     }
+
     const container = document.getElementById("interessesContainer");
     const selects = [...container.querySelectorAll("select")];
     const categoriasEscolhidas = selects.map(s => s.value).filter(v => v !== "" && v !== "Nenhuma");
 
-    if (!categoria || !nomeItem || !descricaoItem || categoriasEscolhidas.length === 0 || !uf || !cidade) {
-        alert("Por favor, preencha todos os campos obrigatórios.");
-        return;
-    }
-
-    if (categoriasEscolhidas.length > 3) {
-        alert("Selecione no máximo 3 categorias de interesse.");
+    if ((!isDoacao || isDoacao === "0") && categoriasEscolhidas.length === 0) {
+        Swal.fire({ icon: 'warning', title: 'Campo obrigatório', text: 'Selecione ao menos uma categoria de interesse.' });
         return;
     }
 
@@ -293,43 +309,45 @@ function salvarItem() {
     if (capa) formData.append("imagem", capa);
 
     const secundarias = document.querySelectorAll(".imagemSecundaria");
-    if (secundarias.length !== 5) {
-        alert("Selecione exatamente 5 imagens secundárias.");
-        return;
-    }
-    secundarias.forEach(input => formData.append("imagensSecundarias", input.files[0]));
+    secundarias.forEach((input, i) => {
+        if (input.files[0]) formData.append("imagensSecundarias", input.files[0]);
+    });
 
-    //Conexão com a rota
-    fetch("http://localhost:8080/api/postagens", {
-        method: "POST",
+    const url = idEditando ? `http://localhost:8080/api/postagens/${idEditando}` : "http://localhost:8080/api/postagens";
+    const method = idEditando ? "PUT" : "POST";
+
+    fetch(url, {
+        method: method,
         body: formData,
         headers: { "Authorization": "Bearer " + token }
     })
-        .then(res => {
-            if (!res.ok) return res.json().then(err => { throw new Error(err.error || "Erro no servidor"); });
-            return res.json();
-        })
-        .then(data => {
-            Swal.fire({
-                icon: "success",
-                title: "Postagem salva com sucesso!",
-                showConfirmButton: false,
-                timer: 1800
-            });
-            document.getElementById("formAdicionar").reset();
-            iniciarCategoriasInteresse();
-            carregarPostagens();
-            fecharFormulario();
-        })
-        .catch(err => alert("Erro: " + err.message));
+    .then(res => {
+        if (!res.ok) return res.json().then(err => { throw new Error(err.error || "Erro no servidor"); });
+        return res.json();
+    })
+    .then(data => {
+        Swal.fire({
+            icon: "success",
+            title: idEditando ? "Postagem atualizada!" : "Postagem criada!",
+            showConfirmButton: false,
+            timer: 1500
+        });
+        idEditando = null;
+        document.getElementById("formAdicionar").reset();
+        iniciarCategoriasInteresse();
+        carregarPostagens();
+        fecharFormulario();
+    })
+    .catch(err => Swal.fire("Erro", err.message, "error"));
 }
+
 
 function logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('userNome');
     window.location.href = 'login.html';
 }
-/* */
+
 function bytesParaBase64(bytes) {
     if (!bytes) return '';
     let binary = '';
@@ -339,7 +357,43 @@ function bytesParaBase64(bytes) {
     return window.btoa(binary);
 }
 
-//Listagem das Postagens do Usuario
+function preencherFormulario(p) {
+    document.getElementById("nomeItem").value = p.nomePostagem;
+    document.getElementById("descricaoItem").value = p.descricao;
+    document.getElementById("categoria").value = p.categoria;
+    document.getElementById("ufItem").value = p.uf;
+    document.getElementById("cidadeItem").value = p.cidade;
+    document.querySelector(`input[name="tipoItem"][value="${p.isProdOuServico ? 'Produto' : 'Servico'}"]`).checked = true;
+    document.querySelector(`input[name="isDoacao"][value="${p.doacao ? '1' : '0'}"]`).checked = true;
+
+    iniciarCategoriasInteresse();
+    const container = document.getElementById("interessesContainer");
+    const selects = container.querySelectorAll("select");
+    if (selects[0]) selects[0].value = p.categoriaInteresse1 || "";
+    if (selects[1]) selects[1].value = p.categoriaInteresse2 || "";
+    if (selects[2]) selects[2].value = p.categoriaInteresse3 || "";
+
+    if (p.imagem) {
+        const imgCapa = document.getElementById("previewCapa");
+        imgCapa.src = `data:image/png;base64,${p.imagem}`;
+        aplicarEstilo(imgCapa);
+    }
+    const imgsSec = [p.imagemS01, p.imagemS02, p.imagemS03, p.imagemS04, p.imagemS05];
+    const inputsSec = document.querySelectorAll(".imagemSecundaria");
+    const previewsSec = document.querySelectorAll(".previewSecundaria");
+    for (let i = 0; i < 5; i++) {
+        if (imgsSec[i]) {
+            previewsSec[i].src = `data:image/png;base64,${imgsSec[i]}`;
+            aplicarEstilo(previewsSec[i]);
+        } else {
+            previewsSec[i].src = "";
+        }
+    }
+}
+
+
+let idEditando = null; 
+
 function carregarPostagens() {
     const token = localStorage.getItem("token");
     if (!token) return;
@@ -369,7 +423,7 @@ function carregarPostagens() {
                     const img = document.createElement("img");
                     img.src = `data:image/png;base64,${p.imagem}`;
                     img.alt = p.nomePostagem;
-                    img.style.maxWidth = "150px";
+                    aplicarEstilo(img);
                     div.appendChild(img);
                 }
 
@@ -377,26 +431,21 @@ function carregarPostagens() {
                 h3.textContent = p.nomePostagem;
                 div.appendChild(h3);
 
-                // Parágrafo para a descrição
                 const pDesc = document.createElement("p");
                 pDesc.innerHTML = `<span>Descrição:</span> ${p.descricao}`;
                 div.appendChild(pDesc);
 
-                // Parágrafo para a categoria e o tipo
                 const info = document.createElement("p");
                 info.innerHTML = `<span>Categoria:</span> ${p.categoria} - <span>Tipo:</span> ${p.isProdOuServico ? "Produto" : "Serviço"}`;
                 div.appendChild(info);
 
-                // Parágrafo para a doação
                 const doacaoo = document.createElement("p");
                 doacaoo.innerHTML = `<span>Doação/Voluntário:</span> ${p.doacao ? "Sim" : "Não"}`;
                 div.appendChild(doacaoo);
 
-                // Parágrafo para a localidade
                 const localidade = document.createElement("p");
                 localidade.innerHTML = `<span>Local:</span> ${p.cidade} - ${p.uf}`;
                 div.appendChild(localidade);
-
                 const btnExcluir = document.createElement("button");
                 btnExcluir.textContent = "Excluir";
                 btnExcluir.style.marginTop = "5px";
@@ -424,6 +473,17 @@ function carregarPostagens() {
                 });
                 div.appendChild(btnExcluir);
 
+                const btnEditar = document.createElement("button");
+                btnEditar.textContent = "Editar";
+                btnEditar.style.marginTop = "5px";
+                btnEditar.style.marginLeft = "5px";
+                btnEditar.addEventListener("click", () => {
+                    idEditando = p.id;
+                    mostrarFormulario();
+                    preencherFormulario(p);
+                });
+                div.appendChild(btnEditar);
+
                 container.appendChild(div);
             });
         })
@@ -450,4 +510,61 @@ function mostrarFormulario() {
 
 function fecharFormulario() {
     document.getElementById("popupFormulario").style.display = "none";
+    document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") {
+            const popup = document.getElementById("popupFormulario");
+            if (popup && popup.style.display === "flex") {
+                fecharFormulario();
+            }
+        }
+    });
+
 }
+
+const estiloPreview = {
+    width: "150px",
+    height: "150px",
+    objectFit: "cover",
+    border: "2px solid #000000ff",
+    borderRadius: "5px",
+    display: "block",
+    marginTop: "10px"
+};
+
+function aplicarEstilo(img) {
+    for (const prop in estiloPreview) {
+        img.style[prop] = estiloPreview[prop];
+    }
+}
+
+document.getElementById("imagemCapa").addEventListener("change", function () {
+    const img = document.getElementById("previewCapa");
+    if (this.files && this.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            img.src = e.target.result;
+            aplicarEstilo(img);
+        };
+        reader.readAsDataURL(this.files[0]);
+    } else {
+        img.src = "";
+        img.style.display = "none";
+    }
+});
+
+document.querySelectorAll(".imagemSecundaria").forEach(input => {
+    input.addEventListener("change", function () {
+        const img = this.parentElement.querySelector(".previewSecundaria");
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                img.src = e.target.result;
+                aplicarEstilo(img);
+            };
+            reader.readAsDataURL(this.files[0]);
+        } else {
+            img.src = "";
+            img.style.display = "none";
+        }
+    });
+});

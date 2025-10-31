@@ -11,9 +11,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
-    console.log("Usuário logado:", userIdLogado, userNomeLogado);
-    console.log("Token carregado:", token);
-
     const listaContatos = document.getElementById("listaContatos");
 
     async function carregarContatos() {

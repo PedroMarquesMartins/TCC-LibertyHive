@@ -1,63 +1,65 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="./Style/styleLogin.css">
-    <title>Login - Liberty Hive</title>
-    <link rel="icon" type="image/png" href="favicon.png">
-    <script src="login.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  </head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./Style/styleLogin.css">
+  <title>Login - Liberty Hive</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <script src="login.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
 <body>
-    <header class="header">
-        <div class="top-text">
-            <h1>Boas-vindas de volta!</h1>
-            <h2>Estamos muito animados em te ver novamente!</h2>
-        </div>
-    </header>
+  <header class="header">
+    <div class="top-text">
+      <h1>Boas-vindas de volta!</h1>
+      <h2>Estamos muito animados em te ver novamente!</h2>
+    </div>
+  </header>
 
-    <div class="logando">
-        <h1 class="Logar">Login</h1>
+  <div class="logando">
+    <h1 class="Logar">Login</h1>
+  </div>
+
+  <div class="container">
+    <div class="logo">
+      <img src="./imagens/logo.png" alt="Logo do TCC">
     </div>
 
-    <div class="container">
-        <div class="logo">
-            <img src="./imagens/logo.png" alt="Logo do TCC">
+    <div class="form-container">
+      <form id="formLogin">
+        <!--Formulário de preenchimento-->
+        <label class="label" for="user">Usuário ou Email</label>
+        <input type="text" id="user" name="user" required>
+
+        <label class="label" for="senha">Senha</label>
+        <input type="password" id="senha" name="senha" required>
+
+        <a href="#" id="linkAjuda" class="forgot">Esqueci minha senha</a>
+
+        <div class="buttons">
+          <button class="Botar" type="submit">Login</button>
+
+          <button id="btnCadastrar" class="Botar" type="button">Cadastrar</button>
         </div>
-            
-        <div class="form-container">
-            <form id="formLogin">
-           <!--Formulário de preenchimento-->
-                <label class="label" for="user">Usuário ou Email</label>
-                <input type="text" id="user" name="user" required>
-
-                <label class="label" for="senha">Senha</label>
-                <input type="password" id="senha" name="senha" required>
-
-                <a href="#" class="forgot">Preciso de Ajuda</a>
-
-                <div class="buttons">
-                    <button class="Botar" type="submit">Login</button>
-
-                    <button id="btnCadastrar" class="Botar" type="button">Cadastrar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-  <br><br><br>
-    <footer class="footer-padrao">
-  <div class="footer-content">
-    <p>Como cuidamos da sua privacidade</p>
-    <p>Copyright © - 2025 Liberty Hive LTDA.</p>
-    <p>Protegido por Rash</p>
-    <div class="footer-links">
-      <a href="#">Privacidade</a> |
-      <a href="#">Condições</a> |
-      <a href="#">Suporte</a> |
-      <a href="#">Ajuda</a>
+      </form>
     </div>
   </div>
-</footer>
+  <br><br><br>
+  <footer class="footer-padrao">
+    <div class="footer-content">
+      <p>Como cuidamos da sua privacidade</p>
+      <p>Copyright © - 2025 Liberty Hive LTDA.</p>
+      <p>Protegido por Rash</p>
+      <div class="footer-links">
+        <a href="#">Privacidade</a> |
+        <a href="#">Condições</a> |
+        <a href="#">Suporte</a> |
+        <a href="#">Ajuda</a>
+      </div>
+    </div>
+  </footer>
 </body>
 </html>

@@ -1,4 +1,3 @@
-//Leitura das entradas
 const emailInput = document.getElementById('email');
 const userNomeInput = document.getElementById('userNome');
 const senhaInput = document.getElementById('senha');
@@ -26,50 +25,54 @@ senhaInput.addEventListener('input', () => {
     senhaLength.classList.toggle('valid', val.length >= 6);
     senhaNotEmpty.classList.toggle('valid', val.trim().length > 0);
 });
+
 document.getElementById('formCadastro').addEventListener('submit', function (event) {
     event.preventDefault();
 
-    const email = document.getElementById('email').value;
-    const senha = document.getElementById('senha').value;
-    const userNome = document.getElementById('userNome').value;
+    const email = emailInput.value.trim();
+    const senha = senhaInput.value.trim();
+    const userNome = userNomeInput.value.trim();
 
-    const dados = {
-        email: email,
-        senha: senha,
-        userNome: userNome
-    };
-    //Envio para o cadastro (rota http)
+    const dados = { email, senha, userNome };
+
+    Swal.fire({
+        title: 'Cadastrando...',
+        html: 'Aguarde enquanto processamos.',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+    });
+
     fetch('http://localhost:8080/api/cadastros', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dados)
     })
-        .then(async response => {
-            const data = await response.json();
+    .then(async response => {
+        const data = await response.json();
+        Swal.close();
 
-            if (!response.ok) {
-                document.getElementById('mensagemErro').textContent = data.error || data.message || 'Erro desconhecido no cadastro.';
-                throw new Error(data.error || data.message || 'Erro no cadastro');
-            }
+        if (!response.ok) {
+            document.getElementById('mensagemErro').textContent = data.error || data.message || 'Erro desconhecido no cadastro.';
+            throw new Error(data.error || data.message || 'Erro no cadastro');
+        }
 
-            document.getElementById('mensagemErro').textContent = '';
-            return data;
-        })
-        .then(data => {
-            Swal.fire({
-                icon: 'success',
-                title: 'Cadastro realizado com sucesso!',
-                showConfirmButton: false,
-                timer: 1000
-            });
-            document.getElementById('formCadastro').reset();
-            setTimeout(() => {
-                window.location.href = 'login.html';
-            }, 1000);
-        })
-        .catch(error => {
-            console.error('Erro:', error);
+        document.getElementById('mensagemErro').textContent = '';
+        return data;
+    })
+    .then(data => {
+        Swal.fire({
+            icon: 'success',
+            title: 'Cadastro realizado com sucesso!',
+            showConfirmButton: false,
+            timer: 1000
         });
+        document.getElementById('formCadastro').reset();
+        setTimeout(() => {
+            window.location.href = 'login.html';
+        }, 1000);
+    })
+    .catch(error => {
+        Swal.close();
+        console.error('Erro:', error);
+    });
 });

@@ -563,7 +563,7 @@
                     if (!loggedUser) { alert('Erro: usuário não identificado corretamente.'); return; }
 
                     const { userId: userIdLogado, userNome: userNomeLogado } = loggedUser;
-                    const outroId = itemDetalhe.userID; 
+                    const outroId = itemDetalhe.userID;
                     const outroNome = itemDetalhe.userNome;
                     console.log("IDs para chat:", userIdLogado, outroId);
 
@@ -628,59 +628,83 @@
         }
 
         document.getElementById("btnPropor").addEventListener("click", async () => {
-            const itemDesejadoId = itemId;
-            let itemOferecidoId = itemSelecionadoId;
+    const itemDesejadoId = itemId;
+    let itemOferecidoId = itemSelecionadoId;
 
-            if (isDoacao) itemOferecidoId = null;
-            else if (!itemSelecionadoId) {
-                Swal.fire({ title: "Atenção", text: "Selecione um item seu para propor o negócio.", icon: "warning" });
-                return;
-            }
-
-            let jaExiste = isDoacao
-                ? propostasExistentes.some(p => p.itemDesejadoId == itemDesejadoId)
-                : propostasExistentes.some(p => p.itemDesejadoId == itemDesejadoId && p.itemOferecidoId == itemOferecidoId);
-
-            if (jaExiste) {
-                Swal.fire({
-                    title: "Atenção",
-                    text: isDoacao ? "Você já solicitou doação para este item." : "Você já enviou uma proposta com esses itens.",
-                    icon: "warning"
-                });
-                return;
-            }
-
-            const confirm = await Swal.fire({
-                title: isDoacao ? "Confirmar solicitação de doação?" : "Confirmar proposta?",
-                text: isDoacao ? "Deseja realmente solicitar esta doação?" : "Deseja realmente propor este negócio?",
-                icon: "question",
-                showCancelButton: true,
-                confirmButtonText: isDoacao ? "Sim, solicitar" : "Sim, propor",
-                cancelButtonText: "Cancelar"
-            });
-
-            if (!confirm.isConfirmed) return;
-
-            try {
-                let url = `http://localhost:8080/api/propostas/criar?itemDesejadoId=${itemDesejadoId}`;
-                if (itemOferecidoId) url += `&itemOferecidoId=${itemOferecidoId}`;
-
-                const resp = await fetch(url, {
-                    method: "POST",
-                    headers: { "Authorization": `Bearer ${token}` }
-                });
-                const data = await resp.json();
-                if (resp.ok) {
-                    Swal.fire({ title: "Sucesso!", text: isDoacao ? "Solicitação de doação enviada!" : "Proposta criada com sucesso!", icon: "success" });
-                    propostasExistentes.push({ itemDesejadoId, itemOferecidoId: itemOferecidoId ?? null });
-                } else {
-                    Swal.fire({ title: "Erro", text: data.message || "Não foi possível criar a proposta.", icon: "error" });
-                }
-            } catch (err) {
-                console.error(err);
-                Swal.fire({ title: "Erro", text: "Falha ao criar proposta.", icon: "error" });
-            }
+    if (isDoacao) itemOferecidoId = null;
+    else if (!itemSelecionadoId) {
+        Swal.fire({
+            title: "Atenção",
+            text: "Selecione um item seu para propor o negócio.",
+            icon: "warning"
         });
+        return;
+    }
+
+    let jaExiste = isDoacao
+        ? propostasExistentes.some(p => p.itemDesejadoId == itemDesejadoId)
+        : propostasExistentes.some(p => p.itemDesejadoId == itemDesejadoId && p.itemOferecidoId == itemOferecidoId);
+
+    if (jaExiste) {
+        Swal.fire({
+            title: "Atenção",
+            text: isDoacao ? "Você já solicitou doação para este item." : "Você já enviou uma proposta com esses itens.",
+            icon: "warning"
+        });
+        return;
+    }
+
+    const confirm = await Swal.fire({
+        title: isDoacao ? "Confirmar solicitação de doação?" : "Confirmar proposta?",
+        text: isDoacao ? "Deseja realmente solicitar esta doação?" : "Deseja realmente propor este negócio?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: isDoacao ? "Sim, solicitar" : "Sim, propor",
+        cancelButtonText: "Cancelar"
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    Swal.fire({
+        title: 'Enviando proposta...',
+        html: 'Aguarde enquanto processamos.',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    try {
+        let url = `http://localhost:8080/api/propostas/criar?itemDesejadoId=${itemDesejadoId}`;
+        if (itemOferecidoId) url += `&itemOferecidoId=${itemOferecidoId}`;
+
+        const resp = await fetch(url, {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+        const data = await resp.json();
+        Swal.close(); 
+        if (resp.ok) {
+            Swal.fire({
+                title: "Sucesso!",
+                text: isDoacao ? "Solicitação de doação enviada!" : "Proposta criada com sucesso!",
+                icon: "success"
+            });
+            propostasExistentes.push({ itemDesejadoId, itemOferecidoId: itemOferecidoId ?? null });
+        } else {
+            Swal.fire({
+                title: "Erro",
+                text: data.message || "Não foi possível criar a proposta.",
+                icon: "error"
+            });
+        }
+    } catch (err) {
+        Swal.close();
+        console.error(err);
+        Swal.fire({ title: "Erro", text: "Falha ao criar proposta.", icon: "error" });
+    }
+});
+
 
         function logout() {
             localStorage.removeItem("token");

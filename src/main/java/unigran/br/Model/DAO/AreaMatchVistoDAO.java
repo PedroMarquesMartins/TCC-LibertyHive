@@ -46,6 +46,13 @@ public class AreaMatchVistoDAO {
         em.close();
         emf.close();
     }
+    public void removerPorUserId(Long userId) {
+        em.getTransaction().begin();
+        em.createQuery("DELETE FROM AreaMatchVisto a WHERE a.userId = :userId")
+                .setParameter("userId", userId)
+                .executeUpdate();
+        em.getTransaction().commit();
+    }
 
     public boolean existeRegistro(Long userId, Long postagemId) {
         Long count = em.createQuery(

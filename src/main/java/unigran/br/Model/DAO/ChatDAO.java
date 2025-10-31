@@ -84,6 +84,17 @@ public class ChatDAO {
             em.getTransaction().commit();
         }
     }
+    public void removerChatsEMensagensPorUserId(Long userId) {
+        em.getTransaction().begin();
+        em.createQuery("DELETE FROM Mensagem m WHERE m.chatId IN " +
+                        "(SELECT c.id FROM Chat c WHERE c.userId01 = :userId OR c.userId02 = :userId)")
+                .setParameter("userId", userId)
+                .executeUpdate();
+        em.createQuery("DELETE FROM Chat c WHERE c.userId01 = :userId OR c.userId02 = :userId")
+                .setParameter("userId", userId)
+                .executeUpdate();
+        em.getTransaction().commit();
+    }
 
     public void atualizar(Chat chat) {
         em.getTransaction().begin();
