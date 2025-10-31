@@ -26,6 +26,15 @@ public class EscambistaDAO {
         em.persist(escambista);
         em.getTransaction().commit();
     }
+    public Escambista buscarPorCpf(String cpf) {
+        try {
+            return em.createQuery("SELECT e FROM Escambista e WHERE e.cpf = :cpf", Escambista.class)
+                    .setParameter("cpf", cpf)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
 
     public void atualizarEscambista(Escambista escambista) {
         em.getTransaction().begin();

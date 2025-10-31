@@ -11,7 +11,9 @@ import java.util.List;
 
 @Repository
 public class PostagemDAO {
+
     private EntityManagerFactory emf;
+
     public PostagemDAO() {
         emf = Persistence.createEntityManagerFactory("meuBancoDeDados");
     }
@@ -22,36 +24,24 @@ public class PostagemDAO {
 
     public void salvarPostagem(Postagem postagem) {
         EntityManager em = getEntityManager();
-        postagem.setId(null);
         try {
             em.getTransaction().begin();
-            em.persist(postagem);
+
+            if (postagem.getId() == null) {
+                em.persist(postagem);
+            } else {
+                em.merge(postagem);
+            }
+
             em.getTransaction().commit();
         } catch (Exception e) {
-            if (em.getTransaction().isActive()) {
-                em.getTransaction().rollback();
-            }
+            if (em.getTransaction().isActive()) em.getTransaction().rollback();
             throw e;
         } finally {
             em.close();
         }
     }
 
-    public void atualizarPostagem(Postagem postagem) {
-        EntityManager em = getEntityManager();
-        try {
-            em.getTransaction().begin();
-            em.merge(postagem);
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            if (em.getTransaction().isActive()) {
-                em.getTransaction().rollback();
-            }
-            throw e;
-        } finally {
-            em.close();
-        }
-    }
 
     public Postagem encontrarPostagemPorId(Long id) {
         EntityManager em = getEntityManager();
@@ -61,6 +51,7 @@ public class PostagemDAO {
             em.close();
         }
     }
+    public void atualizarPostagem(Postagem postagem) { EntityManager em = getEntityManager(); try { em.getTransaction().begin(); em.merge(postagem); em.getTransaction().commit(); } catch (Exception e) { if (em.getTransaction().isActive()) { em.getTransaction().rollback(); } throw e; } finally { em.close(); } }
 
     public void removerPostagem(Long id) {
         EntityManager em = getEntityManager();
@@ -72,9 +63,23 @@ public class PostagemDAO {
                 em.getTransaction().commit();
             }
         } catch (Exception e) {
-            if (em.getTransaction().isActive()) {
-                em.getTransaction().rollback();
-            }
+            if (em.getTransaction().isActive()) em.getTransaction().rollback();
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
+    public void removerPorUserId(Long userId) {
+        EntityManager em = getEntityManager();
+        try {
+            em.getTransaction().begin();
+            em.createQuery("DELETE FROM Postagem p WHERE p.userID = :userId")
+                    .setParameter("userId", userId)
+                    .executeUpdate();
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) em.getTransaction().rollback();
             throw e;
         } finally {
             em.close();
@@ -113,9 +118,7 @@ public class PostagemDAO {
                     .executeUpdate();
             em.getTransaction().commit();
         } catch (Exception e) {
-            if (em.getTransaction().isActive()) {
-                em.getTransaction().rollback();
-            }
+            if (em.getTransaction().isActive()) em.getTransaction().rollback();
             throw e;
         } finally {
             em.close();

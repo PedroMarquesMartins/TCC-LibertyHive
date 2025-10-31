@@ -29,7 +29,8 @@ public class PropostaController {
     private CadastroDAO cadastroDAO;
     @Autowired
     private EscambistaDAO escambistaDAO;
-    private AvaliacaoDAO avaliacaoDAO = new AvaliacaoDAO();
+    @Autowired
+    private AvaliacaoDAO avaliacaoDAO;
     @Autowired
     private JwtUtil jwtUtil;
     @Autowired
@@ -46,7 +47,7 @@ public class PropostaController {
             @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader,
             @RequestParam Long itemDesejadoId,
             @RequestParam(required = false) Long itemOferecidoId
-    ) {
+    ){
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(401).body(Map.of("message", "Token inválido ou ausente."));
         }
@@ -177,9 +178,8 @@ public class PropostaController {
                         propostaMap.put("podeCancelar", podeCancelar);
                         propostaMap.put("podeConcluir", podeConcluir);
                         propostaMap.put("podeRecusar", podeRecusar);
-
-                        Map<String, Object> avaliacaoInfo = avaliacaoDAO.calcularMediaPorUsuarioId(itemDesejado.getUserID());
-                        propostaMap.put("avaliacaoUsuario", avaliacaoInfo.getOrDefault("media", 0));
+                        propostaMap.put("avaliacaoUsuario", avaliacaoDAO.calcularMediaPorUsuarioId(itemDesejado.getUserID()).getOrDefault("media", 0));
+                        propostaMap.put("dataHora", p.getDataHora());
 
                         return propostaMap;
                     })
@@ -199,7 +199,7 @@ public class PropostaController {
             @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader,
             @RequestParam Long propostaId,
             @RequestParam String acao
-    ) {
+    ){
         Cadastro usuario = getAuthenticatedUser(authHeader);
         if (usuario == null) {
             return ResponseEntity.status(401).body(Map.of("message", "Token inválido ou usuário não encontrado."));
@@ -234,11 +234,11 @@ public class PropostaController {
                 }
                 proposta.setStatus(2);
                 itemDesejado.setDisponibilidade(false);
-                postagemDAO.atualizarPostagem(itemDesejado);
+                postagemDAO.atualizarPostagem(itemDesejado);  //Ta dando erro aqui agora
 
                 if (itemOferecido != null) {
                     itemOferecido.setDisponibilidade(false);
-                    postagemDAO.atualizarPostagem(itemOferecido);
+                    postagemDAO.atualizarPostagem(itemOferecido); //Ta dando erro aqui agora
                 }
                 propostaDAO.recusarOutrasPropostasPendentes(itemDesejado.getId(), itemOferecido != null ? itemOferecido.getId() : null, proposta.getId());
 
@@ -280,9 +280,16 @@ public class PropostaController {
         if (usuarioAvaliador == null) {
             return ResponseEntity.status(401).body(Map.of("message", "Token inválido ou usuário não encontrado."));
         }
+
+        Escambista escambistaAtual = escambistaDAO.encontrarPorUserNome(usuarioAvaliador.getUserNome());
+        if (escambistaAtual == null || escambistaAtual.getCpf() == null || escambistaAtual.getCpf().trim().isEmpty()) {
+            return ResponseEntity.status(403).body(Map.of("message", "Você precisa ter um CPF cadastrado para avaliar."));
+        }
+
         if (body == null || !body.containsKey("propostaId") || !body.containsKey("nota") || !body.containsKey("usuarioAvaliadoId")) {
             return ResponseEntity.badRequest().body(Map.of("message", "Parâmetros 'propostaId', 'nota' e 'usuarioAvaliadoId' são obrigatórios."));
         }
+
         Long propostaId;
         Long idUsuarioAvaliado;
         Integer nota;
@@ -293,6 +300,7 @@ public class PropostaController {
         } catch (NumberFormatException e) {
             return ResponseEntity.badRequest().body(Map.of("message", "Parâmetros inválidos."));
         }
+
         Proposta proposta = propostaDAO.encontrarPorId(propostaId);
         if (proposta == null) {
             return ResponseEntity.badRequest().body(Map.of("message", "Proposta não encontrada."));
@@ -320,6 +328,7 @@ public class PropostaController {
             return ResponseEntity.status(500).body(Map.of("message", "Erro interno ao salvar a avaliação: " + e.getMessage()));
         }
     }
+
 
     @GetMapping("/avaliacoes/{usuarioId}")
     public ResponseEntity<?> obterMediaDeAvaliacoes(@PathVariable Long usuarioId) {

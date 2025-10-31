@@ -64,6 +64,21 @@ public class PropostaDAO {
             em.close();
         }
     }
+    public void removerPorUserId(Long userId) {
+        EntityManager em = getEntityManager();
+        try {
+            em.getTransaction().begin();
+            em.createQuery("DELETE FROM Proposta p WHERE p.userId01 = :userId OR p.userId02 = :userId")
+                    .setParameter("userId", userId)
+                    .executeUpdate();
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) em.getTransaction().rollback();
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
 
     public void excluirPropostasComMesmoItem(Long propostaConcluidaId, Long itemDesejadoId, Long itemOferecidoId) {
         EntityManager em = getEntityManager();

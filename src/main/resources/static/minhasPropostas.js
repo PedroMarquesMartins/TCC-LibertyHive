@@ -101,6 +101,16 @@ function renderPropostas(propostas) {
 
         const container = document.createElement('div');
         container.className = 'proposta-card';
+
+        if (p.dataHora) {
+            const dataEl = document.createElement('div');
+            dataEl.className = 'meta data-hora-top';
+            const dateObj = new Date(p.dataHora);
+            const formattedDate = `${String(dateObj.getDate()).padStart(2, '0')}/${String(dateObj.getMonth() + 1).padStart(2, '0')}/${dateObj.getFullYear()} ${String(dateObj.getHours()).padStart(2, '0')}:${String(dateObj.getMinutes()).padStart(2, '0')}`;
+            dataEl.textContent = `Enviada em: ${formattedDate}`;
+            container.appendChild(dataEl);
+        }
+
         const row = document.createElement('div');
         row.className = 'row-proposta';
         row.style.flex = '1';
@@ -147,7 +157,7 @@ function renderPropostas(propostas) {
         actions.appendChild(quemEl);
 
         if (p.status === 1 && loggedUser) {
-            if (p.enviadoPeloUsuarioLogado) { 
+            if (p.enviadoPeloUsuarioLogado) {
                 const btnCancelar = document.createElement('button');
                 btnCancelar.className = 'cancelar';
                 btnCancelar.textContent = 'Cancelar';
@@ -168,7 +178,7 @@ function renderPropostas(propostas) {
                     }
                 };
                 actions.appendChild(btnCancelar);
-            } else { 
+            } else {
                 const btnAceitar = document.createElement('button');
                 btnAceitar.className = 'aceitar';
                 btnAceitar.textContent = 'Aceitar';
@@ -180,14 +190,37 @@ function renderPropostas(propostas) {
                         confirmButtonText: 'Sim',
                         cancelButtonText: 'Não'
                     });
-                    if (confirm.isConfirmed) {
-                        await fetch(`http://localhost:8080/api/propostas/acao?propostaId=${p.idProposta}&acao=concluir`, {
+                    if (!confirm.isConfirmed) return;
+
+                    Swal.fire({
+                        title: 'Aceitando proposta...',
+                        html: 'Aguarde enquanto processamos.',
+                        allowOutsideClick: false,
+                        didOpen: () => Swal.showLoading()
+                    });
+
+                    try {
+                        const resp = await fetch(`http://localhost:8080/api/propostas/acao?propostaId=${p.idProposta}&acao=concluir`, {
                             method: 'POST',
                             headers: { 'Authorization': 'Bearer ' + token }
                         });
-                        carregarPropostas();
+
+                        const data = await resp.json().catch(() => ({}));
+                        Swal.close();
+
+                        if (resp.ok) {
+                            Swal.fire({ title: 'Sucesso!', text: 'Proposta aceita!', icon: 'success' });
+                            carregarPropostas();
+                        } else {
+                            Swal.fire({ title: 'Erro', text: data.message || 'Não foi possível aceitar a proposta.', icon: 'error' });
+                        }
+                    } catch (err) {
+                        Swal.close();
+                        console.error(err);
+                        Swal.fire({ title: 'Erro', text: 'Falha ao conectar ao servidor.', icon: 'error' });
                     }
                 };
+
                 const btnRecusar = document.createElement('button');
                 btnRecusar.className = 'recusar';
                 btnRecusar.textContent = 'Recusar';
@@ -245,6 +278,7 @@ function renderPropostas(propostas) {
     finalizadas.forEach(p => encerradasEl.appendChild(buildCard(p)));
 }
 
+
 function abrirModalAvaliacao(p) {
     const { userId: userLogado } = getLoggedUser();
     idAvaliado = (userLogado === p.userId01) ? p.userId02 : p.userId01;
@@ -292,7 +326,7 @@ document.getElementById('btnEnviarAvaliacao')?.addEventListener('click', async (
 
         const resp = await fetch(`http://localhost:8080/api/propostas/avaliar`, {
             method: 'POST',
-            headers: { 
+            headers: {
                 'Authorization': 'Bearer ' + token,
                 'Content-Type': 'application/json'
             },
