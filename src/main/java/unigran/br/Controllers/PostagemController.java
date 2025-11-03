@@ -447,6 +447,34 @@ public class PostagemController {
             return ResponseEntity.notFound().build();
         }
 
+        if (nomePostagem == null || nomePostagem.trim().isEmpty())
+            return ResponseEntity.badRequest().body(Map.of("error", "Nome da postagem é obrigatório."));
+        if (descricao == null || descricao.trim().isEmpty())
+            return ResponseEntity.badRequest().body(Map.of("error", "Descrição é obrigatória."));
+        if (!localidadeService.getUFsValidas().contains(uf.toUpperCase()))
+            return ResponseEntity.badRequest().body(Map.of("error", "UF inválida."));
+        if (!localidadeService.getCidadesPorUF(uf).contains(cidade))
+            return ResponseEntity.badRequest().body(Map.of("error", "Cidade não pertence à UF informada ou não existe."));
+        if (!categoriasValidas.contains(categoria))
+            return ResponseEntity.badRequest().body(Map.of("error", "Categoria principal inválida."));
+        if (categoriaInteresse1 != null && !categoriaInteresse1.isBlank() && !categoriasValidas.contains(categoriaInteresse1))
+            return ResponseEntity.badRequest().body(Map.of("error", "Categoria de interesse 1 inválida."));
+        if (categoriaInteresse2 != null && !categoriaInteresse2.isBlank() && !categoriasValidas.contains(categoriaInteresse2))
+            return ResponseEntity.badRequest().body(Map.of("error", "Categoria de interesse 2 inválida."));
+        if (categoriaInteresse3 != null && !categoriaInteresse3.isBlank() && !categoriasValidas.contains(categoriaInteresse3))
+            return ResponseEntity.badRequest().body(Map.of("error", "Categoria de interesse 3 inválida."));
+
+        boolean ehDoacao = (isDoacao != null && isDoacao == 1);
+        if (!ehDoacao) {
+            boolean temAlgumaCategoriaInteresse =
+                    (categoriaInteresse1 != null && !categoriaInteresse1.isBlank()) ||
+                            (categoriaInteresse2 != null && !categoriaInteresse2.isBlank()) ||
+                            (categoriaInteresse3 != null && !categoriaInteresse3.isBlank());
+            if (!temAlgumaCategoriaInteresse) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Ao menos uma categoria de interesse é obrigatória para trocas."));
+            }
+        }
+
         postagemExistente.setNomePostagem(nomePostagem);
         postagemExistente.setDescricao(descricao);
         postagemExistente.setCategoria(categoria);
@@ -484,5 +512,4 @@ public class PostagemController {
         postagemDAO.salvarPostagem(postagemExistente);
         return ResponseEntity.ok(Map.of("message", "Postagem atualizada com sucesso!", "id", postagemExistente.getId()));
     }
-
 }

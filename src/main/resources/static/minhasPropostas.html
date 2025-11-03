@@ -2,141 +2,141 @@
 <html lang="pt-BR">
 
 <head>
-    <meta charset="utf-8" />
-    <title>Minhas Propostas</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <link rel="icon" type="image/png" href="favicon.png" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="stylesheet" href="./Style/styleMinhasPropostas.css">
+  <meta charset="utf-8" />
+  <title>Minhas Propostas</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel="stylesheet" href="./Style/styleMinhasPropostas.css">
 </head>
 
 <body>
-    <header class="bg-warning py-2 shadow-sm">
-        <div class="container-fluid d-flex justify-content-between align-items-center">
+  <header class="bg-warning py-2 shadow-sm">
+    <div class="container-fluid d-flex justify-content-between align-items-center">
 
-            <a class="navbar-brand fw-bold" href="#">
-                <img src="imagens/logo.png" alt="LibertyHive" width="40" />
-            </a>
+      <a class="navbar-brand fw-bold" href="inicio.html">
+        <img src="imagens/logo.png" alt="LibertyHive" width="40" />
+      </a>
 
-            <div class="d-flex align-items-center gap-2">
-                <button type="button" class="btn btn-outline-danger btn-sm rounded-circle" title="Meus Favoritos"
-                    onclick="window.location.href='favoritos.html'">
-                    <i class="bi bi-heart"></i>
-                </button>
-                <button type="button" class="btn btn-outline-dark btn-sm rounded-circle" title="Configurações"
-                    onclick="window.location.href='configuracao.html'">
-                    <i class="bi bi-gear"></i>
-                </button>
-            </div>
-
-        </div>
-    </header>
-    <main class="container flex-grow-1 py-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="h3 mb-0">Minhas Propostas</h1>
-            <button class="btn btn-outline-secondary" id="btnVoltar">
-                <i class="bi bi-arrow-left"></i> Voltar
-            </button>
-        </div>
-
-        <section>
-            <h2 class="h5 text-secondary mb-3">Abertas (Pendentes)</h2>
-            <div id="abertas" class="propostas-grid">
-            </div>
-        </section>
-
-        <section class="mt-5">
-            <h2 class="h5 text-secondary mb-3">Encerradas (Concluídas / Canceladas / Recusadas)</h2>
-            <div id="encerradas" class="propostas-grid">
-            </div>
-        </section>
-    </main>
-<div class="modal fade" id="avaliacaoModal" tabindex="-1" aria-labelledby="avaliacaoLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Avaliar <span id="avaliarNome">Usuário</span></h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      <div class="d-flex align-items-center gap-2">
+        <button type="button" class="btn btn-outline-danger btn-sm rounded-circle" title="Meus Favoritos"
+          onclick="window.location.href='favoritos.html'">
+          <i class="bi bi-heart"></i>
+        </button>
+        <button type="button" class="btn btn-outline-dark btn-sm rounded-circle" title="Configurações"
+          onclick="window.location.href='configuracao.html'">
+          <i class="bi bi-gear"></i>
+        </button>
       </div>
-      <div class="modal-body text-center">
-        <div id="estrelas" class="mb-3">
-          <i class="bi bi-star star" data-value="1"></i>
-          <i class="bi bi-star star" data-value="2"></i>
-          <i class="bi bi-star star" data-value="3"></i>
-          <i class="bi bi-star star" data-value="4"></i>
-          <i class="bi bi-star star" data-value="5"></i>
-        </div>
-        <div id="avaliacaoTexto" class="text-muted">Selecione uma nota</div>
+
+    </div>
+  </header>
+  <main class="container flex-grow-1 py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="h3 mb-0">Minhas Propostas</h1>
+      <button class="btn btn-outline-secondary" id="btnVoltar">
+        <i class="bi bi-arrow-left"></i> Voltar
+      </button>
+    </div>
+
+    <section>
+      <h2 class="h5 text-secondary mb-3">Abertas (Pendentes)</h2>
+      <div id="abertas" class="propostas-grid">
       </div>
-      <div class="modal-footer justify-content-center">
-        <button type="button" id="btnEnviarAvaliacao" class="btn btn-success">Enviar Avaliação</button>
+    </section>
+
+    <section class="mt-5">
+      <h2 class="h5 text-secondary mb-3">Encerradas (Concluídas / Canceladas / Recusadas)</h2>
+      <div id="encerradas" class="propostas-grid">
+      </div>
+    </section>
+  </main>
+  <div class="modal fade" id="avaliacaoModal" tabindex="-1" aria-labelledby="avaliacaoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Avaliar <span id="avaliarNome">Usuário</span></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body text-center">
+          <div id="estrelas" class="mb-3">
+            <i class="bi bi-star star" data-value="1"></i>
+            <i class="bi bi-star star" data-value="2"></i>
+            <i class="bi bi-star star" data-value="3"></i>
+            <i class="bi bi-star star" data-value="4"></i>
+            <i class="bi bi-star star" data-value="5"></i>
+          </div>
+          <div id="avaliacaoTexto" class="text-muted">Selecione uma nota</div>
+        </div>
+        <div class="modal-footer justify-content-center">
+          <button type="button" id="btnEnviarAvaliacao" class="btn btn-success">Enviar Avaliação</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<div class="modal fade" id="avisoModal" tabindex="-1" aria-labelledby="avisoLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border-0 shadow-lg">
-      <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title" id="avisoLabel">Aviso</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
-      </div>
-      <div class="modal-body text-center py-4">
-        <i id="avisoIcon" class="bi bi-info-circle fs-1 mb-3 text-primary"></i>
-        <p id="avisoTexto" class="mb-0 fs-5"></p>
-      </div>
-      <div class="modal-footer justify-content-center">
-        <button type="button" class="btn btn-primary px-4" data-bs-dismiss="modal">OK</button>
+  <div class="modal fade" id="avisoModal" tabindex="-1" aria-labelledby="avisoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title" id="avisoLabel">Aviso</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body text-center py-4">
+          <i id="avisoIcon" class="bi bi-info-circle fs-1 mb-3 text-primary"></i>
+          <p id="avisoTexto" class="mb-0 fs-5"></p>
+        </div>
+        <div class="modal-footer justify-content-center">
+          <button type="button" class="btn btn-primary px-4" data-bs-dismiss="modal">OK</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-    <footer class="footer mt-auto">
-        <div class="container py-5">
-            <div class="row gy-4">
+  <footer class="footer mt-auto">
+    <div class="container py-5">
+      <div class="row gy-4">
 
-                <div class="col-md-4">
-                    <h5 class="text-white">Sobre</h5>
-                    <p class="text-muted small mb-0">
-                        Plataforma para trocar produtos e serviços de forma segura e prática.
-                    </p>
-                </div>
-
-                <div class="col-md-4">
-                    <h5 class="text-white">Links Úteis</h5>
-                    <ul class="list-unstyled small">
-                        <li><a href="#">Fale Conosco</a></li>
-                        <li><a href="#">Suporte</a></li>
-                        <li><a href="#">Denúncias</a></li>
-                        <li><a href="#">Termos de Uso</a></li>
-                        <li><a href="#">Política de Privacidade</a></li>
-                    </ul>
-                </div>
-
-                <div class="col-md-4">
-                    <h5 class="text-white">Redes Sociais</h5>
-                    <div class="d-flex gap-3">
-                        <a href="#"><i class="bi bi-facebook"></i></a>
-                        <a href="#"><i class="bi bi-twitter"></i></a>
-                        <a href="#"><i class="bi bi-instagram"></i></a>
-                        <a href="#"><i class="bi bi-linkedin"></i></a>
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="footer-bottom text-center pt-4 mt-4 border-top">
-                <small class="text-muted">© 2025 LibertyHive. Todos os direitos reservados.</small>
-            </div>
+        <div class="col-md-4">
+          <h5 class="text-white">Sobre</h5>
+          <p class="text-muted small mb-0">
+            Plataforma para trocar produtos e serviços de forma segura e prática.
+          </p>
         </div>
-    </footer>
 
-    <script src="minhasPropostas.js"></script>
+        <div class="col-md-4">
+          <h5 class="text-white">Links Úteis</h5>
+          <ul class="list-unstyled small">
+                    <li><a href="./footer pages/faleConosco.html">Fale Conosco</a></li>
+                    <li><a href="./footer pages/suporte.html">Suporte</a></li>
+                    <li><a href="./footer pages/denuncias.html">Denúncias</a></li>
+                    <li><a href="./footer pages/termos.html">Termos de Uso</a></li>
+                    <li><a href="./footer pages/privacidade.html">Política de Privacidade</a></li>
+                </ul>
+        </div>
+
+        <div class="col-md-4">
+          <h5 class="text-white">Redes Sociais</h5>
+          <div class="d-flex gap-3">
+            <a href="#"><i class="bi bi-facebook"></i></a>
+            <a href="#"><i class="bi bi-twitter"></i></a>
+            <a href="#"><i class="bi bi-instagram"></i></a>
+            <a href="#"><i class="bi bi-linkedin"></i></a>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="footer-bottom text-center pt-4 mt-4 border-top">
+        <small class="text-muted">© 2025 LibertyHive. Todos os direitos reservados.</small>
+      </div>
+    </div>
+  </footer>
+
+  <script src="minhasPropostas.js"></script>
 </body>
 
 </html>

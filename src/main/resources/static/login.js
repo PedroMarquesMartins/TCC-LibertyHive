@@ -32,12 +32,12 @@ document.addEventListener("DOMContentLoaded", function () {
                         }, 10);
                     });
                 } else {
-                    alert(body.message || 'Erro no login.');
+                    Swal.fire('Erro', body.message || 'Erro no login.', 'error');
                 }
             })
             .catch(error => {
                 console.error('Erro no login:', error);
-                alert('Erro ao tentar realizar login. Tente novamente mais tarde.');
+                Swal.fire('Erro', 'Erro ao tentar realizar login. Tente novamente mais tarde.', 'error');
             });
     });
 

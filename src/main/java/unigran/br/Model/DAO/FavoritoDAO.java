@@ -48,12 +48,20 @@ public class FavoritoDAO {
         return count > 0;
     }
     public void removerPorUserId(Long userId) {
-        em.getTransaction().begin();
-        em.createQuery("DELETE FROM Favorito f WHERE f.userId = :userId")
-                .setParameter("userId", userId)
-                .executeUpdate();
-        em.getTransaction().commit();
+        try {
+            em.getTransaction().begin();
+            em.createQuery("DELETE FROM Favorito f WHERE f.userId = :userId")
+                    .setParameter("userId", userId)
+                    .executeUpdate();
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) em.getTransaction().rollback();
+            throw e;
+        } finally {
+            em.close();
+        }
     }
+
 
     public void remover(Long id) {
         Favorito favorito = buscarPorId(id);

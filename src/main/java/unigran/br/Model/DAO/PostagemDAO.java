@@ -142,4 +142,21 @@ public class PostagemDAO {
             emf.close();
         }
     }
+
+    public void tornarIndisponiveisPorUserId(Long userId) {
+        EntityManager em = getEntityManager();
+        try {
+            em.getTransaction().begin();
+            em.createQuery("UPDATE Postagem p SET p.disponibilidade = false WHERE p.userID = :userId")
+                    .setParameter("userId", userId)
+                    .executeUpdate();
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) em.getTransaction().rollback();
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
 }

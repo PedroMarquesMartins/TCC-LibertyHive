@@ -95,7 +95,6 @@ async function carregarPerfil() {
         document.getElementById('editCpf').value = data.cpf || '';
         document.getElementById('editDataNasc').value = data.dataNasc || '';
     } catch (err) {
-        Swal.fire('Erro', err.message, 'error');
     }
 }
 
@@ -110,7 +109,6 @@ async function carregarConta() {
         document.getElementById('contaEmail').value = data.email || '';
         document.getElementById('contaUserNome').value = data.userNome || '';
     } catch (err) {
-        Swal.fire('Erro', err.message, 'error');
     }
 }
 
@@ -206,7 +204,7 @@ if (inputContato) {
         let nums = valor.replace(/\D/g, '').slice(0, 11);
         if (nums.length === 0) return '';
         if (nums.length <= 2) return `(${nums}`;
-        if (nums.length <= 6) return `(${nums.slice(0, 2)}) ${nums.slice(2)}`;  
+        if (nums.length <= 6) return `(${nums.slice(0, 2)}) ${nums.slice(2)}`;
         if (nums.length <= 10) {
             return `(${nums.slice(0, 2)}) ${nums.slice(2, 6)}-${nums.slice(6)}`;
         }
@@ -392,7 +390,7 @@ async function fetchPostagensTodasDoUsuario(token) {
 
             if (!res.ok) {
                 console.warn(`Falha ao acessar ${url}: ${res.status}`);
-                continue; 
+                continue;
             }
 
             const data = await res.json();
@@ -405,7 +403,7 @@ async function fetchPostagensTodasDoUsuario(token) {
 
         } catch (e) {
             console.error(`Erro ao tentar ${url}:`, e);
-            continue; 
+            continue;
         }
     }
     throw new Error('Não foi possível obter suas postagens (verifique o backend e a autenticação).');
@@ -450,7 +448,7 @@ async function carregarGraficoCategorias() {
     try {
         const { data: postagens, usedUrl } = await fetchPostagensTodasDoUsuario(token);
         const contagem = contarCategorias(postagens);
-        const labels = Object.keys(contagem).sort((a,b) => contagem[b] - contagem[a]); 
+        const labels = Object.keys(contagem).sort((a, b) => contagem[b] - contagem[a]);
         const counts = labels.map(l => contagem[l]);
 
         if (labels.length === 0) {
@@ -482,7 +480,7 @@ async function carregarGraficoCategorias() {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { display: false } 
+                        legend: { display: false }
                     }
                 }
             });
@@ -498,3 +496,106 @@ async function carregarGraficoCategorias() {
         Swal.fire('Erro', err.message, 'error');
     }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const btnExcluir = document.getElementById('btnExcluirConta');
+
+    if (btnExcluir) {
+        btnExcluir.addEventListener('click', async () => {
+
+            const confirmacaoResult = await Swal.fire({
+                title: 'Tem certeza?',
+                text: "Esta ação é permanente e não pode ser desfeita.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sim, excluir minha conta!',
+                cancelButtonText: 'Cancelar'
+            });
+
+            if (!confirmacaoResult.isConfirmed) {
+                return;
+            }
+
+            const { value: senha } = await Swal.fire({
+                title: 'Confirme sua senha',
+                input: 'password',
+                inputLabel: 'Para excluir sua conta, digite sua senha:',
+                inputPlaceholder: 'Digite sua senha',
+                inputAttributes: {
+                    autocapitalize: 'off',
+                    autocorrect: 'off'
+                },
+                showCancelButton: true,
+                confirmButtonText: 'Confirmar Exclusão',
+                cancelButtonText: 'Cancelar',
+                showLoaderOnConfirm: true,
+                preConfirm: (pass) => {
+                    if (!pass || pass.trim() === "") {
+                        Swal.showValidationMessage(`Senha é obrigatória.`);
+                    }
+                    return pass;
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            });
+
+            if (!senha) {
+                return;
+            }
+
+            const userId = getUserIdFromStorage();
+            const token = localStorage.getItem('token');
+
+            if (!userId || !token) {
+                Swal.fire('Erro de Sessão', 'Usuário não autenticado. Faça login novamente.', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:8080/api/escambista/excluir/${userId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify({ senha: senha })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    await Swal.fire(
+                        'Excluída!',
+                        data.message,
+                        'success'
+                    );
+
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    window.location.href = 'login.html';
+                } else {
+                    Swal.fire(
+                        'Erro!',
+                        data.message,
+                        'error'
+                    );
+                }
+
+            } catch (error) {
+                console.error("Erro ao tentar excluir conta:", error);
+                Swal.fire(
+                    'Erro de Conexão',
+                    'Ocorreu um erro de conexão. Tente novamente.',
+                    'error'
+                );
+            }
+        });
+    }
+    
+    esconderTodosPainel();
+    if (painelEditarPerfil) {
+        painelEditarPerfil.style.display = 'block';
+        carregarPerfil();
+    }
+});

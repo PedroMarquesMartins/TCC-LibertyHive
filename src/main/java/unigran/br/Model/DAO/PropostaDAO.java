@@ -36,6 +36,21 @@ public class PropostaDAO {
             em.close();
         }
     }
+    public void cancelarPorUserId(Long userId) {
+        EntityManager em = getEntityManager();
+        try {
+            em.getTransaction().begin();
+            em.createQuery("UPDATE Proposta p SET p.status = 0 WHERE p.userId01 = :userId OR p.userId02 = :userId")
+                    .setParameter("userId", userId)
+                    .executeUpdate();
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) em.getTransaction().rollback();
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
 
     public void recusarOutrasPropostasPendentes(Long itemDesejadoId, Long itemOferecidoId, Long propostaIdAtual) {
         EntityManager em = getEntityManager();
