@@ -52,20 +52,28 @@ document.addEventListener("DOMContentLoaded", async () => {
     <div class="card h-100">
         <img src="${postagem.imagem ? `data:image/png;base64,${postagem.imagem}` : './imagens/placeholder.png'}"
              class="card-img-top" alt="${postagem.nomePostagem || 'Postagem'}">
-        <div class="card-body">
-            <h5 class="card-title">${postagem.nomePostagem || "Sem título"}</h5>
-            <p class="card-text"><strong>Descrição:</strong> ${postagem.descricao || "Não informada"}</p>
-            <p class="card-text"><strong>Categoria:</strong> ${postagem.categoria || "Não informada"}</p>
-            <p class="card-text"><strong>Tipo:</strong> ${postagem.isProdOuServico ? "Produto" : "Serviço"}</p>
-            <p class="card-text"><strong>Doação/Voluntário:</strong> ${postagem.doacao ? "Sim" : "Não"}</p>
-            <p class="text-muted"><strong>Local:</strong> ${postagem.cidade || ""} - ${postagem.uf || ""}</p>
-            <button class="btn btn-sm btn-danger btn-remove">
-                <i class="bi bi-x-circle"></i> Remover
-            </button>
+        <div class="card-body d-flex flex-column">
+            <div class="flex-grow-1">
+                <h5 class="card-title">${postagem.nomePostagem || "Sem título"}</h5>
+                <p class="card-text"><strong>Descrição:</strong> ${postagem.descricao || "Não informada"}</p>
+                <p class="card-text"><strong>Categoria:</strong> ${postagem.categoria || "Não informada"}</p>
+                <p class="card-text"><strong>Tipo:</strong> ${postagem.isProdOuServico ? "Produto" : "Serviço"}</p>
+                <p class="card-text"><strong>Doação/Voluntário:</strong> ${postagem.doacao ? "Sim" : "Não"}</p>
+                <p class="text-muted"><strong>Local:</strong> ${postagem.cidade || ""} - ${postagem.uf || ""}</p>
+            </div>
+
+            <div class="mt-auto d-flex flex-column gap-2">
+                <a href="detalhesItem.html?id=${postagem.id}" 
+                    class="btn btn-outline-primary btn-sm w-100 rounded-pill">
+                    Ver Detalhes
+                </a>
+                <button class="btn btn-sm btn-danger btn-remove w-100 rounded-pill">
+                    <i class="bi bi-x-circle"></i> Remover
+                </button>
+            </div>
         </div>
     </div>
 `;
-
 
             col.querySelector(".btn-remove").addEventListener("click", async () => {
                 const result = await Swal.fire({
