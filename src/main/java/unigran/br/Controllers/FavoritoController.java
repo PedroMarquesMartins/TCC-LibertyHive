@@ -14,6 +14,7 @@ import unigran.br.Model.Entidades.Postagem;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/favoritos")
@@ -71,12 +72,14 @@ public class FavoritoController {
 
         String token = authHeader.substring(7);
         Cadastro cadastro = cadastroDAO.encontrarPorUserNome(jwtUtil.extrairUserNome(token));
+
         if (cadastro == null) {
             return ResponseEntity.status(401).body(Map.of("message", "Usuário não encontrado."));
         }
 
         try {
             List<Favorito> favoritos = favoritoDAO.listarPorUserId(cadastro.getId());
+
             List<Map<String, Object>> resposta = favoritos.stream()
                     .map(fav -> {
                         Postagem p = postagemDAO.encontrarPostagemPorId(fav.getPostagemId());
@@ -100,15 +103,18 @@ public class FavoritoController {
                                 )
                         );
                     })
-                    .filter(java.util.Objects::nonNull)
+                    .filter(Objects::nonNull)
                     .toList();
 
             return ResponseEntity.ok(resposta);
+
         } catch (Exception e) {
             System.err.println("Erro ao listar favoritos: " + e.getMessage());
             return ResponseEntity.status(500).body(Map.of("message", "Erro ao listar favoritos: " + e.getMessage()));
         }
     }
+
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> removerFavorito(
             @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader,

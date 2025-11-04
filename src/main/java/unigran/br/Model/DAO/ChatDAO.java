@@ -75,6 +75,29 @@ public class ChatDAO {
         }
     }
 
+    public void removerChatsEMensagensPorUserId(Long userId) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            em.getTransaction().begin();
+
+            em.createQuery("DELETE FROM Mensagem m WHERE m.userId = :userId")
+                    .setParameter("userId", userId)
+                    .executeUpdate();
+
+            em.createQuery("DELETE FROM Chat c WHERE c.userId01 = :userId OR c.userId02 = :userId")
+                    .setParameter("userId", userId)
+                    .executeUpdate();
+
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) em.getTransaction().rollback();
+            e.printStackTrace();
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
     public void atualizarValorProposto(Long chatId, Double valor) {
         Chat chat = encontrarPorId(chatId);
         if (chat != null) {
@@ -83,17 +106,6 @@ public class ChatDAO {
             em.merge(chat);
             em.getTransaction().commit();
         }
-    }
-    public void removerChatsEMensagensPorUserId(Long userId) {
-        em.getTransaction().begin();
-        em.createQuery("DELETE FROM Mensagem m WHERE m.chatId IN " +
-                        "(SELECT c.id FROM Chat c WHERE c.userId01 = :userId OR c.userId02 = :userId)")
-                .setParameter("userId", userId)
-                .executeUpdate();
-        em.createQuery("DELETE FROM Chat c WHERE c.userId01 = :userId OR c.userId02 = :userId")
-                .setParameter("userId", userId)
-                .executeUpdate();
-        em.getTransaction().commit();
     }
 
     public void atualizar(Chat chat) {

@@ -6,11 +6,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         dropdownUserName.textContent = nome || "visitante";
     }
 
-    const containerTopo = document.getElementById('listaProdutos').parentNode;
-    const btnPropostas = document.createElement('button');
-
-    containerTopo.insertBefore(btnPropostas, containerTopo.firstChild);
-
     const lista = document.getElementById('listaProdutos');
     lista.innerHTML = "<p class='text-muted'>Carregando postagens...</p>";
 
@@ -62,17 +57,19 @@ document.addEventListener('DOMContentLoaded', async function () {
             const avaliacaoHTML = criarHTMLAvaliacao(p.avaliacaoUsuario);
 
             card.innerHTML = `
-                <img src="${imgSrc}" alt="${escapeHtml(nomePost)}">
-                <h3>${escapeHtml(nomePost)}</h3>
-                ${avaliacaoHTML} 
-                <p><strong>Categoria:</strong> ${escapeHtml(cat)}</p>
-                <p><strong>Tipo:</strong> ${tipo_string}</p>
-                <p><strong>Doação:</strong> ${doacao_string}</p>
-                <small>${escapeHtml(p.cidade || "")} - ${escapeHtml(p.uf || "")}</small>
-                <div class="d-flex gap-2 mt-2">
-                    <button class="btn btn-outline-danger btn-sm ver-detalhes-btn">Ver Detalhes</button>
-                </div>
-            `;
+        <img src="${imgSrc}" alt="${escapeHtml(nomePost)}">
+        <h3>${escapeHtml(nomePost)}</h3>
+        <p><strong>Dono:</strong> ${escapeHtml(p.userNome || "Desconhecido")}</p>
+        ${avaliacaoHTML} 
+        <p><strong>Categoria:</strong> ${escapeHtml(cat)}</p>
+        <p><strong>Tipo:</strong> ${tipo_string}</p>
+        <p><strong>Doação:</strong> ${doacao_string}</p>
+        <small>${escapeHtml(p.cidade || "")} - ${escapeHtml(p.uf || "")}</small>
+        <div class="d-flex gap-2 mt-2 justify-content-center">
+            <button class="btn btn-outline-danger btn-sm ver-detalhes-btn">Ver Detalhes</button>
+        </div>
+    `;
+
             card.querySelector('.ver-detalhes-btn').addEventListener('click', () => {
                 window.location.href = `detalhesItem.html?id=${p.id}`;
             });
@@ -178,7 +175,6 @@ function adicionarBotaoFavoritos() {
 
             btn.addEventListener("click", async () => {
                 const postagemId = card.dataset.id;
-
                 const token = localStorage.getItem("token");
                 if (!token) {
                     Swal.fire({
@@ -252,6 +248,7 @@ function criarHTMLAvaliacao(media) {
 
     return `<div class="rating-stars">${estrelasHTML} <span class="rating-text">${media.toFixed(1)}</span></div>`;
 }
+
 function salvarFavorito(postagem) {
     let favoritos = JSON.parse(localStorage.getItem("favoritos")) || [];
 

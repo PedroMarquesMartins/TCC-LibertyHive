@@ -61,6 +61,7 @@ public class CadastroDAO {
             return null;
         }
     }
+
     public void salvarOuAtualizar(Cadastro cadastro) {
         em.getTransaction().begin();
         if (cadastro.getId() == null) {
@@ -70,6 +71,22 @@ public class CadastroDAO {
         }
         em.getTransaction().commit();
     }
+
+    public void desativarConta(Long userId) {
+        try {
+            em.getTransaction().begin();
+            em.createQuery("UPDATE Cadastro c SET c.statusConta = false WHERE c.id = :userId")
+                    .setParameter("userId", userId)
+                    .executeUpdate();
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) em.getTransaction().rollback();
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
 
     public void atualizar(Cadastro cadastro) {
         em.getTransaction().begin();

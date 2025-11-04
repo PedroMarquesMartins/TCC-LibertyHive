@@ -47,6 +47,13 @@ public class LoginController {
         Map<String, Object> response = new HashMap<>();
 
         if (usuario != null) {
+
+            if (usuario.getStatusConta() == null || !usuario.getStatusConta()) {
+                response.put("success", false);
+                response.put("message", "Esta conta está desativada.");
+                return ResponseEntity.status(403).body(response);
+            }
+
             String token = jwtUtil.gerarToken(usuario.getUserNome());
 
             response.put("success", true);
@@ -144,9 +151,6 @@ public class LoginController {
                 response.put("message", "Os dados informados não conferem com nosso registro.");
                 return ResponseEntity.status(401).body(response);
             }
-
-
-
 
             usuario.setSenha(passwordEncoder.encode(novaSenha));
             cadastroDAO.atualizar(usuario);

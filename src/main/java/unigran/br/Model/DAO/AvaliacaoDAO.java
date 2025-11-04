@@ -51,7 +51,21 @@ public class AvaliacaoDAO {
             em.close();
         }
     }
-
+    public void zerarAvaliacoesPorUserId(Long userId) {
+        EntityManager em = getEntityManager();
+        try {
+            em.getTransaction().begin();
+            em.createQuery("DELETE FROM Avaliacao a WHERE a.usuarioAvaliadoId = :userId OR a.usuarioAvaliadorId = :userId")
+                    .setParameter("userId", userId)
+                    .executeUpdate();
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) em.getTransaction().rollback();
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
     public void salvarAvaliacao(Avaliacao avaliacao) {
         EntityManager em = getEntityManager();
         try {

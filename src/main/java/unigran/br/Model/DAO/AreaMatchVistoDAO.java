@@ -47,12 +47,21 @@ public class AreaMatchVistoDAO {
         emf.close();
     }
     public void removerPorUserId(Long userId) {
-        em.getTransaction().begin();
-        em.createQuery("DELETE FROM AreaMatchVisto a WHERE a.userId = :userId")
-                .setParameter("userId", userId)
-                .executeUpdate();
-        em.getTransaction().commit();
+        EntityManager emLocal = emf.createEntityManager();
+        try {
+            emLocal.getTransaction().begin();
+            emLocal.createQuery("DELETE FROM AreaMatchVisto a WHERE a.userId = :userId")
+                    .setParameter("userId", userId)
+                    .executeUpdate();
+            emLocal.getTransaction().commit();
+        } catch (Exception e) {
+            if (emLocal.getTransaction().isActive()) emLocal.getTransaction().rollback();
+            throw e;
+        } finally {
+            emLocal.close();
+        }
     }
+
 
     public boolean existeRegistro(Long userId, Long postagemId) {
         Long count = em.createQuery(
@@ -64,4 +73,6 @@ public class AreaMatchVistoDAO {
                 .getSingleResult();
         return count > 0;
     }
+
+
 }

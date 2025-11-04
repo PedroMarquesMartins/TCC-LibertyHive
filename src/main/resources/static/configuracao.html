@@ -46,38 +46,43 @@
                 </div>
             </div>
 
-            <div class="col-lg-6">
-                <div id="painelEditarPerfil" class="painel">
-                    <div class="card shadow-sm">
-                        <div class="card-body">
-                            <h2 class="card-title h4 border-bottom pb-2 mb-3">Editar Perfil</h2>
-                            <form id="formPerfil">
-                                <div class="mb-2">
-                                    <label class="form-label">Nome Real</label>
-                                    <input type="text" id="editNomeReal" class="form-control">
-                                </div>
-                                <div class="mb-2">
-                                    <label class="form-label">Contato</label>
-                                    <input type="text" id="editContato" class="form-control">
-                                </div>
-                                <div class="mb-2">
-                                    <label class="form-label">Endereço</label>
-                                    <input type="text" id="editEndereco" class="form-control">
-                                </div>
-                                <div class="mb-2">
-                                    <label class="form-label">CPF</label>
-                                    <input type="text" id="editCpf" class="form-control">
-                                </div>
-                                <div class="mb-2">
-                                    <label class="form-label">Data de Nascimento</label>
-                                    <input type="date" id="editDataNasc" class="form-control">
-                                </div>
-                                <button type="button" id="salvarPerfil" class="btn btn-success mt-2">Salvar
-                                    Perfil</button>
-                            </form>
-                        </div>
-                    </div>
+            <div class="col-lg-6"><div id="painelEditarPerfil" class="painel">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h2 class="card-title h4 border-bottom pb-2 mb-3">Editar Perfil</h2>
+            <div class="alert alert-warning py-2" role="alert">
+                <strong>Atenção!</strong> É interessante preencher todas as informações corretamente.
+                Elas poderão ser solicitadas caso você precise recuperar sua senha.
+            </div>
+            <form id="formPerfil">
+                <div class="mb-2">
+                    <label class="form-label">Nome Real</label>
+                    <input type="text" id="editNomeReal" class="form-control">
                 </div>
+                <div class="mb-2">
+                    <label class="form-label">Contato</label>
+                    <input type="text" id="editContato" class="form-control">
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Endereço</label>
+                    <input type="text" id="editEndereco" class="form-control">
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">CPF</label>
+                    <input type="text" id="editCpf" class="form-control">
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Data de Nascimento</label>
+                    <input type="date" id="editDataNasc" class="form-control">
+                </div>
+                <button type="button" id="salvarPerfil" class="btn btn-success mt-2">Salvar Perfil</button>
+                <p></p>
+                <div><button id="btnExcluirConta" type="button" class="btn btn-danger">Excluir Conta</button></div>
+            </form>
+        </div>
+    </div>
+</div>
+
 
                 <div id="painelConta" class="painel" style="display:none;">
                     <div class="card shadow-sm">
@@ -177,12 +182,12 @@
                 </div>
                 <div class="col-md-4">
                     <h5 class="text-white">Links Úteis</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="#">Fale Conosco</a></li>
-                        <li><a href="#">Suporte</a></li>
-                        <li><a href="#">Denúncias</a></li>
-                        <li><a href="#">Termos de Uso</a></li>
-                        <li><a href="#">Política de Privacidade</a></li>
+                    <ul class="list-unstyled small">
+                        <li><a href="./footer pages/faleConosco.html">Fale Conosco</a></li>
+                        <li><a href="./footer pages/suporte.html">Suporte</a></li>
+                        <li><a href="./footer pages/denuncias.html">Denúncias</a></li>
+                        <li><a href="./footer pages/termos.html">Termos de Uso</a></li>
+                    <li><a href="./footer pages/privacidade.html">Política de Privacidade</a></li>
                     </ul>
                 </div>
                 <div class="col-md-4">

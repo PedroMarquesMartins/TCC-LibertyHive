@@ -5,11 +5,13 @@ import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import unigran.br.Model.DAO.*;
 import unigran.br.Model.Entidades.Cadastro;
 import unigran.br.Model.Entidades.Escambista;
-
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Propagation;
 import java.util.Map;
 
 @RestController
@@ -28,7 +30,8 @@ public class EscambistaController {
 
     @Autowired
     private FavoritoDAO favoritoDAO;
-
+    @Autowired
+    private PasswordEncoder passwordEncoder;
     @Autowired
     private AreaMatchVistoDAO areaMatchDAO;
 
@@ -42,7 +45,7 @@ public class EscambistaController {
     private PostagemDAO postagemDAO;
 
     private final PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
-
+    @Transactional(propagation = Propagation.NEVER)
     @GetMapping("/porUserNome/{userNome}")
     public ResponseEntity<?> getPorUserNome(@PathVariable String userNome) {
         Escambista escambista = escambistaDAO.encontrarPorUserNome(userNome);
@@ -93,33 +96,43 @@ public class EscambistaController {
     }
 
     @DeleteMapping("/excluir/{userId}")
-    public ResponseEntity<?> excluirConta(@PathVariable Integer userId,
+    @Transactional(propagation = Propagation.NEVER)
+    public ResponseEntity<?> excluirConta(@PathVariable Long userId,
                                           @RequestBody Map<String, String> payload) {
-        String senha = payload.get("senha");
-        if (senha == null || senha.isBlank()) {
+        String senhaPura = payload.get("senha");
+        if (senhaPura == null || senhaPura.isBlank()) {
             return ResponseEntity.badRequest().body(Map.of("message", "Senha é obrigatória."));
         }
 
-        Escambista escambista = escambistaDAO.encontrarPorUserId(userId);
-        if (escambista == null) {
-            return ResponseEntity.status(404).body(Map.of("message", "Usuário não encontrado."));
-        }
-
         Cadastro cadastro = cadastroDAO.encontrarCadastroPorId(Long.valueOf(userId));
-        if (cadastro == null || !cadastro.getSenha().equals(senha)) {
+        if (cadastro == null || !passwordEncoder.matches(senhaPura, cadastro.getSenha())) {
             return ResponseEntity.status(403).body(Map.of("message", "Senha incorreta."));
         }
 
-        avaliacoesDAO.removerPorUserId(Long.valueOf(userId));
-        favoritoDAO.removerPorUserId(Long.valueOf(userId));
-        areaMatchDAO.removerPorUserId(Long.valueOf(userId));
-        chatDAO.removerChatsEMensagensPorUserId(Long.valueOf(userId));
-        propostaDAO.removerPorUserId(Long.valueOf(userId));
-        postagemDAO.removerPorUserId(Long.valueOf(userId));
-        escambistaDAO.removerEscambista(escambista.getId());
-        cadastroDAO.removerCadastro(cadastro.getId());
+        Escambista escambista = escambistaDAO.encontrarPorUserId(Math.toIntExact(userId));
+        if (escambista == null) {
+            return ResponseEntity.status(404).body(Map.of("message", "Usuário (Escambista) não encontrado."));
+        }
 
-        return ResponseEntity.ok(Map.of("message", "Conta e todos os dados associados foram excluídos."));
+        escambista.setNomeEscambista(null);
+        escambista.setContato(null);
+        escambista.setEndereco(null);
+        escambista.setCpf(null);
+        escambista.setDataNasc(null);
+        escambista.setQuerNotifi(false);
+        escambistaDAO.atualizarEscambista(escambista);
+
+        chatDAO.removerChatsEMensagensPorUserId(userId);
+        favoritoDAO.removerPorUserId(userId);
+        areaMatchDAO.removerPorUserId(userId);
+        propostaDAO.cancelarPorUserId(userId);
+        postagemDAO.tornarIndisponiveisPorUserId(userId);
+        avaliacoesDAO.zerarAvaliacoesPorUserId(userId);
+
+        cadastro.setStatusConta(false);
+        cadastroDAO.salvarOuAtualizar(cadastro);
+
+        return ResponseEntity.ok(Map.of("message", "Conta excluída com sucesso. Dados pessoais foram removidos e conta desativada."));
     }
 
     private boolean validarCpf(String cpf) {

@@ -51,7 +51,25 @@
             word-wrap: break-word;
             overflow-wrap: break-word;
             box-sizing: border-box;
+            max-height: 600px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #ffca28 #f8f8f8;
         }
+
+        .imagem-principal::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .imagem-principal::-webkit-scrollbar-thumb {
+            background-color: #ffca28;
+            border-radius: 8px;
+        }
+
+        .imagem-principal::-webkit-scrollbar-track {
+            background-color: #f8f8f8;
+        }
+
 
         .imagem-principal img {
             width: 100%;
@@ -383,7 +401,7 @@
 
     <header class="bg-warning py-2 shadow-sm">
         <div class="container-fluid d-flex justify-content-between align-items-center">
-            <a class="navbar-brand fw-bold" href="#">
+            <a class="navbar-brand fw-bold" href="inicio.html">
                 <img src="imagens/logo.png" alt="LibertyHive" width="40" />
             </a>
             <div class="d-flex align-items-center gap-2">
@@ -416,6 +434,7 @@
                 <div class="imagens-secundarias" id="imagensSecundarias"></div>
                 <div class="info-item mt-3">
                     <p id="nomeUsuario" class="fw-semibold"></p>
+                    <div id="avaliacaoUsuario" class="mb-2"></div>
                     <p id="tipoItem"></p>
                     <p id="ufItem"></p>
                     <p id="categoriaItem"></p>
@@ -498,6 +517,24 @@
             }
         }
 
+        function criarHTMLAvaliacao(media) {
+            const nota = parseFloat(media);
+
+            if (media == null || isNaN(nota) || nota === 0) {
+                return '<div class="rating-stars" style="color: #6c757d; font-size: 0.9rem;"><i>(Sem avaliações)</i></div>';
+            }
+
+            let estrelasHTML = '<strong>Avaliação: </strong>';
+            const notaArredondada = Math.round(nota * 2) / 2;
+            const fullStars = Math.floor(notaArredondada);
+            const halfStar = (notaArredondada % 1 !== 0);
+            const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+
+            for (let i = 0; i < fullStars; i++) estrelasHTML += '<i class="bi bi-star-fill text-warning"></i>';
+            if (halfStar) estrelasHTML += '<i class="bi bi-star-half text-warning"></i>';
+            for (let i = 0; i < emptyStars; i++) estrelasHTML += '<i class="bi bi-star text-warning"></i>';
+            return `<div class="rating-stars">${estrelasHTML} <span class="fw-bold">${nota.toFixed(1)}</span></div>`;
+        }
         async function carregarDetalhes() {
             try {
                 const resp = await fetch(`http://localhost:8080/api/postagens/${itemId}`, {
@@ -506,7 +543,6 @@
                 if (!resp.ok) throw new Error("Item não encontrado");
                 const item = await resp.json();
                 itemDetalhe = item;
-
                 document.getElementById("nomePostagem").textContent = item.nomePostagem;
                 document.getElementById("imgPrincipal").src = item.imagem ? `data:image/jpeg;base64,${item.imagem}` : './imagens/placeholder.png';
                 document.getElementById("categoriaItem").textContent = "Categoria: " + (item.categoria ?? "");
@@ -514,10 +550,28 @@
                 document.getElementById("ufItem").textContent = "UF: " + (item.uf ?? "");
                 document.getElementById("nomeUsuario").textContent = "Usuário: " + (item.userNome ?? "");
                 document.getElementById("descricaoItem").textContent = item.descricao || "";
-
+                const avaliacaoContainer = document.getElementById("avaliacaoUsuario");
+                avaliacaoContainer.innerHTML = criarHTMLAvaliacao(null);
+                if (item.userID) {
+                    try {
+                        const respTodas = await fetch("http://localhost:8080/api/postagens/listar-todas", {
+                            headers: { "Authorization": `Bearer ${token}` }
+                        });
+                        if (respTodas.ok) {
+                            const todasPostagens = await respTodas.json();
+                            const postagemDoUsuario = todasPostagens.find(p => p.userID === item.userID);
+                            let avaliacao = null;
+                            if (postagemDoUsuario) {
+                                avaliacao = postagemDoUsuario.avaliacaoUsuario;
+                            }
+                            avaliacaoContainer.innerHTML = criarHTMLAvaliacao(avaliacao);
+                        }
+                    } catch (err) {
+                        console.error("Erro ao buscar lista completa para avaliação:", err);
+                    }
+                }
                 const catInteresse = [item.categoriaInteresse1, item.categoriaInteresse2, item.categoriaInteresse3].filter(Boolean).join(", ");
                 document.getElementById("categoriasInteresse").textContent = catInteresse ? "Categorias de Interesse: " + catInteresse : "";
-
                 const secImgs = ["imagemS01", "imagemS02", "imagemS03", "imagemS04", "imagemS05"];
                 const containerImgs = document.getElementById("imagensSecundarias");
                 containerImgs.innerHTML = "";
@@ -528,22 +582,17 @@
                         containerImgs.appendChild(img);
                     }
                 });
-
                 isDoacao = toBool(item.isDoacao ?? item.doacao ?? false);
-
                 const listaElem = document.getElementById("listaItensUsuario");
                 const btnPropor = document.getElementById("btnPropor");
                 const containerBotoes = btnPropor.parentNode;
-
                 let btnChatExistente = document.getElementById("btnChatProposta");
                 if (btnChatExistente) containerBotoes.removeChild(btnChatExistente);
-
                 if ((item.userNome ?? "") === (userLogado ?? "")) {
                     listaElem.style.display = "none";
                     btnPropor.style.display = "none";
                     return;
                 }
-
                 if (isDoacao) {
                     listaElem.style.display = "none";
                     btnPropor.textContent = "Solicitar Doação";
@@ -552,23 +601,18 @@
                     btnPropor.textContent = "Propor Negócio";
                 }
                 btnPropor.style.display = "";
-
                 const btnChat = document.createElement('button');
                 btnChat.id = 'btnChatProposta';
                 btnChat.className = btnPropor.className || 'btn btn-primary';
                 btnChat.textContent = 'Chat';
-
                 btnChat.onclick = async () => {
                     const loggedUser = getLoggedUser();
                     if (!loggedUser) { alert('Erro: usuário não identificado corretamente.'); return; }
-
                     const { userId: userIdLogado, userNome: userNomeLogado } = loggedUser;
                     const outroId = itemDetalhe.userID;
                     const outroNome = itemDetalhe.userNome;
                     console.log("IDs para chat:", userIdLogado, outroId);
-
                     if (!outroId || !outroNome) { alert('Erro: usuário alvo do chat não identificado.'); return; }
-
                     try {
                         const response = await fetch(`http://localhost:8080/chat/criar?userId01=${userIdLogado}&userId02=${outroId}&userNome01=${encodeURIComponent(userNomeLogado)}&userNome02=${encodeURIComponent(outroNome)}`, {
                             method: 'POST',
@@ -586,8 +630,78 @@
                         alert('Falha na conexão com o servidor.');
                     }
                 };
-
                 btnPropor.insertAdjacentElement('afterend', btnChat);
+                const btnFav = document.createElement('button');
+                btnFav.id = 'btnFavDetalhe';
+                btnFav.className = 'btn btn-warning mt-3';
+                btnFav.style.width = '100%';
+                btnFav.style.fontWeight = '600';
+                btnFav.style.borderRadius = '10px';
+                btnFav.style.padding = '14px';
+                btnFav.innerHTML = `<i class="bi bi-heart-fill me-1"></i> Favoritar`;
+
+                btnFav.addEventListener('mouseover', () => {
+                    btnFav.style.backgroundColor = '#ffb300';
+                    btnFav.style.transform = 'translateY(-2px)';
+                });
+                btnFav.addEventListener('mouseout', () => {
+                    btnFav.style.backgroundColor = '#ffca28';
+                    btnFav.style.transform = 'none';
+                });
+                btnFav.onclick = async () => {
+                    const postagemId = itemDetalhe.id;
+                    const token = localStorage.getItem("token");
+                    if (!token) {
+                        Swal.fire({
+                            title: 'Erro',
+                            text: 'Você precisa estar logado para favoritar.',
+                            icon: 'error'
+                        });
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch("http://localhost:8080/favoritos?postagemId=" + postagemId, {
+                            method: "POST",
+                            headers: { "Authorization": `Bearer ${token}` }
+                        });
+                        const data = await response.json();
+
+                        if (response.ok) {
+                            Swal.fire({
+                                title: 'Item favoritado!',
+                                text: data.message,
+                                icon: 'success',
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                        } else if (response.status === 409) {
+                            Swal.fire({
+                                title: 'Já favoritado',
+                                text: data.message,
+                                icon: 'info',
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Erro',
+                                text: data.message || 'Não foi possível favoritar este item.',
+                                icon: 'error'
+                            });
+                        }
+                    } catch (error) {
+                        console.error("Erro ao favoritar:", error);
+                        Swal.fire({
+                            title: 'Erro',
+                            text: 'Não foi possível conectar ao servidor.',
+                            icon: 'error'
+                        });
+                    }
+                };
+
+                btnChat.insertAdjacentElement('afterend', btnFav);
+
 
                 if (!isDoacao) {
                     const respUser = await fetch("http://localhost:8080/api/postagens/listar", {
@@ -597,113 +711,116 @@
                     const container = document.getElementById("listaItensUsuario");
                     container.innerHTML = "";
 
-                    itensUsuario.forEach(p => {
-                        const card = document.createElement("div");
-                        card.className = "item-card";
-
-                        const imgSrc = p.imagem ? `data:image/jpeg;base64,${p.imagem}` : './imagens/placeholder.png';
-
-                        card.innerHTML = `
-                    <img src="${imgSrc}" alt="${p.nomePostagem}">
-                    <h6 title="${p.nomePostagem}">${p.nomePostagem}</h6>
-                    <p><strong>${toBool(p.isProdOuServico ?? p.prodOuServico ?? false) ? "Produto" : "Serviço"}</strong></p>
-                    <p class="text-muted" style="font-size:12px">UF: ${p.uf ?? ""}</p>
-                    <p class="text-muted" style="font-size:12px">Categoria: ${p.categoria ?? ""}</p>
-                `;
-
-                        card.addEventListener("click", () => {
-                            document.querySelectorAll(".item-card.selected").forEach(c => c.classList.remove("selected"));
-                            card.classList.add("selected");
-                            itemSelecionadoId = p.id;
+                    if (!itensUsuario || itensUsuario.length === 0) {
+                        container.innerHTML = `
+    <p class="text-center fw-bold text-muted" style="margin-top: 20px;">
+        Você não tem itens para negociar ainda.
+    </p>
+`;
+                    } else {
+                        itensUsuario.forEach(p => {
+                            const card = document.createElement("div");
+                            card.className = "item-card";
+                            const imgSrc = p.imagem ? `data:image/jpeg;base64,${p.imagem}` : './imagens/placeholder.png';
+                            card.innerHTML = `
+            <img src="${imgSrc}" alt="${p.nomePostagem}">
+            <h6 title="${p.nomePostagem}">${p.nomePostagem}</h6>
+            <p><strong>${toBool(p.isProdOuServico ?? p.prodOuServico ?? false) ? "Produto" : "Serviço"}</strong></p>
+            <p class="text-muted" style="font-size:12px">UF: ${p.uf ?? ""}</p>
+            <p class="text-muted" style="font-size:12px">Categoria: ${p.categoria ?? ""}</p>
+        `;
+                            card.addEventListener("click", () => {
+                                document.querySelectorAll(".item-card.selected").forEach(c => c.classList.remove("selected"));
+                                card.classList.add("selected");
+                                itemSelecionadoId = p.id;
+                            });
+                            container.appendChild(card);
                         });
+                    }
 
-                        container.appendChild(card);
-                    });
                 }
-
             } catch (e) {
                 console.error(e);
                 Swal.fire({ title: "Erro", text: "Não foi possível carregar os detalhes.", icon: "error" });
             }
         }
-
         document.getElementById("btnPropor").addEventListener("click", async () => {
-    const itemDesejadoId = itemId;
-    let itemOferecidoId = itemSelecionadoId;
+            const itemDesejadoId = itemId;
+            let itemOferecidoId = itemSelecionadoId;
 
-    if (isDoacao) itemOferecidoId = null;
-    else if (!itemSelecionadoId) {
-        Swal.fire({
-            title: "Atenção",
-            text: "Selecione um item seu para propor o negócio.",
-            icon: "warning"
-        });
-        return;
-    }
+            if (isDoacao) itemOferecidoId = null;
+            else if (!itemSelecionadoId) {
+                Swal.fire({
+                    title: "Atenção",
+                    text: "Selecione um item seu para propor o negócio.",
+                    icon: "warning"
+                });
+                return;
+            }
 
-    let jaExiste = isDoacao
-        ? propostasExistentes.some(p => p.itemDesejadoId == itemDesejadoId)
-        : propostasExistentes.some(p => p.itemDesejadoId == itemDesejadoId && p.itemOferecidoId == itemOferecidoId);
+            let jaExiste = isDoacao
+                ? propostasExistentes.some(p => p.itemDesejadoId == itemDesejadoId)
+                : propostasExistentes.some(p => p.itemDesejadoId == itemDesejadoId && p.itemOferecidoId == itemOferecidoId);
 
-    if (jaExiste) {
-        Swal.fire({
-            title: "Atenção",
-            text: isDoacao ? "Você já solicitou doação para este item." : "Você já enviou uma proposta com esses itens.",
-            icon: "warning"
-        });
-        return;
-    }
+            if (jaExiste) {
+                Swal.fire({
+                    title: "Atenção",
+                    text: isDoacao ? "Você já solicitou doação para este item." : "Você já enviou uma proposta com esses itens.",
+                    icon: "warning"
+                });
+                return;
+            }
 
-    const confirm = await Swal.fire({
-        title: isDoacao ? "Confirmar solicitação de doação?" : "Confirmar proposta?",
-        text: isDoacao ? "Deseja realmente solicitar esta doação?" : "Deseja realmente propor este negócio?",
-        icon: "question",
-        showCancelButton: true,
-        confirmButtonText: isDoacao ? "Sim, solicitar" : "Sim, propor",
-        cancelButtonText: "Cancelar"
-    });
-
-    if (!confirm.isConfirmed) return;
-
-    Swal.fire({
-        title: 'Enviando proposta...',
-        html: 'Aguarde enquanto processamos.',
-        allowOutsideClick: false,
-        didOpen: () => {
-            Swal.showLoading();
-        }
-    });
-
-    try {
-        let url = `http://localhost:8080/api/propostas/criar?itemDesejadoId=${itemDesejadoId}`;
-        if (itemOferecidoId) url += `&itemOferecidoId=${itemOferecidoId}`;
-
-        const resp = await fetch(url, {
-            method: "POST",
-            headers: { "Authorization": `Bearer ${token}` }
-        });
-        const data = await resp.json();
-        Swal.close(); 
-        if (resp.ok) {
-            Swal.fire({
-                title: "Sucesso!",
-                text: isDoacao ? "Solicitação de doação enviada!" : "Proposta criada com sucesso!",
-                icon: "success"
+            const confirm = await Swal.fire({
+                title: isDoacao ? "Confirmar solicitação de doação?" : "Confirmar proposta?",
+                text: isDoacao ? "Deseja realmente solicitar esta doação?" : "Deseja realmente propor este negócio?",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonText: isDoacao ? "Sim, solicitar" : "Sim, propor",
+                cancelButtonText: "Cancelar"
             });
-            propostasExistentes.push({ itemDesejadoId, itemOferecidoId: itemOferecidoId ?? null });
-        } else {
+
+            if (!confirm.isConfirmed) return;
+
             Swal.fire({
-                title: "Erro",
-                text: data.message || "Não foi possível criar a proposta.",
-                icon: "error"
+                title: 'Enviando proposta...',
+                html: 'Aguarde enquanto processamos.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
             });
-        }
-    } catch (err) {
-        Swal.close();
-        console.error(err);
-        Swal.fire({ title: "Erro", text: "Falha ao criar proposta.", icon: "error" });
-    }
-});
+
+            try {
+                let url = `http://localhost:8080/api/propostas/criar?itemDesejadoId=${itemDesejadoId}`;
+                if (itemOferecidoId) url += `&itemOferecidoId=${itemOferecidoId}`;
+
+                const resp = await fetch(url, {
+                    method: "POST",
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                const data = await resp.json();
+                Swal.close();
+                if (resp.ok) {
+                    Swal.fire({
+                        title: "Sucesso!",
+                        text: isDoacao ? "Solicitação de doação enviada!" : "Proposta criada com sucesso!",
+                        icon: "success"
+                    });
+                    propostasExistentes.push({ itemDesejadoId, itemOferecidoId: itemOferecidoId ?? null });
+                } else {
+                    Swal.fire({
+                        title: "Erro",
+                        text: data.message || "Não foi possível criar a proposta.",
+                        icon: "error"
+                    });
+                }
+            } catch (err) {
+                Swal.close();
+                console.error(err);
+                Swal.fire({ title: "Erro", text: "Falha ao criar proposta.", icon: "error" });
+            }
+        });
 
 
         function logout() {
@@ -812,11 +929,11 @@
                 <div class="col-md-4">
                     <h5 class="text-white">Links Úteis</h5>
                     <ul class="list-unstyled small">
-                        <li><a href="#">Fale Conosco</a></li>
-                        <li><a href="#">Suporte</a></li>
-                        <li><a href="#">Denúncias</a></li>
-                        <li><a href="#">Termos de Uso</a></li>
-                        <li><a href="#">Política de Privacidade</a></li>
+                        <li><a href="./footer pages/faleConosco.html">Fale Conosco</a></li>
+                        <li><a href="./footer pages/suporte.html">Suporte</a></li>
+                        <li><a href="./footer pages/denuncias.html">Denúncias</a></li>
+                        <li><a href="./footer pages/termos.html">Termos de Uso</a></li>
+                    <li><a href="./footer pages/privacidade.html">Política de Privacidade</a></li>
                     </ul>
                 </div>
 

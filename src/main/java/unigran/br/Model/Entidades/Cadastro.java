@@ -1,6 +1,5 @@
 package unigran.br.Model.Entidades;
 
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -14,6 +13,23 @@ public class Cadastro{
     private String email;
     private String userNome;
     private String senha;
+    private Boolean statusConta = true;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
     public String getUserNome() {
         return userNome;
@@ -31,20 +47,11 @@ public class Cadastro{
         this.senha = senha;
     }
 
-    // Getters e setters
-    public Long getId() {
-        return id;
+    public Boolean getStatusConta() {
+        return statusConta;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
+    public void setStatusConta(Boolean statusConta) {
+        this.statusConta = statusConta;
     }
 }

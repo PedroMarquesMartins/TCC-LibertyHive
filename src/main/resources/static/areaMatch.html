@@ -22,21 +22,14 @@
             </a>
 
             <div class="d-flex align-items-center gap-3">
-                <button type="button" class="btn btn-outline-dark btn-sm rounded-circle" title="Notificações">
-                    <i class="bi bi-bell"></i>
-                </button>
-
                 <button type="button" class="btn btn-outline-danger btn-sm rounded-circle" title="Meus Favoritos"
                     onclick="window.location.href='favoritos.html'">
                     <i class="bi bi-heart"></i>
                 </button>
 
-                <button type="button" class="btn btn-outline-dark btn-sm rounded-circle" title="Perfil">
+                <button type="button" class="btn btn-outline-dark btn-sm rounded-circle" title="Perfil"
+                    onclick="window.location.href='configuracao.html'">
                     <i class="bi bi-person"></i>
-                </button>
-
-                <button type="button" class="btn btn-outline-dark btn-sm rounded-circle" title="Configurações">
-                    <i class="bi bi-gear"></i>
                 </button>
 
                 <button type="button" class="btn btn-outline-dark btn-sm rounded-circle" onclick="logout()"
@@ -60,35 +53,38 @@
         </div>
     </main>
 
-    <footer class="footer bg-dark text-white mt-auto py-4 w-100">
-        <div class="container">
-            <div class="row">
-                <div class="col-md">
-                    <h5>Sobre</h5>
-                    <p>Plataforma para trocar produtos e serviços de forma segura e prática.</p>
+
+    <footer class="footer mt-auto">
+        <div class="container py-5">
+            <div class="row gy-4">
+                <div class="col-md-4">
+                    <h5 class="text-white">Sobre</h5>
+                    <p class="text-muted small mb-0">Plataforma para trocar produtos e serviços de forma segura e
+                        prática.</p>
                 </div>
-                <div class="col-md">
-                    <h5>Links Úteis</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="#" class="text-white">Fale Conosco</a></li>
-                        <li><a href="#" class="text-white">Suporte</a></li>
-                        <li><a href="#" class="text-white">Denúncias</a></li>
-                        <li><a href="#" class="text-white">Termos de Uso</a></li>
-                        <li><a href="#" class="text-white">Política de Privacidade</a></li>
+                <div class="col-md-4">
+                    <h5 class="text-white">Links Úteis</h5>
+                    <ul class="list-unstyled small">
+                        <li><a href="./footer pages/faleConosco.html">Fale Conosco</a></li>
+                        <li><a href="./footer pages/suporte.html">Suporte</a></li>
+                        <li><a href="./footer pages/denuncias.html">Denúncias</a></li>
+                        <li><a href="./footer pages/termos.html">Termos de Uso</a></li>
+                    <li><a href="./footer pages/privacidade.html">Política de Privacidade</a></li>
                     </ul>
                 </div>
-                <div class="col-md">
-                    <h5>Redes Sociais</h5>
-                    <div class="d-flex gap-2">
-                        <a href="#"><i class="bi bi-facebook text-white fs-4"></i></a>
-                        <a href="#"><i class="bi bi-instagram text-white fs-4"></i></a>
-                        <a href="#"><i class="bi bi-twitter text-white fs-4"></i></a>
-                        <a href="#"><i class="bi bi-linkedin text-white fs-4"></i></a>
+                <div class="col-md-4">
+                    <h5 class="text-white">Redes Sociais</h5>
+                    <div class="d-flex gap-3">
+                        <a href="#"><i class="bi bi-facebook"></i></a>
+                        <a href="#"><i class="bi bi-twitter"></i></a>
+                        <a href="#"><i class="bi bi-instagram"></i></a>
+                        <a href="#"><i class="bi bi-linkedin"></i></a>
                     </div>
                 </div>
             </div>
-            <div class="text-center mt-3">
-                <small>&copy; 2025 LibertyHive. Todos os direitos reservados.</small>
+
+            <div class="footer-bottom text-center pt-4 mt-4 border-top">
+                <small class="text-muted">© 2025 LibertyHive. Todos os direitos reservados.</small>
             </div>
         </div>
     </footer>

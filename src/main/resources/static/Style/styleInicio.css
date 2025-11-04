@@ -248,3 +248,37 @@ footer a:hover {
     transform: translateY(1px) scale(0.98);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
+
+.ver-detalhes-btn {
+    border-radius: 20px;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    background-color: transparent;
+    color: #007bff;
+    border: 1px solid #007bff;
+    font-weight: 600;
+    padding: 6px 16px;
+    transition: all 0.25s ease-in-out;
+}
+
+.ver-detalhes-btn:hover {
+    background-color: #007bff;
+    color: #fff;
+    border-color: #007bff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+}
+
+
+.ver-detalhes-btn:active {
+    background-color: #005cbf;
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
+}
+
+.ver-detalhes-btn i {
+    font-size: 1rem;
+}

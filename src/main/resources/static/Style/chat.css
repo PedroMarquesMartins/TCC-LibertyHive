@@ -1,49 +1,69 @@
+html,
+body {
+    height: 100%;
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+}
+
 body {
     background: linear-gradient(180deg, #ffd600 0%, #fff9c4 100%);
-    min-height: 100vh;
     display: flex;
     flex-direction: column;
-    margin: 0;
-    font-family: Arial, sans-serif;
+    min-height: 100vh;
 }
 
 header.navbar {
-    width: 100%;
-    position: relative;
-    top: 0;
-    left: 0;
-    z-index: 10;
+    background-color: #ffeb3b;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+#btnVoltar {
+    background-color: white;
+    color: black;
+    border: 2px solid #000;
+    border-radius: 50px;
+    padding: 10px 22px;
+    font-weight: 600;
+    transition: all 0.25s ease-in-out;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+    position: absolute;
+    top: 90px;
+    left: 50px;
+}
+
+#btnVoltar:hover {
+    background: linear-gradient(135deg, #d4a017, #b8860b);
+    color: #000;
+    transform: translateY(-2px);
 }
 
 .chat-container {
-    flex: 1;
+    width: 70%;
+    max-width: 900px;
+    margin: 100px auto 30px;
+    background-color: #fffde7;
+    border: 3px solid #000;
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
     display: flex;
     flex-direction: column;
-    max-width: 1100px;
-    width: 90%;
-    margin: 40px auto;
-    background: #fff;
-    border-radius: 12px;
-    border: 3px solid #000;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-    overflow: hidden;
+    height: 100vh;
 }
 
 .chat-header {
-    background-color: #ffd600;
+    background: #ffe033;
     color: #000;
     padding: 16px 20px;
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    position: sticky;
-    top: 0;
-    z-index: 20;
+    border-bottom: 2px solid #fdd835;
 }
 
 .chat-header h2 {
-    font-size: 20px;
-    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
 }
 
 .chat-info-fixed {
@@ -54,29 +74,25 @@ header.navbar {
     font-size: 14px;
 }
 
-.chat-info-fixed p {
-    margin: 2px 0;
-}
-
-.chat-info-fixed span {
-    font-weight: bold;
-    color: #ff6f00;
-}
-
-.actions button {
-    margin-left: 10px;
-    background-color: #fff3cd;
-    color: #856404;
-    border: none;
-    padding: 8px 14px;
-    border-radius: 8px;
-    font-weight: bold;
+.chat-header .actions button {
+    background-color: #fdd835;
+    color: #000;
+    border: 2px solid #000;
+    border-radius: 50px;
+    padding: 8px 18px;
+    font-weight: 600;
     cursor: pointer;
-    transition: 0.2s;
+    transition: all 0.25s ease-in-out;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+    margin-left: 10px;
 }
 
-.actions button:hover {
-    background-color: #ffe08a;
+.chat-header .actions button:hover {
+    background-color: #000;
+    color: #fdd835;
+    transform: translateY(-2px);
+    border: 2px solid #000;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.25);
 }
 
 main#chatArea {
@@ -87,51 +103,45 @@ main#chatArea {
     flex-direction: column;
     gap: 14px;
     overflow-y: auto;
-    max-height: 500px;
+    scroll-behavior: smooth;
+}
+
+#chatArea::-webkit-scrollbar {
+    width: 10px;
+}
+
+#chatArea::-webkit-scrollbar-thumb {
+    background-color: #fdd835;
+    border-radius: 10px;
+}
+
+#chatArea::-webkit-scrollbar-track {
+    background: #fffde7;
 }
 
 .mensagem {
+    display: inline-block;
     max-width: 70%;
     padding: 12px 16px;
     border-radius: 18px;
     font-size: 15px;
     line-height: 1.4;
-    word-wrap: break-word;
     position: relative;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.mensagem:hover {
-    transform: scale(1.02);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    word-wrap: break-word;
+    animation: fadeInUp 0.25s ease-in-out;
 }
 
 .mensagem.eu {
     background: linear-gradient(135deg, #ffe082, #ffca28);
     align-self: flex-end;
-    border-bottom-right-radius: 4px;
-    border: 1px solid #ffb300;
+    border: 1px solid #000;
 }
 
 .mensagem.outro {
     background: linear-gradient(135deg, #fff59d, #fff176);
     align-self: flex-start;
-    border-bottom-left-radius: 4px;
-    border: 1px solid #fbc02d;
-}
-
-.mensagem strong {
-    color: #333;
-    font-weight: 600;
-}
-
-.mensagem .dataHora {
-    display: block;
-    font-size: 11px;
-    color: #666;
-    margin-top: 6px;
-    text-align: right;
+    border: 1px solid #000;
 }
 
 .mensagem.proposta {
@@ -141,10 +151,18 @@ main#chatArea {
     font-style: italic;
     align-self: center;
     text-align: center;
-    max-width: 90%;
+}
+
+.dataHora {
+    display: block;
+    font-size: 0.75rem;
+    color: #555;
+    margin-top: 4px;
+    text-align: right;
 }
 
 .rodape {
+    flex-shrink: 0;
     display: flex;
     padding: 10px 20px;
     background-color: #fff3cd;
@@ -162,25 +180,17 @@ main#chatArea {
 .rodape button {
     margin-left: 10px;
     padding: 10px 16px;
-    background-color: #ffc107;
+    background-color: #000;
+    color: #fdd835;
     border: none;
     border-radius: 12px;
     font-weight: bold;
-    cursor: pointer;
     transition: 0.2s;
 }
 
 .rodape button:hover {
-    background-color: #ffca28;
-}
-
-#btnVoltar {
-    background-color: #ffb300;
-    color: white;
-}
-
-#btnVoltar:hover {
-    background-color: #ffa000;
+    background-color: #fdd835;
+    color: #000;
 }
 
 .footer {
@@ -188,36 +198,19 @@ main#chatArea {
     color: #f5f5f5;
 }
 
+.footer h5 {
+    color: #fdd835;
+    font-weight: 600;
+}
+
 .footer a {
     color: #bbb;
     text-decoration: none;
-    transition: color 0.3s ease;
+    transition: 0.3s;
 }
 
 .footer a:hover {
     color: #d4a017;
-}
-
-.footer h5 {
-    font-weight: 600;
-    margin-bottom: 1rem;
-    color: #fdd835;
-}
-
-.footer .bi {
-    font-size: 1.4rem;
-    transition: transform 0.2s ease, color 0.3s ease;
-}
-
-.footer .bi:hover {
-    color: #d4a017;
-    transform: scale(1.1);
-}
-
-.footer-bottom {
-    font-size: 13px;
-    color: #aaa;
-    border-top: 1px solid #333;
 }
 
 @media (max-width: 768px) {
@@ -225,30 +218,9 @@ main#chatArea {
         width: 95%;
     }
 
-    .mensagem {
-        max-width: 85%;
-    }
-
-    .actions button {
-        padding: 6px 10px;
-        font-size: 13px;
-    }
-}
-
-@media (max-width: 480px) {
-    .chat-header h2 {
-        font-size: 18px;
-    }
-
-    .chat-info-fixed {
-        font-size: 12px;
-    }
-
-    .rodape input {
-        font-size: 13px;
-    }
-
-    .mensagem {
-        font-size: 13px;
+    #btnVoltar {
+        left: 20px;
+        top: 80px;
+        padding: 8px 16px;
     }
 }

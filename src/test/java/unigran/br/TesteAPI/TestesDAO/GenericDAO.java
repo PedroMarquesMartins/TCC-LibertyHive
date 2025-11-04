@@ -1,10 +1,9 @@
-package unigran.br.Model.TestesDAO;
+package unigran.br.TesteAPI.TestesDAO;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
-//Classe genérica para testar o Mapeamento com o Banco de Dados PostgreSQL
 public class GenericDAO {
 
     private EntityManagerFactory emf;
@@ -23,6 +22,12 @@ public class GenericDAO {
 
     public <T> T encontrarPorId(Class<T> classe, Long id) {
         return em.find(classe, id);
+    }
+
+    public <T> void remover(T entidade) {
+        em.getTransaction().begin();
+        em.remove(em.contains(entidade) ? entidade : em.merge(entidade));
+        em.getTransaction().commit();
     }
 
     public void fechar() {

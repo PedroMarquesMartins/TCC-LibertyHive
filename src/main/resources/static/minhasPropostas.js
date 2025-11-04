@@ -123,21 +123,17 @@ function renderPropostas(propostas) {
         divOferecido.className = 'item-card';
         divOferecido.innerHTML = itemOferecidoHTML;
 
-        [divDesejado, divOferecido].forEach(div => {
+        [divDesejado, divOferecido].forEach((div, index) => {
+            const item = index === 0 ? p.itemDesejado : p.itemOferecido;
             const btnDetalhes = document.createElement("button");
             btnDetalhes.textContent = "VER DETALHES";
             btnDetalhes.className = "detalhes";
             btnDetalhes.onclick = () => {
-                Swal.fire({
-                    title: div.querySelector('h3').textContent,
-                    html: `
-                        <p><strong>Usuário:</strong> ${escapeHtml(div.querySelector('.small-muted')?.textContent.replace('Dono: ', '') || '---')}</p>
-                        <p><strong>Categoria:</strong> ${escapeHtml(div.querySelector('.item-meta')?.textContent.split('•')[0].trim() || '')}</p>
-                        <p><strong>Cidade/UF:</strong> ${escapeHtml(div.querySelector('.item-meta')?.textContent.split('•')[1]?.trim() || '')}</p>
-                    `,
-                    imageUrl: div.querySelector('img')?.src || null,
-                    imageAlt: div.querySelector('h3')?.textContent || ''
-                });
+                if (item?.id) {
+                    window.location.href = `detalhesItem.html?id=${item.id}`;
+                } else {
+                    alert('ID do item não encontrado!');
+                }
             };
             div.appendChild(btnDetalhes);
         });
@@ -278,7 +274,6 @@ function renderPropostas(propostas) {
     finalizadas.forEach(p => encerradasEl.appendChild(buildCard(p)));
 }
 
-
 function abrirModalAvaliacao(p) {
     const { userId: userLogado } = getLoggedUser();
     idAvaliado = (userLogado === p.userId01) ? p.userId02 : p.userId01;
@@ -290,7 +285,6 @@ function abrirModalAvaliacao(p) {
     const modal = new bootstrap.Modal(document.getElementById('avaliacaoModal'));
     modal.show();
 }
-
 
 function atualizarEstrelas(nota) {
     document.querySelectorAll('#estrelas .star').forEach(star => {
@@ -310,21 +304,13 @@ document.querySelectorAll('#estrelas .star').forEach(star => {
 });
 
 document.getElementById('btnEnviarAvaliacao')?.addEventListener('click', async () => {
-    console.log('btnEnviarAvaliacao clicado, notaSelecionada:', notaSelecionada);
-
     if (!notaSelecionada) {
         mostrarAviso('warning', 'Selecione uma nota antes de enviar.');
         return;
     }
 
     try {
-        console.log('Enviando avaliação para o servidor...', {
-            propostaId: propostaIdParaAvaliar,
-            nota: notaSelecionada,
-            usuarioAvaliadoId: idAvaliado
-        });
-
-        const resp = await fetch(`http://localhost:8080/api/propostas/avaliar`, {
+        const resp = await fetch('http://localhost:8080/api/propostas/avaliar', {
             method: 'POST',
             headers: {
                 'Authorization': 'Bearer ' + token,
@@ -377,4 +363,5 @@ function mostrarAviso(tipo, mensagem) {
     }
     avisoModal.show();
 }
+
 carregarPropostas();

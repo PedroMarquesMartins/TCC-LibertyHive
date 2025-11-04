@@ -99,30 +99,20 @@ function mostrarMatchAtual() {
     }
 
     div.innerHTML += `
-                <strong>Nome do usuário:</strong> ${item.userNome} <br>
-                ${avaliacaoTexto}
-                <strong>Nome do item:</strong> ${item.nomePostagem} <br>
-                <strong>Categoria:</strong> ${item.categoria} <br>
-                ${categoriasInteresseTexto}
-                <strong>Tipo:</strong> ${item.isProdOuServico ? "Produto" : "Serviço"} <br>
-                <strong>Doação:</strong> ${item.isDoacao ? "Sim" : "Não"} <br>
-                <strong>Cidade/UF:</strong> ${item.cidade} / ${item.uf} <br>
-            `;
+        <strong>Nome do usuário:</strong> ${item.userNome} <br>
+        ${avaliacaoTexto}
+        <strong>Nome do item:</strong> ${item.nomePostagem} <br>
+        <strong>Categoria:</strong> ${item.categoria} <br>
+        ${categoriasInteresseTexto}
+        <strong>Tipo:</strong> ${item.isProdOuServico ? "Produto" : "Serviço"} <br>
+        <strong>Doação:</strong> ${item.isDoacao ? "Sim" : "Não"} <br>
+        <strong>Cidade/UF:</strong> ${item.cidade} / ${item.uf} <br>
+    `;
 
     const btnSim = document.createElement("button");
     btnSim.textContent = "VER DETALHES";
     btnSim.onclick = () => {
-        Swal.fire({
-            title: item.nomePostagem,
-            html: `
-                        <p><strong>Usuário:</strong> ${item.userNome}</p>
-                        <p><strong>Categoria:</strong> ${item.categoria}</p>
-                        <p><strong>Cidade/UF:</strong> ${item.cidade} / ${item.uf}</p>
-                        <p><strong>Doação:</strong> ${item.isDoacao ? "Sim" : "Não"}</p>
-                    `,
-            imageUrl: item.imagem ? "data:image/png;base64," + item.imagem : null,
-            imageAlt: item.nomePostagem
-        });
+        window.location.href = `detalhesItem.html?id=${item.id}`;
     };
 
     const btnNao = document.createElement("button");
@@ -137,12 +127,11 @@ function mostrarMatchAtual() {
     btnFav.textContent = "Favoritar ❤️";
     btnFav.onclick = async () => {
         await favoritarItem(item.id);
-        // Não avança para o próximo, só mostra a mensagem
     };
 
     div.appendChild(btnSim);
-    div.appendChild(btnNao);
     div.appendChild(btnFav);
+    div.appendChild(btnNao);
 
     container.appendChild(div);
 }
@@ -227,3 +216,4 @@ function logout() {
     localStorage.removeItem('userId');
     window.location.href = 'login.html';
 }
+
