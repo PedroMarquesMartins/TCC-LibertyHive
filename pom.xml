@@ -10,19 +10,19 @@
         <spring.boot.version>2.7.8</spring.boot.version>
     </properties>
     <dependencies>
-        <!--  Spring Web  -->
+        <!--   Spring Web   -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
             <version>${spring.boot.version}</version>
         </dependency>
-        <!--  Spring Data JPA  -->
+        <!--   Spring Data JPA   -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
             <version>${spring.boot.version}</version>
         </dependency>
-        <!--  Spring Security  -->
+        <!--   Spring Security   -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
@@ -32,32 +32,32 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
-        <!--  Banco de dados H2 para testes  -->
+        <!--   Banco de dados H2 para testes   -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <version>2.1.214</version>
             <scope>runtime</scope>
         </dependency>
-        <!--  PostgreSQL Driver  -->
+        <!--   PostgreSQL Driver   -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>42.5.0</version>
         </dependency>
-        <!--  JPA API  -->
+        <!--   JPA API   -->
         <dependency>
             <groupId>javax.persistence</groupId>
             <artifactId>javax.persistence-api</artifactId>
             <version>2.2</version>
         </dependency>
-        <!--  Hibernate Core  -->
+        <!--   Hibernate Core   -->
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
             <version>5.6.0.Final</version>
         </dependency>
-        <!--  Hibernate EntityManager  -->
+        <!--   Hibernate EntityManager   -->
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-entitymanager</artifactId>
@@ -68,13 +68,13 @@
             <artifactId>libphonenumber</artifactId>
             <version>8.13.22</version>
         </dependency>
-        <!--  JWT  -->
+        <!--   JWT   -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt</artifactId>
             <version>0.9.1</version>
         </dependency>
-        <!--  Testes  -->
+        <!--   Testes   -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -108,7 +108,8 @@
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest</artifactId>
-            <version>2.2</version> <scope>test</scope>
+            <version>2.2</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -117,6 +118,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-test-autoconfigure</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-suite-engine</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <dependencyManagement>

@@ -1,4 +1,3 @@
-/* Fundo gradiente Supremo */
 body {
     background: linear-gradient(135deg, #f7e733, #f0d941, #e6e1a2);
     color: #000;
@@ -7,41 +6,34 @@ body {
     flex-direction: column;
 }
 
-/* Container dos cards */
 #listaFavoritos .card {
     transition: transform 0.2s ease-in-out;
-    border: 1px solid #000; /* borda preta */
+    border: 1px solid #000;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     border-radius: 12px;
 }
 
-/* Hover bonito */
 #listaFavoritos .card:hover {
     transform: translateY(-5px);
     box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
-    border-color: #333; /* escurece no hover */
+    border-color: #333;
 }
 
-/* Imagens dentro dos cards */
 #listaFavoritos .card img {
     height: 180px;
     width: 100%;
     object-fit: contain;
-    /* Mostra a imagem inteira sem cortar */
-    background-color: #f8f9fa; /* Fundo neutro atrás da imagem */
+    background-color: #f8f9fa;
     border-radius: 12px 12px 0 0;
     padding: 8px;
-    /* Dá respiro para logos e imagens menores */
 }
 
-/* Mantém altura uniforme dos cards */
 #listaFavoritos .card {
     display: flex;
     flex-direction: column;
     height: 100%;
 }
 
-/* Faz o corpo ocupar todo espaço disponível */
 #listaFavoritos .card-body {
     flex: 1;
     display: flex;
@@ -49,24 +41,19 @@ body {
     justify-content: space-between;
 }
 
-/* Botão sempre no rodapé */
 #listaFavoritos .btn-remove {
     margin-top: auto;
-    align-self: flex-start; /* deixa alinhado à esquerda */
+    align-self: flex-start;
 }
 
-/* Botão remover */
 .btn-remove {
     margin-top: 10px;
 }
 
-/* Ajustes do container (garante contraste do conteúdo com o fundo) */
 main.container {
-    /* opcional: pequeno padding extra e sem fundo branco */
     background: transparent;
 }
 
-/* Botão de Voltar (mesmo estilo que você queria) */
 .back {
   display: flex;
   align-items: center;
