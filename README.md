@@ -25,156 +25,97 @@ A API Spring Boot gerencia requisições com nome, email, usuário e senha. Os d
 ---
 
 ## Arquivo SQL do Banco de Dados PostgreSQL
-CREATE table if not exists chat (
-
-    id SERIAL PRIMARY key not null,
-
-    mensagem TEXT,
-
-    valorProposto REAL,
-
-    bloqueado BOOLEAN,
-
-    userNome01 VARCHAR(255),
-
-    userNome02 VARCHAR(255),
-
-    userId01 INTEGER,
-
-    userId02 INTEGER
-
-);
-
-
-
 CREATE TABLE IF NOT EXISTS escambista (
-
     id SERIAL PRIMARY KEY NOT NULL,
-
     userId INTEGER NOT NULL,
-
     userNome VARCHAR(255),
-
     nomeEscambista VARCHAR(255),
-
-    avaliacao INTEGER,
-
     contato VARCHAR(255),
-
     cpf VARCHAR(20),
-
     endereco VARCHAR(255),
-
     datanasc DATE,
-
     querNotifi BOOLEAN DEFAULT TRUE
-
 );
 
-
+CREATE TABLE avaliacoes (
+    id SERIAL PRIMARY KEY,
+    usuario_avaliador_id BIGINT NOT NULL,
+    usuario_avaliado_id BIGINT NOT NULL,
+    proposta_id BIGINT NOT NULL,
+    nota INTEGER NOT NULL CHECK (nota >= 1 AND nota <= 5),
+    UNIQUE (usuario_avaliador_id, proposta_id)
+);
 
 create table if not exists favorito(
-
 	id SERIAL PRIMARY key not null,
-
     userId INTEGER not null,
-
     postagemId INTEGER not null
-
 );
-
-
 
 CREATE TABLE IF NOT EXISTS postagem (
-
     id SERIAL PRIMARY KEY NOT NULL,
-
     userId INTEGER NOT NULL,
-
     userNome VARCHAR(255),
-
     isProdOuServico BOOL,
-
     isDoacao BOOL,
-
     nomePostagem VARCHAR(255),
-
     descricao TEXT,
-
     categoria VARCHAR(255),
-
     disponibilidade BOOLEAN,
-
     categoriaInteresse1 VARCHAR(255),
-
     categoriaInteresse2 VARCHAR(255),
-
     categoriaInteresse3 VARCHAR(255),
-
     cidade VARCHAR(255),
-
     uf VARCHAR(255),
-
     imagem BYTEA,
-
     imagemS01 BYTEA,
-
     imagemS02 BYTEA,
-
     imagemS03 BYTEA,
-
     imagemS04 BYTEA,
-
     imagemS05 BYTEA
-
 );
-
-
 
 CREATE TABLE if not exists proposta (
-
     id SERIAL PRIMARY key not null,
-
     status INTEGER,
-
     userId01 INTEGER not null,
-
     userId02 INTEGER, 
-
     itemDesejadoId INTEGER not null,
-
     itemOferecidoId INTEGER,
-
-    avaliarPerfil INTEGER
-
+    dataHora TIMESTAMP DEFAULT NOW()
 );
-
-
 
 CREATE table if not EXISTS cadastro (
-
     id SERIAL PRIMARY key not null,
-
     email VARCHAR(255),
-
     userNome VARCHAR(255),
-
+    statusConta BOOLEAN DEFAULT true,
     senha VARCHAR(255)
-
 ); 
 
-
-
 CREATE table if not EXISTS area_match_vistos(
-
     id SERIAL PRIMARY KEY,
-
     userId INTEGER NOT NULL,           
-
     postagemId INTEGER NOT NULL       
-
 );
 
+CREATE TABLE IF NOT EXISTS chat (
+    id SERIAL PRIMARY KEY NOT NULL,
+    valorProposto NUMERIC(10,2),
+    bloqueado BOOLEAN DEFAULT FALSE,
+    userNome01 VARCHAR(255),
+    userNome02 VARCHAR(255),
+    userId01 INTEGER,
+    userId02 INTEGER
+);
+
+CREATE TABLE IF NOT EXISTS mensagem (
+    id SERIAL PRIMARY KEY NOT NULL,
+    chatId INTEGER NOT NULL,
+    userId INTEGER NOT NULL,
+    mensagem TEXT,
+    dataHora TIMESTAMP DEFAULT NOW()
+);
 
 ---
 
