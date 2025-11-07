@@ -170,7 +170,7 @@ function criarSelectInteresse(id) {
     select.addEventListener("change", onChangeCategoriaInteresse);
     return select;
 }
-
+//chamada ao mudar uma categoria de interesse
 function onChangeCategoriaInteresse(e) {
     const select = e.target;
     const container = document.getElementById("interessesContainer");
@@ -182,7 +182,7 @@ function onChangeCategoriaInteresse(e) {
         }
         return;
     }
-
+//Adicionar novo select se for o último e tiver valor selecionado
     if (
         select.value !== "" &&
         select.value !== "Nenhuma" &&
@@ -194,7 +194,7 @@ function onChangeCategoriaInteresse(e) {
 
     atualizarOpcoes();
 }
-
+//Atualizar opções para evitar duplicatas
 function atualizarOpcoes() {
     const container = document.getElementById("interessesContainer");
     const selects = [...container.querySelectorAll("select")];
@@ -207,7 +207,7 @@ function atualizarOpcoes() {
         });
     });
 }
-
+//Iniciar os selects de categorias de interesse
 function iniciarCategoriasInteresse() {
     const container = document.getElementById("interessesContainer");
     container.innerHTML = "";
@@ -231,7 +231,7 @@ function getIsDoacao() {
     const selecionado = document.querySelector('input[name="isDoacao"]:checked');
     return selecionado ? selecionado.value : null;
 }
-
+//Mostrar ou esconder interesses baseado na doação ou não
 document.addEventListener("change", function (e) {
     if (e.target.name === "isDoacao") {
         const container = document.getElementById("interessesContainer");
@@ -247,6 +247,10 @@ document.addEventListener("change", function (e) {
     }
 });
 
+
+
+
+//Salvar ou editar item
 function salvarItem() {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -265,7 +269,7 @@ function salvarItem() {
         Swal.fire({ icon: 'warning', title: 'Campos obrigatórios', text: 'Preencha todos os campos.' });
         return;
     }
-
+            //Pegar os valores do formulário
     const categoria = document.getElementById("categoria").value;
     const nomeItem = document.getElementById("nomeItem").value.trim();
     const descricaoItem = document.getElementById("descricaoItem").value.trim();
@@ -276,7 +280,7 @@ function salvarItem() {
         Swal.fire({ icon: 'warning', title: 'Campos obrigatórios', text: 'Preencha todos os campos.' });
         return;
     }
-
+//Montar os dados para envio
     const container = document.getElementById("interessesContainer");
     const selects = [...container.querySelectorAll("select")];
     const categoriasEscolhidas = selects.map(s => s.value).filter(v => v !== "" && v !== "Nenhuma");
@@ -285,13 +289,13 @@ function salvarItem() {
         Swal.fire({ icon: 'warning', title: 'Campo obrigatório', text: 'Selecione ao menos uma categoria de interesse.' });
         return;
     }
-
+        //Preparar FormData para envio
     const [cat1, cat2, cat3] = [
         categoriasEscolhidas[0] || "",
         categoriasEscolhidas[1] || "",
         categoriasEscolhidas[2] || ""
     ];
-
+//Enviar para o backend
     const formData = new FormData();
     formData.append("userNome", localStorage.getItem("userNome"));
     formData.append("isProdOuServico", tipoItem === "Produto" ? 1 : 0);
@@ -347,7 +351,7 @@ function logout() {
     localStorage.removeItem('userNome');
     window.location.href = 'login.html';
 }
-
+//Converter array de bytes para base64 para exibição de imagens
 function bytesParaBase64(bytes) {
     if (!bytes) return '';
     let binary = '';
@@ -356,7 +360,7 @@ function bytesParaBase64(bytes) {
     }
     return window.btoa(binary);
 }
-
+//Preencher o formulario com os dados da postagem para edicao
 function preencherFormulario(p) {
     document.getElementById("nomeItem").value = p.nomePostagem;
     document.getElementById("descricaoItem").value = p.descricao;
@@ -365,14 +369,14 @@ function preencherFormulario(p) {
     document.getElementById("cidadeItem").value = p.cidade;
     document.querySelector(`input[name="tipoItem"][value="${p.isProdOuServico ? 'Produto' : 'Servico'}"]`).checked = true;
     document.querySelector(`input[name="isDoacao"][value="${p.doacao ? '1' : '0'}"]`).checked = true;
-
+    // Iniciar categorias de interesse
     iniciarCategoriasInteresse();
     const container = document.getElementById("interessesContainer");
     const selects = container.querySelectorAll("select");
     if (selects[0]) selects[0].value = p.categoriaInteresse1 || "";
     if (selects[1]) selects[1].value = p.categoriaInteresse2 || "";
     if (selects[2]) selects[2].value = p.categoriaInteresse3 || "";
-
+// Atualizar opções para evitar duplicatas
     if (p.imagem) {
         const imgCapa = document.getElementById("previewCapa");
         imgCapa.src = `data:image/png;base64,${p.imagem}`;
@@ -391,10 +395,10 @@ function preencherFormulario(p) {
     }
 }
 
-
+//Variavel para rastrear se estamos editando uma postagem
 let idEditando = null; 
 
-function carregarPostagens() {
+function carregarPostagens() { //Carregar as postagens do usuário chamando o backend e populando a lista
     const token = localStorage.getItem("token");
     if (!token) return;
 
@@ -536,7 +540,7 @@ function aplicarEstilo(img) {
         img.style[prop] = estiloPreview[prop];
     }
 }
-
+//Preview de imagens ao selecionar
 document.getElementById("imagemCapa").addEventListener("change", function () {
     const img = document.getElementById("previewCapa");
     if (this.files && this.files[0]) {
@@ -551,7 +555,6 @@ document.getElementById("imagemCapa").addEventListener("change", function () {
         img.style.display = "none";
     }
 });
-
 document.querySelectorAll(".imagemSecundaria").forEach(input => {
     input.addEventListener("change", function () {
         const img = this.parentElement.querySelector(".previewSecundaria");

@@ -9,27 +9,21 @@ import unigran.br.Model.DAO.EscambistaDAO;
 import unigran.br.Model.Entidades.Cadastro;
 import unigran.br.JwtUtil;
 import unigran.br.Model.Entidades.Escambista;
-
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
+//Criação do controllador Rest e definição da rota
 @RestController
 @RequestMapping("/api/login")
 @CrossOrigin(origins = "http://127.0.0.1:5500")
 public class LoginController {
 
-    @Autowired
-    private CadastroDAO cadastroDAO;
-
-    @Autowired
-    private JwtUtil jwtUtil;
-
-    @Autowired
-    private EscambistaDAO escambistaDAO;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    //Declarção do acesso ao banco de cadastros,Criptografia ByCrypt, geração de token e escambista
+    @Autowired private CadastroDAO cadastroDAO;
+    @Autowired private JwtUtil jwtUtil;
+    @Autowired private EscambistaDAO escambistaDAO;
+    @Autowired private PasswordEncoder passwordEncoder;  //Criptografia
 
     @PostMapping
     public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> loginDados) {
@@ -38,6 +32,7 @@ public class LoginController {
 
         List<Cadastro> cadastros = cadastroDAO.listarTodos();
 
+        //Busca usuário por nome ou email e valida a senha
         Cadastro usuario = cadastros.stream()
                 .filter(c -> (c.getEmail().equals(user) || c.getUserNome().equals(user))
                         && passwordEncoder.matches(senha, c.getSenha()))
@@ -47,14 +42,14 @@ public class LoginController {
         Map<String, Object> response = new HashMap<>();
 
         if (usuario != null) {
-
+            //Conta desativada
             if (usuario.getStatusConta() == null || !usuario.getStatusConta()) {
                 response.put("success", false);
                 response.put("message", "Esta conta está desativada.");
                 return ResponseEntity.status(403).body(response);
             }
 
-            String token = jwtUtil.gerarToken(usuario.getUserNome());
+            String token = jwtUtil.gerarToken(usuario.getUserNome()); //Gera token JWT e retorna dados
 
             response.put("success", true);
             response.put("message", "Login realizado com sucesso!");
@@ -62,7 +57,7 @@ public class LoginController {
             response.put("userNome", usuario.getUserNome());
             response.put("userId", usuario.getId());
             return ResponseEntity.ok(response);
-        } else {
+        } else { //Quando o login não é válido
             response.put("success", false);
             response.put("message", "Usuário ou senha inválidos.");
             return ResponseEntity.status(401).body(response);
@@ -73,24 +68,26 @@ public class LoginController {
     public ResponseEntity<Map<String, Object>> getUsuarioLogado(@RequestHeader("Authorization") String authHeader) {
         Map<String, Object> response = new HashMap<>();
 
+        //Verifica o  envio do token e valida em seguida
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             response.put("logado", false);
             return ResponseEntity.status(401).body(response);
         }
-
         String token = authHeader.substring(7);
-
         if (!jwtUtil.validarToken(token)) {
             response.put("logado", false);
             return ResponseEntity.status(401).body(response);
         }
 
+        //Extrai o nome de user e devolve a resposta
         String userNome = jwtUtil.extrairUserNome(token);
         response.put("logado", true);
         response.put("userNome", userNome);
         return ResponseEntity.ok(response);
     }
 
+
+    //Logout JWT é stateless
     @PostMapping("/logout")
     public ResponseEntity<Map<String, Object>> logout() {
         Map<String, Object> response = new HashMap<>();
@@ -99,6 +96,7 @@ public class LoginController {
         return ResponseEntity.ok(response);
     }
 
+    //Coleta dados enviados, busca por email, escambista e verifica a entrada
     @PostMapping("/recuperar-senha")
     public ResponseEntity<Map<String, Object>> recuperarSenha(@RequestBody Map<String, String> dados) {
         Map<String, Object> response = new HashMap<>();
@@ -129,18 +127,16 @@ public class LoginController {
             }
 
 
-
-
+//Verifica quais dados de segurança o usuário possui cadastrados, compara com os dados informados na recuperação de senha, conta quantos estão corretos e
+// se atingir o mínimo exigido de acertos, permite redefinir a senha e caso contrário, bloqueia a recuperação (min 2 de 3).
             boolean temCpf = escambista.getCpf() != null && !escambista.getCpf().isBlank();
             boolean temContato = escambista.getContato() != null && !escambista.getContato().isBlank();
             boolean temDataNasc = escambista.getDataNasc() != null;
-
             int totalCamposCadastrados = (temCpf ? 1 : 0) + (temContato ? 1 : 0) + (temDataNasc ? 1 : 0);
             int acertos = 0;
             if (temCpf && cpfInformado != null && escambista.getCpf().equals(cpfInformado)) acertos++;
             if (temContato && contatoInformado != null && escambista.getContato().equals(contatoInformado)) acertos++;
             if (temDataNasc && datanascInformada != null && escambista.getDataNasc().toString().equals(datanascInformada)) acertos++;
-
             boolean passouValidacao = false;
             if (totalCamposCadastrados == 1 && acertos >= 1) passouValidacao = true;
             if (totalCamposCadastrados == 2 && acertos >= 2) passouValidacao = true;
@@ -152,14 +148,14 @@ public class LoginController {
                 return ResponseEntity.status(401).body(response);
             }
 
+            //Atualiza senha criptografada
             usuario.setSenha(passwordEncoder.encode(novaSenha));
             cadastroDAO.atualizar(usuario);
-
             response.put("success", true);
             response.put("message", "Senha redefinida com sucesso.");
             return ResponseEntity.ok(response);
+        } catch (Exception e) {            //Tratamento de erro geral
 
-        } catch (Exception e) {
             e.printStackTrace();
             response.put("success", false);
             response.put("message", "Erro ao tentar redefinir senha: " + e.getMessage());
@@ -167,6 +163,8 @@ public class LoginController {
         }
     }
 
+
+    //Retorna quais dados de segurança estão preenchidos
     @GetMapping("/dados-seguranca")
     public ResponseEntity<Map<String, Object>> dadosSeguranca(@RequestParam String email) {
         Cadastro cadastro = cadastroDAO.buscarPorEmail(email);
@@ -177,6 +175,8 @@ public class LoginController {
         mapa.put("cpf", escambista.getCpf() != null && !escambista.getCpf().isBlank());
         mapa.put("contato", escambista.getContato() != null && !escambista.getContato().isBlank());
         mapa.put("datanasc", escambista.getDataNasc() != null);
+
+
 
         return ResponseEntity.ok(mapa);
     }

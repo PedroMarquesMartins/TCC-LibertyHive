@@ -2,13 +2,13 @@ package unigran.br.Model.DAO;
 
 import org.springframework.stereotype.Repository;
 import unigran.br.Model.Entidades.Avaliacao;
-
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
 import java.util.Map;
 
+//Repositório de acessos (JPA) das Avaliações dos usuários
 @Repository
 public class AvaliacaoDAO {
 

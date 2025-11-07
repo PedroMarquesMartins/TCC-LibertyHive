@@ -104,7 +104,13 @@ main#chatArea {
     gap: 14px;
     overflow-y: auto;
     scroll-behavior: smooth;
+    height: 60vh;           
+    max-height: 500px;        
+    min-height: 500px;        
+    border-top: 2px solid #ffe082;
+    border-bottom: 2px solid #ffe082;
 }
+
 
 #chatArea::-webkit-scrollbar {
     width: 10px;

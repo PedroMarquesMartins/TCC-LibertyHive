@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const token = localStorage.getItem("token");
     const userIdLogado = localStorage.getItem("userId");
     const userNomeLogado = localStorage.getItem("userNome");
-
+//Verificação do user se ele está logado comparando o localStorage
     if (!token || !userIdLogado || !userNomeLogado) {
         document.body.innerHTML = `
             <div style="padding:30px;text-align:center;">
@@ -11,8 +11,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
+    //Elemento onde os contatos serão exibidos
     const listaContatos = document.getElementById("listaContatos");
 
+
+    //Função para carregar os contatos do usuário logado com tratamento de erros
     async function carregarContatos() {
         try {
             const resp = await fetch(`http://localhost:8080/chat/usuario/${userIdLogado}`, {
@@ -37,7 +40,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
 
             listaContatos.innerHTML = "";
-
+//Para cada chat, buscar a última mensagem e exibir
             for (const chat of chats) {
                 const outroNome = (chat.userId01 == userIdLogado)
                     ? chat.userNome02
@@ -52,7 +55,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                             "Authorization": "Bearer " + token
                         }
                     });
-
+                        //Buscar a última mensagem do chat
                     if (msgResp.ok) {
                         const mensagens = await msgResp.json();
                         if (mensagens.length > 0) {
@@ -73,7 +76,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 } catch (e) {
                     console.warn("Erro ao buscar mensagens do chat:", e);
                 }
-
+//Criar o card do contato
                 const div = document.createElement("div");
                 div.className = "contato-card";
 
@@ -99,9 +102,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             listaContatos.innerHTML = `<p style="color:red;">${err.message}</p>`;
         }
     }
-
+//Chamar a função para carregar os contatos ao iniciar a página
     carregarContatos();
-
     document.getElementById("btnVoltar").addEventListener("click", () => {
         window.location.href = "inicio.html";
     });

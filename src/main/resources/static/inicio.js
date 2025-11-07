@@ -5,10 +5,10 @@ document.addEventListener('DOMContentLoaded', async function () {
     if (dropdownUserName) {
         dropdownUserName.textContent = nome || "visitante";
     }
-
+    // Carregar lista de produtos
     const lista = document.getElementById('listaProdutos');
     lista.innerHTML = "<p class='text-muted'>Carregando postagens...</p>";
-
+//Buscar as postagens do backend via API
     try {
         const token = localStorage.getItem("token");
         if (!token) {
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             lista.innerHTML = "<p class='text-muted'>Nenhuma postagem encontrada.</p>";
             return;
         }
-
+//Criar os cards de postagens
         const frag = document.createDocumentFragment();
 
         postagens.forEach(p => {
@@ -42,11 +42,12 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             const cat = (p.categoria || '').toString();
             const nomePost = (p.nomePostagem || '').toString();
-
+            //Adicionar atributos para filtros
             card.dataset.id = p.id;
             card.dataset.categoria = normalizarTexto(cat);
             card.dataset.nome = normalizarTexto(nomePost);
             card.dataset.uf = (p.uf || '').toLowerCase();
+            card.dataset.doacao = p.doacao ? 'true' : 'false';
             card.dataset.tipo = (p.isProdOuServico ? 'produto' : 'serviço');
 
             let imgSrc = "./imagens/placeholder.png";
@@ -55,7 +56,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             const doacao_string = p.doacao ? "Sim" : "Não";
             const tipo_string = p.isProdOuServico ? "Produto" : "Serviço";
             const avaliacaoHTML = criarHTMLAvaliacao(p.avaliacaoUsuario);
-
+            //Montar o HTML do card
             card.innerHTML = `
         <img src="${imgSrc}" alt="${escapeHtml(nomePost)}">
         <h3>${escapeHtml(nomePost)}</h3>
@@ -92,9 +93,9 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 });
 
-const token = localStorage.getItem('token');
+const token = localStorage.getItem('token');//Pegar o token do localStorage
 
-function abrirConfiguracoes() {
+function abrirConfiguracoes() {//Abrir configurações
     if (!token) {
         alert("Você precisa estar logado.");
         return;
@@ -111,12 +112,13 @@ function logout() {
 }
 
 function filtrarProdutos() { aplicarFiltros(); }
-
+//Função para limpar os filtros
 function limparFiltros() {
     document.getElementById('search').value = '';
     document.getElementById('categoria').value = 'all';
     document.getElementById('uf').value = 'all';
     document.getElementById('tipo').value = 'all';
+    document.getElementById('doacao').value = 'all';
     aplicarFiltros();
 }
 
@@ -127,27 +129,30 @@ function normalizarTexto(texto) {
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "");
 }
-
-function aplicarFiltros() {
+//Função para aplicar os filtros
+function aplicarFiltros(){
+    //Pegar os valores ds filtros
     const termo = normalizarTexto(document.getElementById('search').value);
     const categoriaSelecionada = normalizarTexto(document.getElementById('categoria').value);
     const ufSelecionada = document.getElementById('uf').value.toLowerCase();
     const tipoSelecionado = document.getElementById('tipo').value.toLowerCase();
-
+    const doacaoSelecionada = document.getElementById('doacao').value;
     const cards = document.querySelectorAll('.product-card');
-
+    //  Filtrar os cards com base nos valores selecionados
     cards.forEach(card => {
         const nom = card.dataset.nome || '';
         const cat = card.dataset.categoria || '';
         const cardUf = card.dataset.uf || '';
         const cardTipo = card.dataset.tipo || '';
+        const cardDoacao = card.dataset.doacao || ''; 
 
         const bateBusca = !termo || nom.includes(termo) || cat.includes(termo);
         const bateCat = (categoriaSelecionada === 'all') || (cat === categoriaSelecionada);
         const bateUf = (ufSelecionada === 'all') || (cardUf === ufSelecionada);
         const bateTipo = (tipoSelecionado === 'all') || (cardTipo === tipoSelecionado);
+        const bateDoacao = (doacaoSelecionada === 'all') || (cardDoacao === doacaoSelecionada);
 
-        card.style.display = (bateBusca && bateCat && bateUf && bateTipo) ? '' : 'none';
+        card.style.display = (bateBusca && bateCat && bateUf && bateTipo && bateDoacao) ? '' : 'none';
     });
 }
 
@@ -166,6 +171,8 @@ function escapeHtml(str) {
         .replace(/'/g, "&#039;");
 }
 
+
+// Funcao para adicionar o botao de favoritar em cada card
 function adicionarBotaoFavoritos() {
     document.querySelectorAll(".product-card").forEach(card => {
         if (!card.querySelector(".fav-btn")) {
@@ -231,6 +238,8 @@ function adicionarBotaoFavoritos() {
         }
     });
 }
+
+// Funcao para criar o HTML da avaliacao em estrelas
 function criarHTMLAvaliacao(media) {
     if (media == null || media === 0) {
         return '<div class="rating-stars" style="color: #6c757d;"><i>Sem avaliações</i></div>';
@@ -248,7 +257,7 @@ function criarHTMLAvaliacao(media) {
 
     return `<div class="rating-stars">${estrelasHTML} <span class="rating-text">${media.toFixed(1)}</span></div>`;
 }
-
+// Função para salvar favorito no localStorage (usada  em outros contextos)
 function salvarFavorito(postagem) {
     let favoritos = JSON.parse(localStorage.getItem("favoritos")) || [];
 

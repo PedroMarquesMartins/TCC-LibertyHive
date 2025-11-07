@@ -9,6 +9,7 @@ import unigran.br.Model.Entidades.Postagem;
 import java.util.Collections;
 import java.util.List;
 
+//Postagem DAO, repositorio BD
 @Repository
 public class PostagemDAO {
 

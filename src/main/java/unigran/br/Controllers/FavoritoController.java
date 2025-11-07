@@ -11,11 +11,11 @@ import unigran.br.Model.DAO.PostagemDAO;
 import unigran.br.Model.Entidades.Cadastro;
 import unigran.br.Model.Entidades.Favorito;
 import unigran.br.Model.Entidades.Postagem;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+//DEclaração do controllador de favoritos, e do endpoint
 @RestController
 @RequestMapping("/favoritos")
 public class FavoritoController {
@@ -33,14 +33,11 @@ public class FavoritoController {
     private PostagemDAO postagemDAO;
 
     @PostMapping
-    public ResponseEntity<?> favoritar(
-            @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader,
-            @RequestParam Long postagemId
-    ) {
+    public ResponseEntity<?> favoritar(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader, @RequestParam Long postagemId) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(401).body(Map.of("message", "Token inválido ou ausente."));
-        }
-
+        }//Autenticação
+        //Extrai usuário do token
         String token = authHeader.substring(7);
         Cadastro cadastro = cadastroDAO.encontrarPorUserNome(jwtUtil.extrairUserNome(token));
         if (cadastro == null) {
@@ -51,7 +48,7 @@ public class FavoritoController {
             if (favoritoDAO.existeFavorito(cadastro.getId(), postagemId)) {
                 return ResponseEntity.status(409).body(Map.of("message", "Este item já foi favoritado por você."));
             }
-
+            //Cria e salva novo favorito
             Favorito favorito = new Favorito();
             favorito.setUserId(cadastro.getId());
             favorito.setPostagemId(postagemId);
@@ -62,6 +59,8 @@ public class FavoritoController {
             return ResponseEntity.status(500).body(Map.of("message", "Erro ao favoritar: " + e.getMessage()));
         }
     }
+
+    //Recupera usuário logado e lista com detalhes das postagens favoritas disponíveis
     @GetMapping
     public ResponseEntity<?> listarFavoritos(
             @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader
@@ -105,7 +104,7 @@ public class FavoritoController {
                     })
                     .filter(Objects::nonNull)
                     .toList();
-
+//Oloco
             return ResponseEntity.ok(resposta);
 
         } catch (Exception e) {
@@ -124,6 +123,8 @@ public class FavoritoController {
             return ResponseEntity.status(401).body(Map.of("message", "Token inválido ou ausente."));
         }
 
+        //Após autenticação, garante que o favorito pertence ao usuário logado
+
         String token = authHeader.substring(7);
         Cadastro cadastro = cadastroDAO.encontrarPorUserNome(jwtUtil.extrairUserNome(token));
         if (cadastro == null) {
@@ -136,7 +137,9 @@ public class FavoritoController {
                 return ResponseEntity.status(403).body(Map.of("message", "Você não tem permissão para remover este favorito."));
             }
 
-            favoritoDAO.remover(id);
+
+
+            favoritoDAO.remover(id);//Por fim, Remove o favorito
             return ResponseEntity.ok(Map.of("message", "Favorito removido com sucesso!"));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of("message", "Erro ao remover favorito: " + e.getMessage()));

@@ -10,7 +10,9 @@ import org.junit.platform.suite.api.Suite;
         ChatControllerTest.class,
         EscambistaControllerTest.class,
         PostagemControllerTest.class,
-        PropostaControllerTest.class
+        PropostaControllerTest.class,
+        FavoritoControllerTest.class,
+        LoginControllerTest.class
 })
 public class ApiIntegrationTestSuite {
 

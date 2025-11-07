@@ -16,7 +16,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Autowired
     private JwtUtil jwtUtil;
-
+    //Jwt filter geral para possibilitar endpoints do backend
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,

@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     document.getElementById('formLogin').addEventListener('submit', function (event) {
         event.preventDefault();
-
+//Realizar o login e tratar a resposta
         const user = document.getElementById('user').value;
         const senha = document.getElementById('senha').value;
 
@@ -40,7 +40,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 Swal.fire('Erro', 'Erro ao tentar realizar login. Tente novamente mais tarde.', 'error');
             });
     });
-
+    
+    
+    //Função de recuperacao da senha
     document.getElementById('linkAjuda').addEventListener('click', async (e) => {
         e.preventDefault();
         const { value: email } = await Swal.fire({

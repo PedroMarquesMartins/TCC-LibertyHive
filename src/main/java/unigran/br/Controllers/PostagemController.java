@@ -12,7 +12,6 @@ import unigran.br.Model.Entidades.Cadastro;
 import unigran.br.Model.Entidades.Postagem;
 import unigran.br.JwtUtil;
 import unigran.br.Services.LocalidadeService;
-
 import java.io.IOException;
 import java.util.*;
 
@@ -213,7 +212,7 @@ public class PostagemController {
             @RequestParam(value = "imagem", required = false) MultipartFile imagem,
             @RequestParam(value = "imagensSecundarias", required = false) List<MultipartFile> imagensSecundarias
     ) {
-        //VALIDAÇÕES
+        //VALIDAÇÕES de campos obrigatorios
         if (nomePostagem == null || nomePostagem.trim().isEmpty())
             return ResponseEntity.badRequest().body(Map.of("error", "Nome da postagem é obrigatório."));
         if (descricao == null || descricao.trim().isEmpty())
@@ -384,6 +383,7 @@ public class PostagemController {
             return ResponseEntity.status(401).build();
         }
 
+        //Autenticação do user
         String token = authHeader.substring(7);
         if (!jwtUtil.validarToken(token)) {
             return ResponseEntity.status(401).build();
@@ -396,10 +396,10 @@ public class PostagemController {
         return ResponseEntity.ok(postagem);
     }
 
-    @GetMapping("/listar-categorias-usuario")
-    public ResponseEntity<List<Map<String, Object>>> listarCategoriasPorUsuario(
-            @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
 
+    //Listar categorias de postagens do usuário
+    @GetMapping("/listar-categorias-usuario")
+    public ResponseEntity<List<Map<String, Object>>> listarCategoriasPorUsuario(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(401).build();
         }
@@ -414,6 +414,8 @@ public class PostagemController {
         if (cadastro == null) {
             return ResponseEntity.status(401).build();
         }
+
+        //retorna apenas id + categoria
         List<Postagem> postagensUsuario = postagemDAO.listarPorUserID(cadastro.getId());
         List<Map<String, Object>> resp = new ArrayList<>();
         for (Postagem p : postagensUsuario) {
@@ -425,6 +427,7 @@ public class PostagemController {
         return ResponseEntity.ok(resp);
     }
 
+    //Atualização da postagem
     @PutMapping(value = "/{id}", consumes = {"multipart/form-data"})
     public ResponseEntity<?> atualizarPostagem(
             @PathVariable Long id,
@@ -447,6 +450,7 @@ public class PostagemController {
             return ResponseEntity.notFound().build();
         }
 
+        //Validações
         if (nomePostagem == null || nomePostagem.trim().isEmpty())
             return ResponseEntity.badRequest().body(Map.of("error", "Nome da postagem é obrigatório."));
         if (descricao == null || descricao.trim().isEmpty())
@@ -475,6 +479,7 @@ public class PostagemController {
             }
         }
 
+        //Atualiza para os novos dados
         postagemExistente.setNomePostagem(nomePostagem);
         postagemExistente.setDescricao(descricao);
         postagemExistente.setCategoria(categoria);
@@ -485,7 +490,7 @@ public class PostagemController {
         postagemExistente.setCategoriaInteresse3(categoriaInteresse3);
         postagemExistente.setCidade(cidade);
         postagemExistente.setUf(uf);
-
+//substitui imagens se enviadas
         try {
             if (imagem != null && !imagem.isEmpty()) {
                 postagemExistente.setImagem(imagem.getBytes());
@@ -509,6 +514,8 @@ public class PostagemController {
         } catch (IOException e) {
             return ResponseEntity.status(500).body(Map.of("error", "Erro ao processar imagens: " + e.getMessage()));
         }
+
+        //Finalmente, salva a postagem
         postagemDAO.salvarPostagem(postagemExistente);
         return ResponseEntity.ok(Map.of("message", "Postagem atualizada com sucesso!", "id", postagemExistente.getId()));
     }

@@ -10,7 +10,7 @@ function voltarInicio() {
 document.addEventListener("DOMContentLoaded", async () => {
     const nome = localStorage.getItem("userNome") || "Usuário";
     document.getElementById("usuarioNome").textContent = nome;
-
+//Carregar favoritos do usuário
     const lista = document.getElementById("listaFavoritos");
 
     const token = localStorage.getItem("token");
@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         lista.innerHTML = "<p class='text-danger text-center'>Você precisa estar logado para ver os favoritos.</p>";
         return;
     }
-    try {
+    try {//Buscar os favoritos do backend/API
         const response = await fetch("http://localhost:8080/favoritos", {
             method: "GET",
             headers: {
@@ -40,14 +40,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         lista.innerHTML = "";
-
+        //Para cada favorito, criar o card e adicionar à lista
         favoritos.forEach((favorito, index) => {
             const postagem = favorito.postagem;
             if (!postagem) return;
 
             const col = document.createElement("div");
             col.className = "col-md-4 col-sm-6";
-
+            //Criar o card da postagem favorita
             col.innerHTML = `
     <div class="card h-100">
         <img src="${postagem.imagem ? `data:image/png;base64,${postagem.imagem}` : './imagens/placeholder.png'}"
@@ -74,7 +74,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         </div>
     </div>
 `;
-
+            //Remover favorito ao clicar no botão
             col.querySelector(".btn-remove").addEventListener("click", async () => {
                 const result = await Swal.fire({
                     title: `Remover "${postagem.nomePostagem}" dos favoritos?`,
@@ -84,7 +84,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     cancelButtonText: "Cancelar"
                 });
 
-                if (!result.isConfirmed) return;
+                if (!result.isConfirmed) return; //Se o usuário cancelar, nao faz nada
 
                 try {
                     const removeResp = await fetch(`http://localhost:8080/favoritos/${favorito.id}`, {
@@ -94,7 +94,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                             "Content-Type": "application/json"
                         }
                     });
-
+                //Tratar a resposta da remocao
                     const data = await removeResp.json();
                     if (removeResp.ok) {
                         col.remove();

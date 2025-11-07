@@ -7,12 +7,10 @@
   <link rel="icon" type="image/png" href="favicon.png" />
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
-
   <link rel="stylesheet" href="./Style/styleInicio.css" />
 </head>
-
+<!--Corpo da pagina-->
 <body class="d-flex flex-column min-vh-100">
   <header class="navbar navbar-expand-lg bg-warning shadow-sm px-3">
     <div class="container-fluid">
@@ -24,7 +22,7 @@
         <input id="search" class="form-control rounded-pill px-3 me-2" type="search" placeholder="O que tem em mente?"
           aria-label="Search" oninput="filtrarProdutos()" />
       </form>
-
+      <!--Botões de navegação-->
       <div class="d-flex align-items-center gap-3">
         <button type="button" class="btn btn-outline-danger btn-sm rounded-circle" title="Meus Favoritos"
           onclick="window.location.href='favoritos.html'">
@@ -35,8 +33,7 @@
           onclick="window.location.href='contatos.html'">
           <i class="bi bi-people"></i>
         </button>
-
-
+        <!--Menu dropdown do usuário-->
         <div class="dropdown">
           <button class="btn btn-outline-dark btn-sm rounded-circle dropdown-toggle" type="button" id="userMenu"
             data-bs-toggle="dropdown" aria-expanded="false">
@@ -60,7 +57,7 @@
             </li>
           </ul>
         </div>
-
+<!--Botões de navegação-->
         <button type="button" class="btn btn-outline-dark btn-sm rounded-circle" title="Configurações"
           onclick="window.location.href='configuracao.html'">
           <i class="bi bi-gear"></i>
@@ -70,13 +67,12 @@
           <i class="bi bi-box-arrow-right"></i>
         </button>
       </div>
-
     </div>
   </header>
 
   <main class="container text-center my-5 flex-grow-1">
     <h2 class="mb-4">Olá, <span id="usuarioNome"></span>!</h2>
-
+<!--Cards de navegação-->
     <div class="row g-4 justify-content-center">
       <div class="col-md-4">
         <div class="card h-100 shadow-sm py-4 border border-dark clickable"
@@ -100,16 +96,70 @@
         </div>
       </div>
     </div>
+
     <div class="d-flex justify-content-center my-3">
       <button class="btn-propostas" onclick="window.location.href='minhasPropostas.html'">
         <i class="bi bi-box"></i> Minhas Propostas
       </button>
     </div>
-
-    <div class="mt-5 mb-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
-      <div class="text-start">
-        <label for="categoria" class="form-label fw-bold mb-0 me-2">Filtrar por categoria:</label>
-        <select id="categoria" class="form-select d-inline-block w-auto" onchange="aplicarFiltros()">
+<!--Filtros de busca-->
+    <div class="mt-5 mb-3 d-flex align-items-center justify-content-between flex-wrap gap-3">
+      <div class="text-start d-flex align-items-center gap-2">
+        <label for="doacao" class="form-label fw-bold mb-0">Filtrar por doação:</label>
+        <select id="doacao" class="form-select form-select-sm w-auto" onchange="aplicarFiltros()">
+          <option value="all">Todas</option>
+          <option value="true">Doação (Sim)</option>
+          <option value="false">Não é Doação</option>
+        </select>
+      </div>
+<!--Filtro por UF, tipo e categoria-->
+      <div class="text-start d-flex align-items-center gap-2">
+        <label for="uf" class="form-label fw-bold mb-0">Filtrar por UF:</label>
+        <select id="uf" class="form-select form-select-sm w-auto" onchange="aplicarFiltros()">
+          <option value="all">Todos</option>
+          <option value="AC">AC</option>
+          <option value="AL">AL</option>
+          <option value="AP">AP</option>
+          <option value="AM">AM</option>
+          <option value="BA">BA</option>
+          <option value="CE">CE</option>
+          <option value="DF">DF</option>
+          <option value="ES">ES</option>
+          <option value="GO">GO</option>
+          <option value="MA">MA</option>
+          <option value="MT">MT</option>
+          <option value="MS">MS</option>
+          <option value="MG">MG</option>
+          <option value="PA">PA</option>
+          <option value="PB">PB</option>
+          <option value="PR">PR</option>
+          <option value="PE">PE</option>
+          <option value="PI">PI</option>
+          <option value="RJ">RJ</option>
+          <option value="RN">RN</option>
+          <option value="RS">RS</option>
+          <option value="RO">RO</option>
+          <option value="RR">RR</option>
+          <option value="SC">SC</option>
+          <option value="SP">SP</option>
+          <option value="SE">SE</option>
+          <option value="TO">TO</option>
+        </select>
+      </div>
+<!--Filtro por tipo-->
+      <div class="text-start d-flex align-items-center gap-2">
+        <label for="tipo" class="form-label fw-bold mb-0">Filtrar por tipo:</label>
+        <select id="tipo" class="form-select form-select-sm w-auto" onchange="aplicarFiltros()">
+          <option value="all">Todos</option>
+          <option value="produto">Produto</option>
+          <option value="serviço">Serviço</option>
+        </select>
+      </div>
+<!--Filtro por categoria-->
+      <div class="text-start w-100 d-flex align-items-center gap-2 mt-2">
+        <label for="categoria" class="form-label fw-bold mb-0">Filtrar por categoria:</label>
+        <select id="categoria" class="form-select flex-grow-1" onchange="aplicarFiltros()">
+          <option value="all">Todos</option>
           <option value="all">Todos</option>
           <option>Celulares e Smartphones</option>
           <option>Acessórios para Celulares (Capas, Películas, Carregadores)</option>
@@ -235,66 +285,23 @@
           <option>Imóveis Comerciais</option>
         </select>
       </div>
-
-      <div class="text-start">
-        <label for="uf" class="form-label fw-bold mb-0 me-2">Filtrar por UF:</label>
-        <select id="uf" class="form-select d-inline-block w-auto" onchange="aplicarFiltros()">
-          <option value="all">Todos</option>
-          <option value="AC">AC</option>
-          <option value="AL">AL</option>
-          <option value="AP">AP</option>
-          <option value="AM">AM</option>
-          <option value="BA">BA</option>
-          <option value="CE">CE</option>
-          <option value="DF">DF</option>
-          <option value="ES">ES</option>
-          <option value="GO">GO</option>
-          <option value="MA">MA</option>
-          <option value="MT">MT</option>
-          <option value="MS">MS</option>
-          <option value="MG">MG</option>
-          <option value="PA">PA</option>
-          <option value="PB">PB</option>
-          <option value="PR">PR</option>
-          <option value="PE">PE</option>
-          <option value="PI">PI</option>
-          <option value="RJ">RJ</option>
-          <option value="RN">RN</option>
-          <option value="RS">RS</option>
-          <option value="RO">RO</option>
-          <option value="RR">RR</option>
-          <option value="SC">SC</option>
-          <option value="SP">SP</option>
-          <option value="SE">SE</option>
-          <option value="TO">TO</option>
-        </select>
-      </div>
-
-      <div class="text-start">
-        <label for="tipo" class="form-label fw-bold mb-0 me-2">Filtrar por tipo:</label>
-        <select id="tipo" class="form-select d-inline-block w-auto" onchange="aplicarFiltros()">
-          <option value="all">Todos</option>
-          <option value="produto">Produto</option>
-          <option value="serviço">Serviço</option>
-        </select>
-      </div>
-
-      <button class="btn btn-dark px-3" onclick="limparFiltros()">
+      <!--Botão para limpar filtros-->
+      <button class="btn btn-dark px-3 mt-2" onclick="limparFiltros()">
         <i class="bi bi-x-circle me-1"></i> Limpar filtros
       </button>
     </div>
-
+    <!--Produtos-->
     <h4 class="text-start mt-4 mb-3">Talvez isto te interesse...</h4>
 
     <div class="position-relative">
       <button class="btn btn-warning carrossel-btn start-0" onclick="scrollLista(-1)">
         <i class="bi bi-chevron-left fs-4"></i>
       </button>
-
+<!--Lista de produtos-->
       <div class="produtos-grid overflow-auto gap-3 pb-3 px-5" id="listaProdutos" tabindex="0"
         aria-label="Lista de postagens">
       </div>
-
+<!--Botões de scroll-->
       <button class="btn btn-warning carrossel-btn end-0" onclick="scrollLista(1)">
         <i class="bi bi-chevron-right fs-4"></i>
       </button>
@@ -316,7 +323,6 @@
             <li><a href="./footer pages/denuncias.html">Denúncias</a></li>
             <li><a href="./footer pages/termos.html">Termos de Uso</a></li>
             <li><a href="./footer pages/privacidade.html">Política de Privacidade</a></li>
-
           </ul>
         </div>
         <div class="col-md">
@@ -334,6 +340,8 @@
       </div>
     </div>
   </footer>
-
   <script src="inicio.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

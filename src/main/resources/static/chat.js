@@ -1,7 +1,7 @@
 const token = localStorage.getItem('token');
 const userIdLogado = localStorage.getItem('userId');
 const userNomeLogado = localStorage.getItem('userNome');
-
+//Verificação do user se ele está logado comparando o localStorage
 if (!token || !userIdLogado) {
     document.body.innerHTML = '<div style="padding:30px;text-align:center;"><h2>Você precisa estar logado.</h2></div>';
     throw new Error('Usuário não logado');
@@ -23,11 +23,13 @@ if (!chatId) throw new Error('ChatId ausente');
 
 let chatBloqueado = false;
 
+
+//Formatação para data e hora atual no padrão brasileiro
 function formatarDataHora(dtStr) {
     const dt = new Date(dtStr);
     return dt.toLocaleDateString('pt-BR') + ' ' + dt.toLocaleTimeString('pt-BR');
 }
-
+//Função de carregar o chat e suas mensagens
 async function carregarChat() {
     try {
         const resp = await fetch(`http://localhost:8080/chat/${chatId}`, {
@@ -38,10 +40,8 @@ async function carregarChat() {
 
         const outroNome = (userIdLogado == chat.userId01) ? chat.userNome02 : chat.userNome01;
         chatTitle.textContent = `Chat com ${outroNome}`;
-
         participantesEl.textContent = `${chat.userNome01} e ${chat.userNome02}`;
         valorPropostaEl.textContent = chat.valorProposto ?? 'Não definido';
-
         chatBloqueado = chat.bloqueado === true;
         btnBloquear.textContent = chatBloqueado ? "Desbloquear" : "Bloquear";
 
@@ -79,6 +79,7 @@ async function carregarChat() {
     }
 }
 
+//Carregar o chat inicial e o recarrega a cada 3 segundos (não em tempo real), somente enquanto estiver na página
 carregarChat();
 setInterval(carregarChat, 3000);
 
@@ -109,6 +110,7 @@ btnEnviar.addEventListener("click", async () => {
     }
 });
 
+//Função de bloquear ou desbloquear o chat
 btnBloquear.addEventListener("click", async () => {
     const confirm = await Swal.fire({
         title: `Você quer ${chatBloqueado ? 'desbloquear' : 'bloquear'} este chat?`,
@@ -138,6 +140,7 @@ btnBloquear.addEventListener("click", async () => {
     }
 });
 
+//Função de propor um valor em dinheiro no chat
 btnProposta.addEventListener("click", async () => {
     const { value: valor } = await Swal.fire({
         title: 'Insira o valor da proposta',
@@ -183,11 +186,12 @@ btnProposta.addEventListener("click", async () => {
         }
     }
 });
-
+//Função do botão de voltar para a área de contatos
 btnVoltar.addEventListener("click", () => {
     window.location.href = `contatos.html?token=${encodeURIComponent(token)}`;
 });
 
+//Mapeando a tecla Enter para enviar a mensagem sem precisar apertar o botão
 msgInput.addEventListener("keydown", function (e) {
     if (e.key === "Enter") {
         e.preventDefault();

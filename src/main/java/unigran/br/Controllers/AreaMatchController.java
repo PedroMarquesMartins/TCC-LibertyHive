@@ -37,18 +37,22 @@ public class AreaMatchController {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(401).build();
         }
+
         String token = authHeader.substring(7);
         Cadastro cadastro = cadastroDAO.encontrarPorUserNome(jwtUtil.extrairUserNome(token));
         if (cadastro == null) {
             return ResponseEntity.status(401).build();
         }
+
+        //Apos a autenticação ele lista postagens do usuário e de outros
         List<Postagem> postagensUsuario = postagemDAO.listarPorUserID(cadastro.getId());
         List<Postagem> postagensOutros = postagemDAO.listarTodas();
 
         Map<Long, Postagem> resultadoMap = new LinkedHashMap<>();
         List<Long> vistos = areaMatchVistoDAO.listarIdsVistosPorUsuario(cadastro.getId());
 
-        for (Postagem minhaPostagem : postagensUsuario) {
+        //Motor lógico - Compara categorias e interesses entre usuarios para formar os matches
+        for (Postagem minhaPostagem : postagensUsuario) { //PAra cada postagem
             List<String> interesses = new ArrayList<>();
             if (minhaPostagem.getCategoriaInteresse1() != null)
                 interesses.add(minhaPostagem.getCategoriaInteresse1());
@@ -73,6 +77,8 @@ public class AreaMatchController {
                 }
             }
         }
+
+        //Monta retorno com infos e avaliação média do dono da postagem
         List<Map<String, Object>> listaFinal = new ArrayList<>();
         for (Postagem p : resultadoMap.values()) {
             if (!Boolean.TRUE.equals(p.getDisponibilidade())) continue;
@@ -97,12 +103,35 @@ public class AreaMatchController {
         return ResponseEntity.ok(listaFinal);
     }
 
+    @PostMapping("/favorito")
+    public ResponseEntity<?> favoritar(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader, @RequestParam Long postagemId) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(401).build();}            // Evita duplicação e salva favorito
+        String token = authHeader.substring(7);
+        Cadastro cadastro = cadastroDAO.encontrarPorUserNome(jwtUtil.extrairUserNome(token));
+        if (cadastro == null) {
+            return ResponseEntity.status(401).build();
+        }
+        try {
+            if (favoritoDAO.existeFavorito(cadastro.getId(), postagemId)) {
+                return ResponseEntity.status(409).body(Map.of("message", "Este item já foi favoritado por você."));
+            }
+            Favorito favorito = new Favorito();
+            favorito.setUserId(cadastro.getId());
+            favorito.setPostagemId(postagemId);
+            favoritoDAO.salvar(favorito);
+            return ResponseEntity.ok(Map.of("message", "Item favoritado com sucesso!"));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("message", "Erro ao favoritar: " + e.getMessage()));
+        }
+    }
     @PostMapping("/interesse")
     public ResponseEntity<?> marcarInteresse(
             @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader,
             @RequestParam Long itemOutroUsuarioId,
             @RequestParam boolean sim) {
 
+       //Autentica
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(401).build();
         }
@@ -113,7 +142,7 @@ public class AreaMatchController {
         if (cadastro == null) {
             return ResponseEntity.status(401).build();
         }
-
+//Busca item e impede ação no próprio item
         Postagem outroItem = postagemDAO.encontrarPostagemPorId(itemOutroUsuarioId);
         if (outroItem == null) {
             return ResponseEntity.badRequest().body(Map.of("message", "Item não encontrado."));
@@ -121,7 +150,7 @@ public class AreaMatchController {
         if (outroItem.getUserID().equals(cadastro.getId())) {
             return ResponseEntity.badRequest().body(Map.of("message", "Não é possível dar ação no próprio item."));
         }
-
+        //Marca como visto
         if (!sim) {
             if (!areaMatchVistoDAO.existeRegistro(cadastro.getId(), itemOutroUsuarioId)) {
                 AreaMatchVisto visto = new AreaMatchVisto();
@@ -136,35 +165,5 @@ public class AreaMatchController {
                 "userId", cadastro.getId(),
                 "itemOutroUsuarioId", itemOutroUsuarioId
         ));
-    }
-
-    @PostMapping("/favorito")
-    public ResponseEntity<?> favoritar(
-            @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader,
-            @RequestParam Long postagemId) {
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity.status(401).build();
-        }
-
-        String token = authHeader.substring(7);
-        Cadastro cadastro = cadastroDAO.encontrarPorUserNome(jwtUtil.extrairUserNome(token));
-        if (cadastro == null) {
-            return ResponseEntity.status(401).build();
-        }
-
-        try {
-            if (favoritoDAO.existeFavorito(cadastro.getId(), postagemId)) {
-                return ResponseEntity.status(409).body(Map.of("message", "Este item já foi favoritado por você."));
-            }
-
-            Favorito favorito = new Favorito();
-            favorito.setUserId(cadastro.getId());
-            favorito.setPostagemId(postagemId);
-            favoritoDAO.salvar(favorito);
-
-            return ResponseEntity.ok(Map.of("message", "Item favoritado com sucesso!"));
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(Map.of("message", "Erro ao favoritar: " + e.getMessage()));
-        }
     }
 }

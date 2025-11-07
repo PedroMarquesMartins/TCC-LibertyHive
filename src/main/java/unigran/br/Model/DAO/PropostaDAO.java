@@ -20,6 +20,7 @@ public class PropostaDAO {
         return emf.createEntityManager();
     }
 
+    //Salva nova proposta
     public void salvarProposta(Proposta proposta) {
         EntityManager em = getEntityManager();
         proposta.setId(null);
@@ -51,7 +52,7 @@ public class PropostaDAO {
             em.close();
         }
     }
-
+    //Rejeita outras propostas pendentes com os mesmos itens
     public void recusarOutrasPropostasPendentes(Long itemDesejadoId, Long itemOferecidoId, Long propostaIdAtual) {
         EntityManager em = getEntityManager();
         try {
@@ -94,6 +95,7 @@ public class PropostaDAO {
             em.close();
         }
     }
+    //Exclui propostas com itens já negociados
 
     public void excluirPropostasComMesmoItem(Long propostaConcluidaId, Long itemDesejadoId, Long itemOferecidoId) {
         EntityManager em = getEntityManager();
