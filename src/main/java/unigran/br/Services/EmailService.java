@@ -6,11 +6,12 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+//Service - API de email com mensagens prontas (precisa de internet)
 @Service
 public class EmailService {
     @Autowired
     private JavaMailSender mailSender;
-
+//Bem vindo, na criação da conta
     public void enviarEmailBoasVindas(String para, String nomeUsuario) {
         SimpleMailMessage mensagem = new SimpleMailMessage();
         mensagem.setTo(para);
@@ -24,7 +25,7 @@ public class EmailService {
 
         mailSender.send(mensagem);
     }
-
+//Email de nova proposta
     @Async
     public void enviarAlertaNovaProposta(String paraEmail, String nomeReceptor, String nomeProponente, String nomeItemDesejado) {
         try {
@@ -48,6 +49,7 @@ public class EmailService {
         }
     }
 
+    //Proposta aceita
     @Async
     public void enviarNotificacaoPropostaAceita(String paraEmail, String nomeProponente, String nomeItemDesejado, String nomeItemOferecido) {
         try {

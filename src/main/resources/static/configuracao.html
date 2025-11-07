@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Configuração - LibertyHive</title>
+    <!--Logo, Imports e instancias-->
     <link rel="icon" type="image/png" href="favicon.png" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -13,6 +14,7 @@
 </head>
 
 <body class="d-flex flex-column min-vh-100 bg-light">
+    <!--Cabeçalho-->
     <header class="navbar navbar-expand-lg bg-warning shadow-sm px-3">
         <div class="container-fluid">
             <a class="navbar-brand fw-bold" href="inicio.html">
@@ -28,7 +30,7 @@
             </div>
         </div>
     </header>
-
+<!--Conteúdo principal da página-->
     <main class="container my-4">
         <div class="row g-4">
             <div class="col-lg-3">
@@ -45,45 +47,47 @@
                         Gráfico</button>
                 </div>
             </div>
-
-            <div class="col-lg-6"><div id="painelEditarPerfil" class="painel">
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <h2 class="card-title h4 border-bottom pb-2 mb-3">Editar Perfil</h2>
-            <div class="alert alert-warning py-2" role="alert">
-                <strong>Atenção!</strong> É interessante preencher todas as informações corretamente.
-                Elas poderão ser solicitadas caso você precise recuperar sua senha.
-            </div>
-            <form id="formPerfil">
-                <div class="mb-2">
-                    <label class="form-label">Nome Real</label>
-                    <input type="text" id="editNomeReal" class="form-control">
+<!--Área dos painéis-->
+            <div class="col-lg-6">
+                <div id="painelEditarPerfil" class="painel">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h2 class="card-title h4 border-bottom pb-2 mb-3">Editar Perfil</h2>
+                            <div class="alert alert-warning py-2" role="alert">
+                                <strong>Atenção!</strong> É interessante preencher todas as informações corretamente.
+                                Elas poderão ser solicitadas caso você precise recuperar sua senha.
+                            </div>
+                            <form id="formPerfil">
+                                <div class="mb-2">
+                                    <label class="form-label">Nome Real</label>
+                                    <input type="text" id="editNomeReal" class="form-control">
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label">Contato</label>
+                                    <input type="text" id="editContato" class="form-control">
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label">Endereço</label>
+                                    <input type="text" id="editEndereco" class="form-control">
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label">CPF</label>
+                                    <input type="text" id="editCpf" class="form-control">
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label">Data de Nascimento</label>
+                                    <input type="date" id="editDataNasc" class="form-control">
+                                </div>
+                                <button type="button" id="salvarPerfil" class="btn btn-success mt-2">Salvar
+                                    Perfil</button>
+                                <p></p>
+                                <div><button id="btnExcluirConta" type="button" class="btn btn-danger">Excluir
+                                        Conta</button></div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
-                <div class="mb-2">
-                    <label class="form-label">Contato</label>
-                    <input type="text" id="editContato" class="form-control">
-                </div>
-                <div class="mb-2">
-                    <label class="form-label">Endereço</label>
-                    <input type="text" id="editEndereco" class="form-control">
-                </div>
-                <div class="mb-2">
-                    <label class="form-label">CPF</label>
-                    <input type="text" id="editCpf" class="form-control">
-                </div>
-                <div class="mb-2">
-                    <label class="form-label">Data de Nascimento</label>
-                    <input type="date" id="editDataNasc" class="form-control">
-                </div>
-                <button type="button" id="salvarPerfil" class="btn btn-success mt-2">Salvar Perfil</button>
-                <p></p>
-                <div><button id="btnExcluirConta" type="button" class="btn btn-danger">Excluir Conta</button></div>
-            </form>
-        </div>
-    </div>
-</div>
-
-
+                <!--Painel dos módulos-->
                 <div id="painelConta" class="painel" style="display:none;">
                     <div class="card shadow-sm">
                         <div class="card-body">
@@ -108,7 +112,7 @@
                         </div>
                     </div>
                 </div>
-
+<!--Painel das minhas propostas-->
                 <div id="painelMinhasPropostas" class="painel" style="display:none;">
                     <h3>Minhas Propostas</h3>
                     <p class="text-muted">Acesse a página de propostas para ver mais detalhes.</p>
@@ -135,11 +139,12 @@
                                 <canvas id="chartCategorias" width="300" height="300"></canvas>
                             </div>
                             <div id="legendaCategorias" class="text-center small"></div>
-                            <p class="text-muted small mt-3">O gráfico considera todas as postagens que você cadastrou (apenas disponíveis).</p>
+                            <p class="text-muted small mt-3">O gráfico considera todas as postagens que você cadastrou
+                                (apenas disponíveis).</p>
                         </div>
                     </div>
                 </div>
-
+                    <!--Painel de notificações-->
                 <div id="painelNotificacoes" class="painel" style="display:none;">
                     <div class="card shadow-sm">
                         <div class="card-body">
@@ -170,7 +175,7 @@
             </div>
         </div>
     </main>
-
+    <!--FOOTER DA PAGINA agora ta certo KKKK-->
     <footer class="footer mt-auto">
         <div class="container py-4">
             <div class="row gy-4">
@@ -187,7 +192,7 @@
                         <li><a href="./footer pages/suporte.html">Suporte</a></li>
                         <li><a href="./footer pages/denuncias.html">Denúncias</a></li>
                         <li><a href="./footer pages/termos.html">Termos de Uso</a></li>
-                    <li><a href="./footer pages/privacidade.html">Política de Privacidade</a></li>
+                        <li><a href="./footer pages/privacidade.html">Política de Privacidade</a></li>
                     </ul>
                 </div>
                 <div class="col-md-4">
@@ -208,5 +213,4 @@
 
     <script src="Configuracao.js"></script>
 </body>
-
 </html>

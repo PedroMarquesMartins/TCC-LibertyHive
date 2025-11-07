@@ -2,17 +2,18 @@ const token = localStorage.getItem('token');
 if (!token) {
     document.body.innerHTML = '<div style="padding:30px;text-align:center;"><h2>Você precisa estar logado.</h2></div>';
 }
-
+//Elementos dos painéis
 const painelEditarPerfil = document.getElementById('painelEditarPerfil');
 const painelConta = document.getElementById('painelConta');
 const painelMinhasPropostas = document.getElementById('painelMinhasPropostas');
 const painelMinhaAvaliacao = document.getElementById('painelMinhaAvaliacao');
 const painelNotificacoes = document.getElementById('painelNotificacoes');
 
+//Função para esconder todos os painéis
 function esconderTodosPainel() {
     document.querySelectorAll('.painel').forEach(p => p.style.display = 'none');
 }
-
+//Função para obter o userId do localStorage
 function getUserIdFromStorage() {
     const userId = localStorage.getItem('userId');
     if (!userId) {
@@ -21,7 +22,7 @@ function getUserIdFromStorage() {
     }
     return parseInt(userId, 10);
 }
-
+//Função para criar o HTML da avaliação
 function criarHTMLAvaliacao(media, quantidade) {
     if (quantidade === 0) {
         return `
@@ -30,13 +31,13 @@ function criarHTMLAvaliacao(media, quantidade) {
                 <p class="mt-2">Você ainda não possui avaliações.</p>
             </div>`;
     }
-
+        //Gerar estrelas com base na média
     let estrelasHTML = '';
     const notaArredondada = Math.round(media * 2) / 2;
     const fullStars = Math.floor(notaArredondada);
     const halfStar = (notaArredondada % 1 !== 0);
     const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
-
+//Montar o HTML das estrelas
     for (let i = 0; i < fullStars; i++) estrelasHTML += '<i class="bi bi-star-fill"></i>';
     if (halfStar) estrelasHTML += '<i class="bi bi-star-half"></i>';
     for (let i = 0; i < emptyStars; i++) estrelasHTML += '<i class="bi bi-star"></i>';
@@ -48,18 +49,20 @@ function criarHTMLAvaliacao(media, quantidade) {
             <p class="text-muted">Baseado em ${quantidade} avaliações.</p>
         </div>`;
 }
-
+//Função para carregar a avaliação do usuário
 async function carregarMinhaAvaliacao() {
     const userId = getUserIdFromStorage();
     if (!userId) {
         Swal.fire('Erro de Sessão', 'Não foi possível encontrar seu ID de usuário. Por favor, faça login novamente.', 'error');
         return;
     }
+    
+    //Carregar avaliação do backend
 
     const container = document.getElementById('minhaAvaliacaoContainer');
     container.innerHTML = '<p>Carregando sua avaliação...</p>';
 
-    try {
+    try {//Requisição para o backend
         const res = await fetch(`http://localhost:8080/api/propostas/avaliacoes/${userId}`, {
             headers: { 'Authorization': 'Bearer ' + token }
         });
@@ -67,7 +70,7 @@ async function carregarMinhaAvaliacao() {
         if (!res.ok) {
             const errorData = await res.json().catch(() => ({ message: 'Não foi possível buscar sua avaliação.' }));
             throw new Error(errorData.message);
-        }
+        }//Processar os dados da resposta
 
         const data = await res.json();
         container.innerHTML = criarHTMLAvaliacao(data.media, data.quantidade);
@@ -78,15 +81,15 @@ async function carregarMinhaAvaliacao() {
     }
 }
 
-
+//Função para carregar os dados do perfil do usuário
 async function carregarPerfil() {
     try {
         const userNome = localStorage.getItem('userNome');
         const res = await fetch('http://localhost:8080/api/escambista/porUserNome/' + userNome, {
             headers: { 'Authorization': 'Bearer ' + token }
-        });
+        });//Requisição para o backend
         if (!res.ok) throw new Error('Erro ao carregar perfil');
-        const data = await res.json();
+        const data = await res.json();//Preencher os campos com os dados retornados
         document.getElementById('displayNomeReal').textContent = data.nomeEscambista || 'Nome Não Informado';
         document.getElementById('displayUserNome').textContent = `@${data.userNome || userNome}`;
         document.getElementById('editNomeReal').value = data.nomeEscambista || '';
@@ -98,6 +101,8 @@ async function carregarPerfil() {
     }
 }
 
+
+//Função para carregar os dados da conta do usuário
 async function carregarConta() {
     try {
         const userNome = localStorage.getItem('userNome');
@@ -112,6 +117,7 @@ async function carregarConta() {
     }
 }
 
+// Salvar as alterações do perfil
 async function salvarPerfil() {
     try {
         const cpf = document.getElementById('editCpf').value.trim();
@@ -119,7 +125,7 @@ async function salvarPerfil() {
             Swal.fire('Erro', 'CPF inválido. Verifique os dígitos e o formato.', 'error');
             return;
         }
-
+//Preparar os dados para envio
         const userNome = localStorage.getItem('userNome');
         const payload = {
             nomeEscambista: document.getElementById('editNomeReal').value,
@@ -165,7 +171,7 @@ function validarCpfFront(cpf) {
     let d2 = (r === 10 || r === 11) ? 0 : r;
     return d2 === parseInt(s[10]);
 }
-
+//Máscara de CPF
 const inputCpf = document.getElementById('editCpf');
 if (inputCpf) {
     function formatarCpf(valor) {
@@ -197,7 +203,7 @@ if (inputCpf) {
         if (!/[0-9]/.test(char)) e.preventDefault();
     });
 }
-
+//Máscara de telefone
 const inputContato = document.getElementById('editContato');
 if (inputContato) {
     function formatarTelefone(valor) {
@@ -250,15 +256,18 @@ if (inputContato) {
     });
 }
 
+// Salvar as alterações da conta e senha
 async function salvarConta() {
     try {
         const userNomeOriginal = localStorage.getItem('userNome');
+        const token = localStorage.getItem('token'); // ✅ garante que o token é obtido
         const novoUserNome = document.getElementById('contaUserNome').value;
         const payload = {
             email: document.getElementById('contaEmail').value,
             userNome: novoUserNome,
             senha: document.getElementById('contaSenha').value
         };
+//Enviar os dados para o backend
         const res = await fetch('http://localhost:8080/api/cadastros/' + userNomeOriginal, {
             method: 'PUT',
             headers: {
@@ -267,18 +276,30 @@ async function salvarConta() {
             },
             body: JSON.stringify(payload)
         });
-        if (!res.ok) throw new Error('Erro ao salvar conta');
+
+        if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData.message || 'Erro ao salvar conta');
+        }
+
+        const response = await res.json();
+
         Swal.fire('Sucesso', 'Conta atualizada!', 'success').then(() => {
-            if (userNomeOriginal !== novoUserNome) {
-                localStorage.setItem('userNome', novoUserNome);
-                window.location.reload();
+            if (response.token) {
+                localStorage.setItem('token', response.token);
             }
+            localStorage.setItem('userNome', novoUserNome);
+
+            window.location.reload();
         });
+
     } catch (err) {
         Swal.fire('Erro', err.message, 'error');
+        console.error('Erro ao atualizar conta:', err);
     }
 }
 
+//Funções para carregar e salvar preferências de notificações
 async function carregarNotificacoes() {
     try {
         const userNome = localStorage.getItem('userNome');
@@ -291,7 +312,6 @@ async function carregarNotificacoes() {
         Swal.fire('Erro', err.message, 'error');
     }
 }
-
 async function salvarNotificacoes() {
     try {
         const userNome = localStorage.getItem('userNome');
@@ -311,6 +331,8 @@ async function salvarNotificacoes() {
     }
 }
 
+
+//Eventos dos botões
 document.getElementById('salvarPerfil').addEventListener('click', salvarPerfil);
 document.getElementById('salvarConta').addEventListener('click', salvarConta);
 document.getElementById('salvarNotificacoes').addEventListener('click', salvarNotificacoes);
@@ -323,12 +345,14 @@ function logout() {
     localStorage.clear();
     window.location.href = 'login.html';
 }
-
+//Inicialização da página
 document.addEventListener('DOMContentLoaded', () => {
     esconderTodosPainel();
     painelEditarPerfil.style.display = 'block';
     carregarPerfil();
 });
+
+//Criação dos eventos dos botões laterais
 
 document.getElementById('btnEditarPerfil').addEventListener('click', () => {
     esconderTodosPainel();
@@ -363,7 +387,7 @@ document.getElementById('btnCategorias').addEventListener('click', () => {
     painelCategorias.style.display = 'block';
     carregarGraficoCategorias();
 });
-
+    //Gráfico de categorias das postagens
 const painelCategorias = document.getElementById('painelCategorias');
 let instanciaChartCategorias = null;
 
@@ -375,7 +399,7 @@ function gerarCoresPara(n) {
     }
     return cores;
 }
-
+//Função para buscar postagens do usuário de múltiplos endpoints
 async function fetchPostagensTodasDoUsuario(token) {
     const endpoints = [
         'http://localhost:8080/api/postagens/listar-categorias-usuario'
@@ -409,7 +433,7 @@ async function fetchPostagensTodasDoUsuario(token) {
     throw new Error('Não foi possível obter suas postagens (verifique o backend e a autenticação).');
 }
 
-
+//Ccontar categorias para o gráfico
 function contarCategorias(postagens) {
     const contagem = {};
     postagens.forEach(p => {
@@ -499,7 +523,7 @@ async function carregarGraficoCategorias() {
 
 document.addEventListener('DOMContentLoaded', () => {
     const btnExcluir = document.getElementById('btnExcluirConta');
-
+//Evento do botão de excluir conta
     if (btnExcluir) {
         btnExcluir.addEventListener('click', async () => {
 
@@ -517,7 +541,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!confirmacaoResult.isConfirmed) {
                 return;
             }
-
+    //Solicitar confirmação de senha
             const { value: senha } = await Swal.fire({
                 title: 'Confirme sua senha',
                 input: 'password',
@@ -543,7 +567,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!senha) {
                 return;
             }
-
+//Enviar requisição para excluir a conta
             const userId = getUserIdFromStorage();
             const token = localStorage.getItem('token');
 
@@ -570,7 +594,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         data.message,
                         'success'
                     );
-
+//Limpar localStorage e redireciona para login
                     localStorage.clear();
                     sessionStorage.clear();
                     window.location.href = 'login.html';
@@ -592,7 +616,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-    
+    //Inicialização da página
     esconderTodosPainel();
     if (painelEditarPerfil) {
         painelEditarPerfil.style.display = 'block';

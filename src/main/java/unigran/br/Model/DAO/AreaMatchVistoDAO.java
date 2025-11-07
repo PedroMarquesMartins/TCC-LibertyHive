@@ -2,12 +2,12 @@ package unigran.br.Model.DAO;
 
 import org.springframework.stereotype.Repository;
 import unigran.br.Model.Entidades.AreaMatchVisto;
-
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import java.util.List;
 
+//Repositório de acessos (JPA) da AreaMATCH
 @Repository
 public class AreaMatchVistoDAO {
     private EntityManagerFactory emf;

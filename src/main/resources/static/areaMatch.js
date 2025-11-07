@@ -2,6 +2,7 @@
 let matches = [];
 let currentIndex = 0;
 
+//conversao de byte em base64 para exibir imagem
 function bytesParaBase64(bytes) {
     if (!bytes || bytes.length === 0) return '';
     const bytesArray = new Uint8Array(bytes);
@@ -13,7 +14,7 @@ function bytesParaBase64(bytes) {
     }
     return btoa(binary);
 }
-
+//Inicio da Pagina
 document.addEventListener('DOMContentLoaded', function () {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -28,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     buscarMatches(token);
 });
-
+//Função para buscar os matches no BANCO/API
 async function buscarMatches(token) {
     const container = document.getElementById("matchesContainer");
     container.innerHTML = "<p>Carregando...</p>";
@@ -60,6 +61,7 @@ async function buscarMatches(token) {
     }
 }
 
+//Função para mostrar o match que foi feito
 function mostrarMatchAtual() {
     const container = document.getElementById("matchesContainer");
     container.innerHTML = "";
@@ -97,7 +99,7 @@ function mostrarMatchAtual() {
     } else {
         avaliacaoTexto = `<strong>Avaliação do Escambista:</strong> N/A <br>`;
     }
-
+//Formação do conteudo do CARD
     div.innerHTML += `
         <strong>Nome do usuário:</strong> ${item.userNome} <br>
         ${avaliacaoTexto}
@@ -114,7 +116,7 @@ function mostrarMatchAtual() {
     btnSim.onclick = () => {
         window.location.href = `detalhesItem.html?id=${item.id}`;
     };
-
+    //Passar
     const btnNao = document.createElement("button");
     btnNao.textContent = "PASSAR";
     btnNao.onclick = () => {
@@ -122,7 +124,7 @@ function mostrarMatchAtual() {
         currentIndex++;
         mostrarMatchAtual();
     };
-
+    //Favoritar
     const btnFav = document.createElement("button");
     btnFav.textContent = "Favoritar ❤️";
     btnFav.onclick = async () => {
@@ -136,6 +138,8 @@ function mostrarMatchAtual() {
     container.appendChild(div);
 }
 
+
+//Função de avançar para o próximo item
 async function passarItem(itemOutroUsuarioId, cardElement) {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -187,7 +191,7 @@ async function favoritarItem(postagemId) {
         });
         return;
     }
-
+//Envio de requisição
     try {
         const res = await fetch(`http://localhost:8080/api/area-match/favorito?postagemId=${postagemId}`, {
             method: "POST",
@@ -216,4 +220,3 @@ function logout() {
     localStorage.removeItem('userId');
     window.location.href = 'login.html';
 }
-

@@ -9,6 +9,8 @@ import unigran.br.Model.Entidades.Cadastro;
 
 import java.util.List;
 
+//Repositório de cadastro
+
 @Repository
 public class CadastroDAO {
 

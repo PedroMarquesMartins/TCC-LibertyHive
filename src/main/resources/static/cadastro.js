@@ -9,6 +9,7 @@ const userFormat = document.getElementById('userFormat');
 const senhaLength = document.getElementById('senhaLength');
 const senhaNotEmpty = document.getElementById('senhaNotEmpty');
 
+//Validação em tempo real com listeners
 emailInput.addEventListener('input', () => {
     emailAt.classList.toggle('valid', emailInput.value.includes('@'));
     emailSpace.classList.toggle('valid', !emailInput.value.includes(' '));
@@ -26,6 +27,8 @@ senhaInput.addEventListener('input', () => {
     senhaNotEmpty.classList.toggle('valid', val.trim().length > 0);
 });
 
+
+//Envio do formulário de cadastro para o backend/banco
 document.getElementById('formCadastro').addEventListener('submit', function (event) {
     event.preventDefault();
 
@@ -55,7 +58,7 @@ document.getElementById('formCadastro').addEventListener('submit', function (eve
             document.getElementById('mensagemErro').textContent = data.error || data.message || 'Erro desconhecido no cadastro.';
             throw new Error(data.error || data.message || 'Erro no cadastro');
         }
-
+//Tratamento
         document.getElementById('mensagemErro').textContent = '';
         return data;
     })

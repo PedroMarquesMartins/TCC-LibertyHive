@@ -14,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.annotation.Propagation;
 import java.util.Map;
 
+//Definição do controllador rest e a rota da API
+
 @RestController
 @RequestMapping("/api/escambista")
 @CrossOrigin(origins = "http://127.0.0.1:5500")
@@ -45,6 +47,8 @@ public class EscambistaController {
     private PostagemDAO postagemDAO;
 
     private final PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
+
+    //Busca escambista por nome de usuário
     @Transactional(propagation = Propagation.NEVER)
     @GetMapping("/porUserNome/{userNome}")
     public ResponseEntity<?> getPorUserNome(@PathVariable String userNome) {
@@ -56,9 +60,8 @@ public class EscambistaController {
     }
 
     @PutMapping("/atualizarPorUserNome/{userNome}")
-    public ResponseEntity<?> atualizarEscambistaPorUserNome(@PathVariable String userNome,
-                                                            @RequestBody Escambista dadosAtualizados) {
-
+    public ResponseEntity<?> atualizarEscambistaPorUserNome(@PathVariable String userNome, @RequestBody Escambista dadosAtualizados) {
+        //Validações
         Escambista escambistaAtual = escambistaDAO.encontrarPorUserNome(userNome);
         if (escambistaAtual == null) {
             return ResponseEntity.status(404).body(Map.of("message", "Perfil de escambista não encontrado."));
@@ -76,6 +79,7 @@ public class EscambistaController {
             escambistaAtual.setCpf(dadosAtualizados.getCpf());
         }
 
+        //valida e formata entrada de telefone
         if (dadosAtualizados.getContato() != null && !dadosAtualizados.getContato().isBlank()) {
             String telefoneFormatado;
             try {
@@ -86,6 +90,7 @@ public class EscambistaController {
             escambistaAtual.setContato(telefoneFormatado);
         }
 
+//Atualiza outros campos
         if (dadosAtualizados.getNomeEscambista() != null) escambistaAtual.setNomeEscambista(dadosAtualizados.getNomeEscambista());
         if (dadosAtualizados.getEndereco() != null) escambistaAtual.setEndereco(dadosAtualizados.getEndereco());
         if (dadosAtualizados.getDataNasc() != null) escambistaAtual.setDataNasc(dadosAtualizados.getDataNasc());
@@ -94,11 +99,11 @@ public class EscambistaController {
         escambistaDAO.atualizarEscambista(escambistaAtual);
         return ResponseEntity.ok(Map.of("message", "Perfil atualizado com sucesso."));
     }
-
+//Apagar conta e outros dados
     @DeleteMapping("/excluir/{userId}")
     @Transactional(propagation = Propagation.NEVER)
-    public ResponseEntity<?> excluirConta(@PathVariable Long userId,
-                                          @RequestBody Map<String, String> payload) {
+    public ResponseEntity<?> excluirConta(@PathVariable Long userId, @RequestBody Map<String, String> payload) {
+        //Verifica a senha
         String senhaPura = payload.get("senha");
         if (senhaPura == null || senhaPura.isBlank()) {
             return ResponseEntity.badRequest().body(Map.of("message", "Senha é obrigatória."));
@@ -135,6 +140,7 @@ public class EscambistaController {
         return ResponseEntity.ok(Map.of("message", "Conta excluída com sucesso. Dados pessoais foram removidos e conta desativada."));
     }
 
+    //Validação simples de formato CPF
     private boolean validarCpf(String cpf) {
         if (cpf == null) return false;
         String s = cpf.replaceAll("\\D", "");
@@ -159,6 +165,7 @@ public class EscambistaController {
         }
     }
 
+    //Formata telefone para padrão
     private String formatarTelefoneE164(String telefoneRaw, String regiao) throws NumberParseException {
         telefoneRaw = telefoneRaw.replaceAll("\\D", "");
         PhoneNumber number = phoneUtil.parse(telefoneRaw, regiao);

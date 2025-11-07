@@ -6,6 +6,8 @@ import unigran.br.Model.Entidades.Mensagem;
 import javax.persistence.*;
 import java.util.List;
 
+
+//Dao de mensagens (salva, lista etc)
 @Repository
 public class MensagemDAO {
 

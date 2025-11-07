@@ -2,12 +2,12 @@ package unigran.br.Model.DAO;
 
 import org.springframework.stereotype.Repository;
 import unigran.br.Model.Entidades.Favorito;
-
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import java.util.List;
 
+//Repositório DAO dos favoritos, acesso ao banco
 @Repository
 public class FavoritoDAO {
     private EntityManagerFactory emf;

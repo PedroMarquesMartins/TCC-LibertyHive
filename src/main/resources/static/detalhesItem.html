@@ -1,404 +1,16 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-
+<!--Detalhes do Item Page-->
 <head>
     <meta charset="UTF-8">
     <title>Detalhes do Item</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="icon" type="image/png" href="favicon.png" />
+        <link rel="stylesheet" href="./Style/detalhesItem.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <style>
-        body {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            background: linear-gradient(135deg, #f7e733, #f0d941, #e6e1a2);
-        }
-
-        main {
-            flex: 1;
-        }
-
-        header.navbar {
-            background-color: #ffca28 !important;
-        }
-
-        header .navbar-brand span {
-            font-weight: 700;
-            color: #222;
-        }
-
-        .detalhes-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 30px;
-            margin-top: 20px;
-            align-items: flex-start;
-            justify-content: center;
-        }
-
-        .imagem-principal {
-            flex: 2;
-            max-width: 520px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background: #fff;
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            box-sizing: border-box;
-            max-height: 600px;
-            overflow-y: auto;
-            scrollbar-width: thin;
-            scrollbar-color: #ffca28 #f8f8f8;
-        }
-
-        .imagem-principal::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .imagem-principal::-webkit-scrollbar-thumb {
-            background-color: #ffca28;
-            border-radius: 8px;
-        }
-
-        .imagem-principal::-webkit-scrollbar-track {
-            background-color: #f8f8f8;
-        }
-
-
-        .imagem-principal img {
-            width: 100%;
-            max-width: 350px;
-            height: auto;
-            border-radius: 12px;
-            border: 2px solid #ffca28;
-            object-fit: contain;
-        }
-
-        .imagens-secundarias {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-            margin-top: 15px;
-        }
-
-        .imagens-secundarias img {
-            width: 90px;
-            height: 90px;
-            object-fit: contain;
-            border-radius: 10px;
-            border: 2px solid #ffca28;
-            background: #fff;
-            transition: transform 0.2s;
-        }
-
-        .imagens-secundarias img:hover {
-            transform: scale(1.05);
-        }
-
-        .info-item {
-            margin-top: 20px;
-            width: 100%;
-            text-align: left;
-        }
-
-        .info-item p {
-            margin: 4px 0;
-            font-size: 15px;
-        }
-
-        .info-item .descricao {
-            margin-top: 12px;
-            font-size: 15px;
-            color: #444;
-            line-height: 1.5;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            max-width: 100%;
-        }
-
-        .lista-itens-usuario {
-            flex: 1;
-            max-height: 540px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            padding-right: 5px;
-        }
-
-        .item-card {
-            border: 2px solid #ffca28;
-            border-radius: 16px;
-            padding: 14px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            min-height: 200px;
-            background-color: #fffdf6;
-            transition: all 0.25s ease;
-            cursor: pointer;
-        }
-
-        .item-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
-        }
-
-        .item-card.selected {
-            border: 2px solid #ff9800;
-            background-color: #fff3e0;
-        }
-
-        .item-card img {
-            width: 90px;
-            height: 90px;
-            object-fit: cover;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            border: 1px solid #ddd;
-        }
-
-        .item-card p {
-            margin: 2px 0;
-            font-size: 13px;
-            color: #666;
-            text-overflow: ellipsis;
-            overflow: hidden;
-            white-space: nowrap;
-            max-width: 100%;
-        }
-
-        .item-card h6 {
-            margin: 0;
-            font-size: 15px;
-            font-weight: 600;
-            color: #222;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            max-width: 100%;
-            text-align: center;
-        }
-
-        #btnPropor {
-            margin-top: 25px;
-            width: 100%;
-            font-weight: 600;
-            border-radius: 10px;
-            padding: 14px;
-            background-color: #ffca28;
-            border: none;
-            color: #000;
-            transition: 0.2s;
-        }
-
-        #btnPropor:hover {
-            background-color: #ffb300;
-            transform: translateY(-2px);
-        }
-
-        .btn-nav {
-            background: #fff;
-            color: #000;
-            font-weight: bold;
-            padding: 8px 22px;
-            border-radius: 999px;
-            border: 2px solid #000;
-            box-shadow: 2px 3px 0px rgba(0, 0, 0, 0.25);
-            transition: all 0.2s ease-in-out;
-            position: relative;
-            display: flex;
-            top: 25px;
-            right: 25px;
-        }
-
-        .btn-nav:hover {
-            background: #000;
-            color: #fff;
-            transform: translateY(-2px);
-            box-shadow: 3px 5px 0px rgba(0, 0, 0, 0.35);
-        }
-
-        .btn-nav:active {
-            transform: scale(0.96);
-            box-shadow: 1px 2px 0px rgba(0, 0, 0, 0.2);
-        }
-
-        .btn-nav:focus {
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.6);
-        }
-
-        .footer {
-            background: #202020;
-            color: #f5f5f5;
-        }
-
-        .footer a {
-            color: #bbb;
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        .footer a:hover {
-            color: #d4a017;
-        }
-
-        .footer h5 {
-            font-weight: 600;
-            margin-bottom: 1rem;
-        }
-
-        .footer .bi {
-            font-size: 1.4rem;
-            transition: transform 0.2s ease, color 0.3s ease;
-        }
-
-        .footer .bi:hover {
-            color: #d4a017;
-            transform: scale(1.1);
-        }
-
-        .footer-bottom {
-            font-size: 13px;
-            color: #aaa;
-        }
-
-        .produtos-grid {
-            display: flex;
-            flex-wrap: nowrap;
-            overflow-x: auto;
-            scroll-behavior: smooth;
-        }
-
-        .product-card {
-            flex: 0 0 auto;
-            width: 240px;
-            margin-right: 16px;
-        }
-
-        #listaProdutos.produtos-grid {
-            display: grid;
-            grid-auto-flow: column;
-            grid-auto-columns: 330px;
-            gap: 1rem;
-            overflow-x: auto;
-            overflow-y: hidden;
-            padding-bottom: 1rem;
-            scroll-snap-type: x mandatory;
-        }
-
-        #listaProdutos.produtos-grid::-webkit-scrollbar {
-            height: 10px;
-        }
-
-        #listaProdutos.produtos-grid::-webkit-scrollbar-thumb {
-            background: rgba(0, 0, 0, .25);
-            border-radius: 10px;
-        }
-
-        #listaProdutos.produtos-grid::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, .05);
-        }
-
-        #listaProdutos .product-card {
-            scroll-snap-align: start;
-            background: #fff;
-            border: 2px solid #000;
-            border-radius: 12px;
-            padding: 1rem;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            min-height: 320px;
-            width: 100%;
-            transition: transform .2s ease, box-shadow .2s ease;
-        }
-
-        #listaProdutos .product-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, .25);
-        }
-
-        #listaProdutos .product-card img {
-            max-width: 100%;
-            height: 150px;
-            object-fit: contain;
-            margin-bottom: .5rem;
-            border-radius: 8px;
-        }
-
-        #listaProdutos .product-card h3 {
-            font-size: 1rem;
-            font-weight: 600;
-            margin-top: .5rem;
-            color: #333;
-            word-wrap: break-word;
-            white-space: normal;
-        }
-
-        #listaProdutos .product-card p {
-            font-size: .9rem;
-            color: #444;
-            word-wrap: break-word;
-            white-space: normal;
-            overflow: hidden;
-        }
-
-        #listaProdutos .product-card small {
-            color: #777;
-            font-size: .85rem;
-            margin-top: auto;
-        }
-
-        .carrossel-btn {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 10;
-            border: none;
-            border-radius: 50%;
-            padding: 10px 15px;
-            cursor: pointer;
-        }
-
-        .carrossel-btn.start-0 {
-            left: 10px;
-        }
-
-        .carrossel-btn.end-0 {
-            right: 10px;
-        }
-
-        #btnChatProposta {
-            margin-top: 10px;
-            width: 100%;
-            font-weight: 600;
-            border-radius: 10px;
-            padding: 14px;
-            background-color: #ffca28;
-            border: none;
-            color: #000;
-            transition: 0.2s;
-        }
-
-        #btnChatProposta:hover {
-            background-color: #ffb300;
-            transform: translateY(-2px);
-        }
-    </style>
 </head>
-
-<body>
-
+<body><!--Cabeçalho da pagina-->
     <header class="bg-warning py-2 shadow-sm">
         <div class="container-fluid d-flex justify-content-between align-items-center">
             <a class="navbar-brand fw-bold" href="inicio.html">
@@ -414,7 +26,7 @@
                     <i class="bi bi-gear"></i>
                 </button>
             </div>
-
+<!--Botões de navegação-->
         </div>
     </header>
     <div class="d-flex ms-auto gap-2">
@@ -425,7 +37,7 @@
             <i class="bi bi-box-arrow-right me-1"></i> Sair
         </button>
     </div>
-
+    <!--Conteúdo principal da pagina-->
     <main class="container my-5">
         <h2 id="nomePostagem" class="fw-bold text-dark mb-4"></h2>
         <div class="detalhes-container">
@@ -445,9 +57,9 @@
             <div class="lista-itens-usuario" id="listaItensUsuario"></div>
         </div>
         <button id="btnPropor" class="btn btn-warning mt-3">Propor Negócio</button>
-
+            <!--Sugestões de outros produtos--> 
         <h4 class="text-start mt-4 mb-3">Talvez isto te interesse...</h4>
-
+        <!--Carrossel de produtos-->
         <div class="position-relative">
             <button class="btn btn-warning carrossel-btn start-0" onclick="scrollLista(-1)">
                 <i class="bi bi-chevron-left fs-4"></i>
@@ -457,7 +69,7 @@
                 aria-label="Lista de postagens">
                 <p class="text-muted">Carregando postagens...</p>
             </div>
-
+    <!--Botões de navegação do carrossel-->
             <button class="btn btn-warning carrossel-btn end-0" onclick="scrollLista(1)">
                 <i class="bi bi-chevron-right fs-4"></i>
             </button>
@@ -466,17 +78,18 @@
     </main>
 
     <script>
+        //Pegar o ID do item na URL
         const queryParams = new URLSearchParams(window.location.search);
         const itemId = queryParams.get("id");
         const token = localStorage.getItem("token");
         if (!token) window.location.href = 'login.html';
-
+//Variáveis globais
         let itemDetalhe = null;
         let itemSelecionadoId = null;
         let propostasExistentes = [];
         let userLogado = localStorage.getItem("userNome");
         let isDoacao = false;
-
+        //Função para obter dados do usuário logado
         function getLoggedUser() {
             const userIdStr = localStorage.getItem('userId');
             const userNome = localStorage.getItem('userNome');
@@ -484,7 +97,7 @@
             if (!userId || !userNome) return null;
             return { userId, userNome };
         }
-
+//  Converter valores variados para booleano
         function toBool(v) {
             if (v === true || v === 1) return true;
             if (v === false || v === 0) return false;
@@ -494,13 +107,15 @@
             }
             return Boolean(v);
         }
-
+        //      Rolar a lista de produtos no carrossel
         function scrollLista(direcao) {
             const lista = document.getElementById("listaProdutos");
             const larguraCard = 330 + 16;
             lista.scrollBy({ left: direcao * larguraCard, behavior: "smooth" });
         }
 
+
+        //Carregar detalhes do item ao iniciar a agina Não MEXERRRR
         async function carregarPropostas() {
             try {
                 const resp = await fetch("http://localhost:8080/api/propostas/listarPropostas", {
@@ -517,6 +132,7 @@
             }
         }
 
+        //Criar HTML para exibir avaliação em estrelas
         function criarHTMLAvaliacao(media) {
             const nota = parseFloat(media);
 
@@ -535,6 +151,9 @@
             for (let i = 0; i < emptyStars; i++) estrelasHTML += '<i class="bi bi-star text-warning"></i>';
             return `<div class="rating-stars">${estrelasHTML} <span class="fw-bold">${nota.toFixed(1)}</span></div>`;
         }
+        
+        
+        //  Carrega detalhes do item
         async function carregarDetalhes() {
             try {
                 const resp = await fetch(`http://localhost:8080/api/postagens/${itemId}`, {
@@ -542,6 +161,7 @@
                 });
                 if (!resp.ok) throw new Error("Item não encontrado");
                 const item = await resp.json();
+                //Preencher os detalhes na página
                 itemDetalhe = item;
                 document.getElementById("nomePostagem").textContent = item.nomePostagem;
                 document.getElementById("imgPrincipal").src = item.imagem ? `data:image/jpeg;base64,${item.imagem}` : './imagens/placeholder.png';
@@ -556,7 +176,7 @@
                     try {
                         const respTodas = await fetch("http://localhost:8080/api/postagens/listar-todas", {
                             headers: { "Authorization": `Bearer ${token}` }
-                        });
+                        });//Buscar todas postagens para pegar avaliação do usuário
                         if (respTodas.ok) {
                             const todasPostagens = await respTodas.json();
                             const postagemDoUsuario = todasPostagens.find(p => p.userID === item.userID);
@@ -570,6 +190,7 @@
                         console.error("Erro ao buscar lista completa para avaliação:", err);
                     }
                 }
+                //Categorias de interesse
                 const catInteresse = [item.categoriaInteresse1, item.categoriaInteresse2, item.categoriaInteresse3].filter(Boolean).join(", ");
                 document.getElementById("categoriasInteresse").textContent = catInteresse ? "Categorias de Interesse: " + catInteresse : "";
                 const secImgs = ["imagemS01", "imagemS02", "imagemS03", "imagemS04", "imagemS05"];
@@ -581,7 +202,7 @@
                         img.src = `data:image/jpeg;base64,${item[key]}`;
                         containerImgs.appendChild(img);
                     }
-                });
+                });//Configurar logica dos botoes dependendo se e doacao ou troca
                 isDoacao = toBool(item.isDoacao ?? item.doacao ?? false);
                 const listaElem = document.getElementById("listaItensUsuario");
                 const btnPropor = document.getElementById("btnPropor");
@@ -592,7 +213,7 @@
                     listaElem.style.display = "none";
                     btnPropor.style.display = "none";
                     return;
-                }
+                }//Verificar se já existe proposta entre os itens
                 if (isDoacao) {
                     listaElem.style.display = "none";
                     btnPropor.textContent = "Solicitar Doação";
@@ -600,12 +221,13 @@
                     listaElem.style.display = "";
                     btnPropor.textContent = "Propor Negócio";
                 }
+                //Verificar propostas existentes
                 btnPropor.style.display = "";
                 const btnChat = document.createElement('button');
                 btnChat.id = 'btnChatProposta';
                 btnChat.className = btnPropor.className || 'btn btn-primary';
                 btnChat.textContent = 'Chat';
-                btnChat.onclick = async () => {
+                btnChat.onclick = async () => {//Lógica para abrir ou criar chat
                     const loggedUser = getLoggedUser();
                     if (!loggedUser) { alert('Erro: usuário não identificado corretamente.'); return; }
                     const { userId: userIdLogado, userNome: userNomeLogado } = loggedUser;
@@ -616,7 +238,7 @@
                     try {
                         const response = await fetch(`http://localhost:8080/chat/criar?userId01=${userIdLogado}&userId02=${outroId}&userNome01=${encodeURIComponent(userNomeLogado)}&userNome02=${encodeURIComponent(outroNome)}`, {
                             method: 'POST',
-                            headers: { 'Authorization': 'Bearer ' + token }
+                            headers: { 'Authorization': 'Bearer ' + token }//Enviar requisição para criar ou obter chat
                         });
                         const data = await response.json();
                         if (response.ok && data.id) {
@@ -630,6 +252,8 @@
                         alert('Falha na conexão com o servidor.');
                     }
                 };
+
+                //Adicionar botão de chat
                 btnPropor.insertAdjacentElement('afterend', btnChat);
                 const btnFav = document.createElement('button');
                 btnFav.id = 'btnFavDetalhe';
@@ -640,7 +264,7 @@
                 btnFav.style.padding = '14px';
                 btnFav.innerHTML = `<i class="bi bi-heart-fill me-1"></i> Favoritar`;
 
-                btnFav.addEventListener('mouseover', () => {
+                btnFav.addEventListener('mouseover', () => { //Efeito
                     btnFav.style.backgroundColor = '#ffb300';
                     btnFav.style.transform = 'translateY(-2px)';
                 });
@@ -648,6 +272,8 @@
                     btnFav.style.backgroundColor = '#ffca28';
                     btnFav.style.transform = 'none';
                 });
+
+                //Adicionar logica de favoritar
                 btnFav.onclick = async () => {
                     const postagemId = itemDetalhe.id;
                     const token = localStorage.getItem("token");
@@ -659,14 +285,14 @@
                         });
                         return;
                     }
-
+                        //Enviar requisição para favoritar o item
                     try {
                         const response = await fetch("http://localhost:8080/favoritos?postagemId=" + postagemId, {
                             method: "POST",
                             headers: { "Authorization": `Bearer ${token}` }
                         });
                         const data = await response.json();
-
+            //Tratar resposta do servidor
                         if (response.ok) {
                             Swal.fire({
                                 title: 'Item favoritado!',
@@ -699,10 +325,8 @@
                         });
                     }
                 };
-
+            //Adicionar botao de favoritos
                 btnChat.insertAdjacentElement('afterend', btnFav);
-
-
                 if (!isDoacao) {
                     const respUser = await fetch("http://localhost:8080/api/postagens/listar", {
                         headers: { "Authorization": `Bearer ${token}` }
@@ -710,14 +334,14 @@
                     const itensUsuario = await respUser.json();
                     const container = document.getElementById("listaItensUsuario");
                     container.innerHTML = "";
-
+                        //Exibir itens do usuário logado
                     if (!itensUsuario || itensUsuario.length === 0) {
                         container.innerHTML = `
     <p class="text-center fw-bold text-muted" style="margin-top: 20px;">
         Você não tem itens para negociar ainda.
     </p>
 `;
-                    } else {
+                    } else {//Criar cards para cada item
                         itensUsuario.forEach(p => {
                             const card = document.createElement("div");
                             card.className = "item-card";
@@ -744,6 +368,8 @@
                 Swal.fire({ title: "Erro", text: "Não foi possível carregar os detalhes.", icon: "error" });
             }
         }
+
+        //Chamar funções ao carregar a página
         document.getElementById("btnPropor").addEventListener("click", async () => {
             const itemDesejadoId = itemId;
             let itemOferecidoId = itemSelecionadoId;
@@ -757,7 +383,7 @@
                 });
                 return;
             }
-
+//Verificar se ja existe proposta igual
             let jaExiste = isDoacao
                 ? propostasExistentes.some(p => p.itemDesejadoId == itemDesejadoId)
                 : propostasExistentes.some(p => p.itemDesejadoId == itemDesejadoId && p.itemOferecidoId == itemOferecidoId);
@@ -770,7 +396,7 @@
                 });
                 return;
             }
-
+                //Confirmar acao com o usuário
             const confirm = await Swal.fire({
                 title: isDoacao ? "Confirmar solicitação de doação?" : "Confirmar proposta?",
                 text: isDoacao ? "Deseja realmente solicitar esta doação?" : "Deseja realmente propor este negócio?",
@@ -779,7 +405,7 @@
                 confirmButtonText: isDoacao ? "Sim, solicitar" : "Sim, propor",
                 cancelButtonText: "Cancelar"
             });
-
+            //Verificar se o usuário confirmou a ação
             if (!confirm.isConfirmed) return;
 
             Swal.fire({
@@ -832,7 +458,7 @@
         document.addEventListener('DOMContentLoaded', async function () {
             const lista = document.getElementById('listaProdutos');
             lista.innerHTML = "<p class='text-muted'>Carregando postagens...</p>";
-
+//Carregar postagens para o carrossel exibir outros produtos
             try {
                 if (!token) { lista.innerHTML = "<p class='text-danger'>Você precisa estar logado para ver as postagens.</p>"; return; }
 
@@ -925,7 +551,6 @@
                         Plataforma para trocar produtos e serviços de forma segura e prática.
                     </p>
                 </div>
-
                 <div class="col-md-4">
                     <h5 class="text-white">Links Úteis</h5>
                     <ul class="list-unstyled small">
@@ -956,5 +581,4 @@
     </footer>
 </body>
 <script src="inicio.js"></script>
-
 </html>

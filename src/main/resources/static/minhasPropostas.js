@@ -1,4 +1,4 @@
-const token = localStorage.getItem('token');
+const token = localStorage.getItem('token'); //Pegar o token do localStorage
 let propostaIdParaAvaliar = null;
 let idAvaliado = null;
 let nomeAvaliado = null;
@@ -7,11 +7,11 @@ let notaSelecionada = 0;
 if (!token) {
     document.body.innerHTML = '<div style="padding:30px;text-align:center;"><h2>Você precisa estar logado.</h2></div>';
 }
-
+//Botao voltar para a página inicial
 document.getElementById('btnVoltar')?.addEventListener('click', () => {
     window.location.href = 'inicio.html';
 });
-
+//retornar o texto e a classe CSS do status da proposta
 function statusBadgeClass(status) {
     switch (status) {
         case 1: return ['Pendente', 'badge-status badge-pendente'];
@@ -41,7 +41,7 @@ function escapeHtml(str) {
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
 }
-
+//funcao para carregar as propostas do usuario
 async function carregarPropostas() {
     try {
         const res = await fetch('http://localhost:8080/api/propostas/listarPropostas', {
@@ -57,6 +57,8 @@ async function carregarPropostas() {
     }
 }
 
+
+//Criar o HTML do card do item desejado/oferecido
 function criarItemCardHTML(item) {
     const placeholderUrl = 'https://via.placeholder.com/400x300/CCCCCC/FFFFFF?text=Sem+Imagem';
     const imgSrc = item?.imagem ? `data:image/jpeg;base64,${item.imagem}` : placeholderUrl;
@@ -70,7 +72,7 @@ function criarItemCardHTML(item) {
         </div>
     `;
 }
-
+//Renderizar as propostas na tela
 function renderPropostas(propostas) {
     const abertasEl = document.getElementById('abertas');
     const encerradasEl = document.getElementById('encerradas');
@@ -81,7 +83,7 @@ function renderPropostas(propostas) {
         abertasEl.innerHTML = '<div class="no-propostas">Você não tem propostas.</div>';
         return;
     }
-
+    //Separar propostas abertas e encerradas
     const abertas = propostas.filter(p => p.status === 1);
     const finalizadas = propostas.filter(p => p.status !== 1);
 
@@ -101,7 +103,7 @@ function renderPropostas(propostas) {
 
         const container = document.createElement('div');
         container.className = 'proposta-card';
-
+//Adicionar data e hora da proposta
         if (p.dataHora) {
             const dataEl = document.createElement('div');
             dataEl.className = 'meta data-hora-top';
@@ -110,7 +112,7 @@ function renderPropostas(propostas) {
             dataEl.textContent = `Enviada em: ${formattedDate}`;
             container.appendChild(dataEl);
         }
-
+        // Criar a linha com os dois itens
         const row = document.createElement('div');
         row.className = 'row-proposta';
         row.style.flex = '1';
@@ -122,7 +124,7 @@ function renderPropostas(propostas) {
         const divOferecido = document.createElement('div');
         divOferecido.className = 'item-card';
         divOferecido.innerHTML = itemOferecidoHTML;
-
+            //adicionar botao detalhes para os dois itens
         [divDesejado, divOferecido].forEach((div, index) => {
             const item = index === 0 ? p.itemDesejado : p.itemOferecido;
             const btnDetalhes = document.createElement("button");
@@ -137,7 +139,7 @@ function renderPropostas(propostas) {
             };
             div.appendChild(btnDetalhes);
         });
-
+//Adicionar os dois itens na linha
         row.appendChild(divDesejado);
         row.appendChild(divOferecido);
 
@@ -174,7 +176,7 @@ function renderPropostas(propostas) {
                     }
                 };
                 actions.appendChild(btnCancelar);
-            } else {
+            } else {//Proposta recebida, permitir aceitar ou recusar
                 const btnAceitar = document.createElement('button');
                 btnAceitar.className = 'aceitar';
                 btnAceitar.textContent = 'Aceitar';
@@ -195,7 +197,7 @@ function renderPropostas(propostas) {
                         didOpen: () => Swal.showLoading()
                     });
 
-                    try {
+                    try {//Aceitar a proposta
                         const resp = await fetch(`http://localhost:8080/api/propostas/acao?propostaId=${p.idProposta}&acao=concluir`, {
                             method: 'POST',
                             headers: { 'Authorization': 'Bearer ' + token }
@@ -216,7 +218,7 @@ function renderPropostas(propostas) {
                         Swal.fire({ title: 'Erro', text: 'Falha ao conectar ao servidor.', icon: 'error' });
                     }
                 };
-
+                //Adicionar botao recusar
                 const btnRecusar = document.createElement('button');
                 btnRecusar.className = 'recusar';
                 btnRecusar.textContent = 'Recusar';
@@ -239,14 +241,14 @@ function renderPropostas(propostas) {
                 actions.appendChild(btnAceitar);
                 actions.appendChild(btnRecusar);
             }
-        } else if (p.status === 2 && loggedUser) {
+        } else if (p.status === 2 && loggedUser) {//Proposta concluída, permitir avaliar se ainda não foi avaliada
             const btnAvaliar = document.createElement('button');
             btnAvaliar.className = 'avaliar';
             btnAvaliar.textContent = 'Avaliar Perfil';
             btnAvaliar.onclick = () => abrirModalAvaliacao(p);
             actions.appendChild(btnAvaliar);
         }
-
+        //botao chat
         const btnChat = document.createElement('button');
         btnChat.className = 'chat';
         btnChat.textContent = 'Chat';
@@ -274,6 +276,8 @@ function renderPropostas(propostas) {
     finalizadas.forEach(p => encerradasEl.appendChild(buildCard(p)));
 }
 
+
+//modal de avaliação
 function abrirModalAvaliacao(p) {
     const { userId: userLogado } = getLoggedUser();
     idAvaliado = (userLogado === p.userId01) ? p.userId02 : p.userId01;
@@ -286,6 +290,8 @@ function abrirModalAvaliacao(p) {
     modal.show();
 }
 
+
+//Atualizar a exibição das estrelas na modal de avaliação
 function atualizarEstrelas(nota) {
     document.querySelectorAll('#estrelas .star').forEach(star => {
         const valor = parseInt(star.dataset.value);
@@ -296,13 +302,15 @@ function atualizarEstrelas(nota) {
     document.getElementById('avaliacaoTexto').textContent = textos[nota] || textos[0];
 }
 
+
+//Eventos das estrelas na modal de avaliação
 document.querySelectorAll('#estrelas .star').forEach(star => {
     star.addEventListener('click', () => {
         notaSelecionada = parseInt(star.dataset.value);
         atualizarEstrelas(notaSelecionada);
     });
 });
-
+//Enviar avaliação
 document.getElementById('btnEnviarAvaliacao')?.addEventListener('click', async () => {
     if (!notaSelecionada) {
         mostrarAviso('warning', 'Selecione uma nota antes de enviar.');
@@ -339,7 +347,7 @@ document.getElementById('btnEnviarAvaliacao')?.addEventListener('click', async (
 
     bootstrap.Modal.getInstance(document.getElementById('avaliacaoModal')).hide();
 });
-
+//Mostrar aviso modal e personalizado
 function mostrarAviso(tipo, mensagem) {
     const avisoEl = document.getElementById('avisoModal');
     const avisoModal = new bootstrap.Modal(avisoEl);
@@ -363,5 +371,5 @@ function mostrarAviso(tipo, mensagem) {
     }
     avisoModal.show();
 }
-
+//Inicializar o carregamento das propostas ao carregar a página
 carregarPropostas();

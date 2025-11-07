@@ -7,7 +7,7 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
-
+//Classe de autenticação e tokenização / credenciais
     private final String SECRET_KEY = "segredo-super-secreto";
     private final long EXPIRATION_TIME = 3600000; //1 hora
 

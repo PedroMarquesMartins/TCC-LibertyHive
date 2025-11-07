@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Bean;
 public class FilterConfig {
 
     @Autowired
-    private JwtFilter jwtFilter;
+    private JwtFilter jwtFilter;  //Jwt filter para possibilitar endpoints do backend
 
     @Bean
     public FilterRegistrationBean<JwtFilter> filterRegistrationBean() {
