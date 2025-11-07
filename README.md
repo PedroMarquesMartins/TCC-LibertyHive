@@ -14,7 +14,6 @@ Este repositório compõe o **Trabalho de Conclusão de Curso (TCC 2025)** e apr
 -  **Maven** – Gerenciamento de dependências  
 -  **JUnit 5** – Testes automatizados  
 -  **DBeaver** / **pgAdmin 4** – Visualização e administração do banco  
--  **Live Server (VSCode)** – Servidor local para o frontend 
 - IDEs: **IntelliJ IDEA Community** e **VSCode**
 
 ---
