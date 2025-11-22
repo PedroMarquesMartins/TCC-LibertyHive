@@ -7,14 +7,14 @@ Este repositório compõe o **Trabalho de Conclusão de Curso (TCC 2025)** e apr
 
 ## ⚙️ Tecnologias Utilizadas
 
--  **Java 17** (Microsoft OpenJDK 17.0.15)  
--  **Spring Boot 2.7.8** (`spring-boot-maven-plugin` 2.7.0)  
--  **Hibernate 5.6.0.Final**  
--  **PostgreSQL Driver 42.5.0**  
--  **Maven** – Gerenciamento de dependências  
--  **JUnit 5** – Testes automatizados  
--  **DBeaver** / **pgAdmin 4** – Visualização e administração do banco  
-- IDEs: **IntelliJ IDEA Community** e **VSCode**
+- **Java 17 (Microsoft OpenJDK 17.0.15)**
+- **Spring Boot 2.7.8** (com `spring-boot-maven-plugin` 2.7.0)
+- **Hibernate 5.6.0.Final**
+- **PostgreSQL Driver 42.5.0**
+- **Maven** para gerenciamento de dependências
+- **JUnit 5** para testes automatizados
+- **DBEaver** / **pgAdmin** para visualização/manipulação do banco
+- IDEs: **IntelliJ Community**, **VSCode**
 
 ---
 

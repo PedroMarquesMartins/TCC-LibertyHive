@@ -38,8 +38,6 @@ public class PostagemDAO {
         } catch (Exception e) {
             if (em.getTransaction().isActive()) em.getTransaction().rollback();
             throw e;
-        } finally {
-            em.close();
         }
     }
 
@@ -52,7 +50,20 @@ public class PostagemDAO {
             em.close();
         }
     }
-    public void atualizarPostagem(Postagem postagem) { EntityManager em = getEntityManager(); try { em.getTransaction().begin(); em.merge(postagem); em.getTransaction().commit(); } catch (Exception e) { if (em.getTransaction().isActive()) { em.getTransaction().rollback(); } throw e; } finally { em.close(); } }
+
+    public void atualizarPostagem(Postagem postagem) {
+        EntityManager em = getEntityManager();
+        try {
+            em.getTransaction().begin();
+            em.merge(postagem);
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            throw e;
+        }
+    }
 
     public void removerPostagem(Long id) {
         EntityManager em = getEntityManager();
@@ -66,8 +77,6 @@ public class PostagemDAO {
         } catch (Exception e) {
             if (em.getTransaction().isActive()) em.getTransaction().rollback();
             throw e;
-        } finally {
-            em.close();
         }
     }
 
@@ -82,8 +91,6 @@ public class PostagemDAO {
         } catch (Exception e) {
             if (em.getTransaction().isActive()) em.getTransaction().rollback();
             throw e;
-        } finally {
-            em.close();
         }
     }
 
@@ -121,12 +128,10 @@ public class PostagemDAO {
         } catch (Exception e) {
             if (em.getTransaction().isActive()) em.getTransaction().rollback();
             throw e;
-        } finally {
-            em.close();
         }
     }
 
-    public List<Postagem> listarPorUserID(Long userId) {
+    public List<Postagem> listarPorUserId(Long userId) {
         EntityManager em = getEntityManager();
         try {
             return em.createQuery(
@@ -155,9 +160,6 @@ public class PostagemDAO {
         } catch (Exception e) {
             if (em.getTransaction().isActive()) em.getTransaction().rollback();
             throw e;
-        } finally {
-            em.close();
         }
     }
-
 }

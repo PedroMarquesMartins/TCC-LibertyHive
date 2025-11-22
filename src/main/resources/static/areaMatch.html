@@ -6,21 +6,25 @@
     <title>ÁreaMatch</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="icon" type="image/png" href="favicon.png">
-<!--Imports e Instancias-->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
     <link rel="stylesheet" href="./Style/styleAreaMatch.css">
 </head>
 
 <body>
-    <!--Barra superior Cabeçalho-->
-    <header class="navbar bg-warning shadow-sm px-3">
-        <div class="container-fluid d-flex justify-content-between align-items-center">
-            <a class="navbar-brand fw-bold" href="inicio.html">
-                <img src="imagens/logo.png" alt="LibertyHive" width="40" />
-            </a>
+    <header class="navbar bg-warning shadow-sm px-3 py-2">
+        <div class="container-fluid d-flex align-items-center">
+            <div class="d-flex flex-column align-items-start">
+                <a class="navbar-brand fw-bold" href="inicio.html">
+                    <img src="imagens/logo.png" alt="LibertyHive" width="40" />
+                </a>
 
+<div class="brand-wrap"> <button class="back-btn" onclick="window.location.href='inicio.html'"> Voltar </button> </div>
+            </div>
+
+        <div class="flex-grow-1 text-center">
+            <h2 class="m-0 fw-bold mt-2">ÁreaMatch - Seus Matches</h2>
+        </div>
             <div class="d-flex align-items-center gap-3">
                 <button type="button" class="btn btn-outline-danger btn-sm rounded-circle" title="Meus Favoritos"
                     onclick="window.location.href='favoritos.html'">
@@ -39,59 +43,19 @@
             </div>
         </div>
     </header>
-
-    <div class="brand-wrap">
-        <button class="back-btn" onclick="window.location.href='inicio.html'">
-            Voltar
-        </button>
-    </div>
-<!--Conteúdo principal da pagina-->
-    <main class="content">
-        <h2>ÁreaMatch - Seus Matches</h2>
-        <div id="matchesContainer">
+    <main class="content mt-4">
+        <div id="matchesContainer" class="text-center">
             <p>Carregando...</p>
         </div>
     </main>
 
- <!--Pé padrão da pagina-->
+    <!-- Rodapé -->
     <footer class="footer mt-auto">
         <div class="container py-5">
-            <div class="row gy-4">
-                <div class="col-md-4">
-                    <h5 class="text-white">Sobre</h5>
-                    <p class="text-muted small mb-0">Plataforma para trocar produtos e serviços de forma segura e
-                        prática.</p>
-                </div>
-                <div class="col-md-4">
-                    <h5 class="text-white">Links Úteis</h5>
-                    <ul class="list-unstyled small">
-                        <li><a href="./footer pages/faleConosco.html">Fale Conosco</a></li>
-                        <li><a href="./footer pages/suporte.html">Suporte</a></li>
-                        <li><a href="./footer pages/denuncias.html">Denúncias</a></li>
-                        <li><a href="./footer pages/termos.html">Termos de Uso</a></li>
-                    <li><a href="./footer pages/privacidade.html">Política de Privacidade</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-4">
-                    <h5 class="text-white">Redes Sociais</h5>
-                    <div class="d-flex gap-3">
-                        <a href="#"><i class="bi bi-facebook"></i></a>
-                        <a href="#"><i class="bi bi-twitter"></i></a>
-                        <a href="#"><i class="bi bi-instagram"></i></a>
-                        <a href="#"><i class="bi bi-linkedin"></i></a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="footer-bottom text-center pt-4 mt-4 border-top">
-                <small class="text-muted">© 2025 LibertyHive. Todos os direitos reservados.</small>
-            </div>
         </div>
     </footer>
-
 
     <script src="areaMatch.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>
