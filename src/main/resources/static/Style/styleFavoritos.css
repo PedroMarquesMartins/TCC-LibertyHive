@@ -16,7 +16,7 @@ body {
 #listaFavoritos .card:hover {
     transform: translateY(-5px);
     box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
-    border-color: #333;
+    border-color: #010000;
 }
 
 #listaFavoritos .card img {

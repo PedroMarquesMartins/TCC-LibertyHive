@@ -13,7 +13,6 @@ Este repositório faz parte do **TCC 2025** da graduação e tem como objetivo d
 - **Maven** para gerenciamento de dependências
 - **JUnit 5** para testes automatizados
 - **DBEaver** / **pgAdmin** para visualização/manipulação do banco
-- **Live Server (VSCode)** para servir o frontend local
 - IDEs: **IntelliJ Community**, **VSCode**
 
 ---

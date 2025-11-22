@@ -1,8 +1,11 @@
 package unigran.br.Model.Entidades;
 
 import javax.persistence.*;
-import org.hibernate.annotations.Type;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.hibernate.annotations.Type;
+@JsonInclude(JsonInclude.Include.ALWAYS)
 @Entity
 @Table(name = "postagem")
 public class Postagem {
@@ -124,7 +127,7 @@ public class Postagem {
     public void setProdOuServico(Boolean prodOuServico) {
         isProdOuServico = prodOuServico;
     }
-
+    @JsonProperty("disponivel")
     public Boolean getDisponibilidade() {
         return disponibilidade;
     }

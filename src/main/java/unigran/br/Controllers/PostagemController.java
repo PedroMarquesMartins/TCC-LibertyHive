@@ -326,7 +326,7 @@ public class PostagemController {
         if (cadastro == null)
             return ResponseEntity.status(401).build();
 
-        List<Postagem> postagensUsuario = postagemDAO.listarPorUserID(cadastro.getId())
+        List<Postagem> postagensUsuario = postagemDAO.listarPorUserId(cadastro.getId())
                 .stream()
                 .filter(Postagem::getDisponibilidade)
                 .toList();
@@ -416,7 +416,7 @@ public class PostagemController {
         }
 
         //retorna apenas id + categoria
-        List<Postagem> postagensUsuario = postagemDAO.listarPorUserID(cadastro.getId());
+        List<Postagem> postagensUsuario = postagemDAO.listarPorUserId(cadastro.getId());
         List<Map<String, Object>> resp = new ArrayList<>();
         for (Postagem p : postagensUsuario) {
             resp.add(Map.of(

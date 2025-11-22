@@ -12,6 +12,9 @@ import unigran.br.Model.Entidades.Cadastro;
 import unigran.br.Model.Entidades.Escambista;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.annotation.Propagation;
+import unigran.br.Model.Entidades.Postagem;
+
+import java.util.List;
 import java.util.Map;
 
 //Definição do controllador rest e a rota da API
@@ -127,6 +130,10 @@ public class EscambistaController {
         escambista.setQuerNotifi(false);
         escambistaDAO.atualizarEscambista(escambista);
 
+        List<Postagem> postagensDoUsuario = postagemDAO.listarPorUserId(userId);
+        for (Postagem postagem : postagensDoUsuario) {
+            favoritoDAO.removerPorPostagemId(postagem.getId());
+        }
         chatDAO.removerChatsEMensagensPorUserId(userId);
         favoritoDAO.removerPorUserId(userId);
         areaMatchDAO.removerPorUserId(userId);

@@ -45,7 +45,7 @@ public class AreaMatchController {
         }
 
         //Apos a autenticação ele lista postagens do usuário e de outros
-        List<Postagem> postagensUsuario = postagemDAO.listarPorUserID(cadastro.getId());
+        List<Postagem> postagensUsuario = postagemDAO.listarPorUserId(cadastro.getId());
         List<Postagem> postagensOutros = postagemDAO.listarTodas();
 
         Map<Long, Postagem> resultadoMap = new LinkedHashMap<>();

@@ -124,21 +124,39 @@ function renderPropostas(propostas) {
         const divOferecido = document.createElement('div');
         divOferecido.className = 'item-card';
         divOferecido.innerHTML = itemOferecidoHTML;
-            //adicionar botao detalhes para os dois itens
-        [divDesejado, divOferecido].forEach((div, index) => {
-            const item = index === 0 ? p.itemDesejado : p.itemOferecido;
+
+[divDesejado, divOferecido].forEach((div, index) => {
+    const item = index === 0 ? p.itemDesejado : p.itemOferecido;
+    const itemIndisp     = item?.disponivel === false; 
+    const itemSemId      = !item?.id;
+    const donoExcluido   = !item?.userNome; 
+    let deveMostrarDetalhes = true; 
+
+    if (itemIndisp) {
+        deveMostrarDetalhes = false;
+        
+        if (item) { 
+            const indisponivelText = document.createElement("div");
+            indisponivelText.style.cssText = "color: #ff3860; font-weight: bold; margin-top: 10px; padding: 5px; border: 1px dashed #ff3860; border-radius: 4px; text-align: center; font-size: 0.9em;";
+            indisponivelText.textContent = "Item não mais disponível";
+            div.appendChild(indisponivelText);
+        }
+        
+    } else if (donoExcluido || itemSemId) {
+        deveMostrarDetalhes = false;
+    }
+    if (deveMostrarDetalhes) {
+        if (item) { 
             const btnDetalhes = document.createElement("button");
             btnDetalhes.textContent = "VER DETALHES";
             btnDetalhes.className = "detalhes";
             btnDetalhes.onclick = () => {
-                if (item?.id) {
-                    window.location.href = `detalhesItem.html?id=${item.id}`;
-                } else {
-                    alert('ID do item não encontrado!');
-                }
+                window.location.href = `detalhesItem.html?id=${item.id}`;
             };
             div.appendChild(btnDetalhes);
-        });
+        }
+    }
+});
 //Adicionar os dois itens na linha
         row.appendChild(divDesejado);
         row.appendChild(divOferecido);
@@ -248,25 +266,34 @@ function renderPropostas(propostas) {
             btnAvaliar.onclick = () => abrirModalAvaliacao(p);
             actions.appendChild(btnAvaliar);
         }
-        //botao chat
-        const btnChat = document.createElement('button');
-        btnChat.className = 'chat';
-        btnChat.textContent = 'Chat';
-        btnChat.onclick = async () => {
-            if (!loggedUser) return alert('Erro: usuário não identificado.');
-            const outroId = p.enviadoPeloUsuarioLogado ? p.userId02 : p.userId01;
-            const outroNome = p.enviadoPeloUsuarioLogado ? p.receptorNome : p.proponenteNome;
-            const resp = await fetch(`http://localhost:8080/chat/criar?userId01=${loggedUser.userId}&userId02=${outroId}&userNome01=${encodeURIComponent(loggedUser.userNome)}&userNome02=${encodeURIComponent(outroNome)}`, {
+if (p.status !== 0) {
+
+
+    const btnChat = document.createElement('button');
+    btnChat.className = 'chat';
+    btnChat.textContent = 'Chat';
+
+    btnChat.onclick = async () => {
+        if (!loggedUser) return alert('Erro: usuário não identificado.');
+        const outroId = p.enviadoPeloUsuarioLogado ? p.userId02 : p.userId01;
+        const outroNome = p.enviadoPeloUsuarioLogado ? p.receptorNome : p.proponenteNome;
+
+        const resp = await fetch(
+            `http://localhost:8080/chat/criar?userId01=${loggedUser.userId}&userId02=${outroId}&userNome01=${encodeURIComponent(loggedUser.userNome)}&userNome02=${encodeURIComponent(outroNome)}`,
+            {
                 method: 'POST',
                 headers: { 'Authorization': 'Bearer ' + token }
-            });
-            const data = await resp.json();
-            if (resp.ok && data.id) {
-                window.location.href = `chat.html?chatId=${data.id}`;
-            } else alert('Erro ao abrir chat.');
-        };
-        actions.appendChild(btnChat);
+            }
+        );
 
+        const data = await resp.json();
+        if (resp.ok && data.id) {
+            window.location.href = `chat.html?chatId=${data.id}`;
+        } else alert('Erro ao abrir chat.');
+    };
+
+    actions.appendChild(btnChat);
+}
         container.appendChild(row);
         container.appendChild(actions);
         return container;
