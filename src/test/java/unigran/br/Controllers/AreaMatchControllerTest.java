@@ -71,7 +71,7 @@ class AreaMatchControllerTest extends BaseIntegrationTest {
         outraPostagemMatch.setUserNome(outroUsuario.getUserNome());
         outraPostagemMatch.setNomePostagem("Livro Raro");
 
-        when(postagemDAO.listarPorUserID(this.usuarioDeTeste.getId()))
+        when(postagemDAO.listarPorUserId(this.usuarioDeTeste.getId()))
                 .thenReturn(List.of(minhaPostagem));
         when(postagemDAO.listarTodas())
                 .thenReturn(List.of(minhaPostagem, outraPostagemMatch));

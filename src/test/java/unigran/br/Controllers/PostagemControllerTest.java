@@ -45,7 +45,7 @@ class PostagemControllerTest extends BaseIntegrationTest {
         when(localidadeService.getCidadesPorUF("MS")).thenReturn(Set.of("Dourados", "Campo Grande"));
         when(avaliacaoDAO.calcularMediaPorUsuarioId(anyLong())).thenReturn(Map.of("media", 5.0, "total", 1));
 
-        when(postagemDAO.listarPorUserID(any())).thenReturn(Collections.emptyList());
+        when(postagemDAO.listarPorUserId(any())).thenReturn(Collections.emptyList());
         doAnswer(invocation -> {
             Postagem p = invocation.getArgument(0);
             p.setId(999L);
